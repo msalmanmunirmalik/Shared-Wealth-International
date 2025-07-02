@@ -17,43 +17,48 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 15%;
 
-    --primary: 215 25% 15%;
+    --primary: 210 100% 15%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 45 100% 50%;
-    --secondary-foreground: 215 25% 15%;
+    --secondary: 120 45% 50%;
+    --secondary-foreground: 0 0% 98%;
 
     --muted: 210 15% 95%;
     --muted-foreground: 215 15% 45%;
 
-    --accent: 45 100% 50%;
-    --accent-foreground: 215 25% 15%;
+    --accent: 180 50% 35%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 210 20% 90%;
     --input: 210 20% 90%;
-    --ring: 45 100% 50%;
+    --ring: 180 50% 35%;
 
     --radius: 0.75rem;
 
-    /* Custom design tokens for Shared Wealth International */
-    --gold: 45 100% 50%;
-    --gold-light: 45 100% 75%;
-    --charcoal: 215 25% 15%;
-    --charcoal-light: 215 15% 25%;
-    --grey-warm: 30 10% 50%;
-    --grey-light: 30 5% 85%;
+    /* Shared Wealth International brand colors from logo */
+    --navy: 210 100% 15%;
+    --navy-light: 210 80% 25%;
+    --green: 120 45% 50%;
+    --green-light: 120 45% 65%;
+    --teal: 180 50% 35%;
+    --teal-light: 180 50% 50%;
+    --orange: 25 95% 55%;
+    --orange-light: 25 95% 70%;
 
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(var(--charcoal)), hsl(var(--charcoal-light)));
-    --gradient-gold: linear-gradient(135deg, hsl(var(--gold)), hsl(var(--gold-light)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--navy)), hsl(var(--navy-light)));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--green)), hsl(var(--teal)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--teal)), hsl(var(--green)));
+    --gradient-warm: linear-gradient(135deg, hsl(var(--orange)), hsl(var(--orange-light)));
     --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
 
     /* Shadows */
-    --shadow-elegant: 0 10px 30px -10px hsl(var(--charcoal) / 0.2);
-    --shadow-gold: 0 5px 20px -5px hsl(var(--gold) / 0.3);
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--navy) / 0.2);
+    --shadow-green: 0 5px 20px -5px hsl(var(--green) / 0.3);
+    --shadow-teal: 0 5px 20px -5px hsl(var(--teal) / 0.3);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

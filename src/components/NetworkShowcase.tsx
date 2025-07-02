@@ -210,7 +210,7 @@ const NetworkShowcase = () => {
           <p className="text-muted-foreground mb-6">
             Interested in joining our network? Let's explore how your organization can implement Shared Wealth principles.
           </p>
-          <Button variant="gold" size="lg">
+          <Button variant="green" size="lg">
             Partner with Us
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>

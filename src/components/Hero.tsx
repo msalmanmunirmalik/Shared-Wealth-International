@@ -50,11 +50,11 @@ const Hero = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-              <Button variant="gold" size="lg" className="text-lg px-8">
+              <Button variant="orange" size="lg" className="text-lg px-8">
                 Explore Our Model
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-              <Button variant="hero" size="lg" className="text-lg px-8">
+              <Button variant="navy" size="lg" className="text-lg px-8">
                 Meet Our Network
               </Button>
             </div>

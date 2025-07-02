@@ -200,7 +200,7 @@ const KeyPartnerships = () => {
             Interested in strategic partnership opportunities? Let's discuss how we can collaborate 
             to expand the Shared Wealth movement.
           </p>
-          <Button variant="gold" size="lg">
+          <Button variant="green" size="lg">
             Explore Partnership
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>

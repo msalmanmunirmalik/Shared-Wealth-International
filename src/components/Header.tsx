@@ -21,10 +21,12 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-gold rounded-sm flex items-center justify-center">
-              <span className="text-charcoal font-bold text-sm">SW</span>
-            </div>
-            <span className="text-xl font-bold text-charcoal">Shared Wealth International</span>
+            <img 
+              src="/lovable-uploads/9fe137a2-80b1-40f6-a858-9330b4e5f96b.png" 
+              alt="Shared Wealth International Logo" 
+              className="w-8 h-8"
+            />
+            <span className="text-xl font-bold text-navy">Shared Wealth International</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -45,7 +47,7 @@ const Header = () => {
             <Button variant="outline" size="sm">
               Partner with Us
             </Button>
-            <Button variant="gold" size="sm">
+            <Button variant="green" size="sm">
               Get Involved
             </Button>
           </div>
@@ -81,7 +83,7 @@ const Header = () => {
                 <Button variant="outline" size="sm">
                   Partner with Us
                 </Button>
-                <Button variant="gold" size="sm">
+                <Button variant="green" size="sm">
                   Get Involved
                 </Button>
               </div>
