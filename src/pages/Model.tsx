@@ -148,9 +148,11 @@ const Model = () => {
             implementation support and resources.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="green" size="lg">
-              Start Implementation
-              <ArrowRight className="w-5 h-5 ml-2" />
+            <Button variant="green" size="lg" asChild>
+              <a href="/configurator">
+                Build Your Model
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </a>
             </Button>
             <Button variant="outline" size="lg" className="border-background text-background hover:bg-background hover:text-navy">
               Book Consultation
