@@ -38,15 +38,17 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    /* Shared Wealth International brand colors from logo */
-    --navy: 210 100% 15%;
-    --navy-light: 210 80% 25%;
-    --green: 120 45% 50%;
-    --green-light: 120 45% 65%;
-    --teal: 180 50% 35%;
-    --teal-light: 180 50% 50%;
-    --orange: 25 95% 55%;
-    --orange-light: 25 95% 70%;
+    /* Enhanced Shared Wealth International brand colors */
+    --navy: 210 100% 12%;
+    --navy-light: 210 85% 22%;
+    --green: 125 65% 45%;
+    --green-light: 125 55% 60%;
+    --teal: 185 60% 40%;
+    --teal-light: 185 50% 55%;
+    --orange: 30 90% 58%;
+    --orange-light: 30 85% 72%;
+    --purple: 260 70% 45%;
+    --purple-light: 260 60% 60%;
 
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(var(--navy)), hsl(var(--navy-light)));

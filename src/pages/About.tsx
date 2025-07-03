@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Users, MapPin, Calendar } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const About = () => {
   const leadership = [
@@ -160,6 +161,76 @@ const About = () => {
         </div>
       </section>
 
+      {/* Strategic Partnerships */}
+      <section className="py-16 lg:py-24 bg-gradient-subtle">
+        <div className="container mx-auto px-4 lg:px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-navy mb-4">
+              Strategic Partnerships
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Key collaborations that have shaped our evolution and continue to drive innovation 
+              in shared wealth implementation.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8 mb-12">
+            <Card className="animate-fade-in">
+              <CardHeader>
+                <CardTitle className="text-2xl text-navy">Terratai Ltd Partnership</CardTitle>
+                <CardDescription className="text-teal font-medium">Flagship Transformation</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  Our groundbreaking Social Licence Agreement with Terratai Ltd catalyzed the transformation 
+                  from SEi to Shared Wealth Ltd, demonstrating phantom shares and democratic governance in action.
+                </p>
+                <div className="text-sm text-muted-foreground mb-4">
+                  <strong>Key Outcomes:</strong> 40% increase in employee engagement, £120K annually shared
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/partnerships">
+                    Learn More
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <CardHeader>
+                <CardTitle className="text-2xl text-navy">Pathway Points Collaboration</CardTitle>
+                <CardDescription className="text-green font-medium">Community-Focused Innovation</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  Strategic collaboration promoting the Pathway housing and finance model, including 
+                  IT-powered governance and community stakeholding approaches.
+                </p>
+                <div className="text-sm text-muted-foreground mb-4">
+                  <strong>Impact:</strong> 150 housing units, 35% community ownership, £2.1M local investment
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/partnerships">
+                    Explore Partnership
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <Button asChild variant="green" size="lg">
+              <Link to="/partnerships">
+                View All Partnerships
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-16 lg:py-24 bg-navy text-background">
         <div className="container mx-auto px-4 lg:px-6 text-center">
@@ -171,9 +242,11 @@ const About = () => {
             and become part of our growing global network.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="green" size="lg">
-              Explore Our Model
-              <ArrowRight className="w-5 h-5 ml-2" />
+            <Button asChild variant="green" size="lg">
+              <Link to="/model">
+                Explore Our Model
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Link>
             </Button>
             <Button variant="outline" size="lg" className="border-background text-background hover:bg-background hover:text-navy">
               Contact Us

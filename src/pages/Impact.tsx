@@ -205,6 +205,14 @@ const Impact = () => {
                 <CardContent className="pt-6">
                   <div className="grid lg:grid-cols-2 gap-8">
                     <div>
+                      {/* Video Section */}
+                      <div className="aspect-video bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
+                        <div className="text-background text-center">
+                          <div className="text-lg font-semibold mb-1">{story.company}</div>
+                          <div className="text-sm opacity-90">Impact Story Video</div>
+                        </div>
+                      </div>
+                      
                       <h4 className="font-semibold text-navy mb-3">The Story</h4>
                       <p className="text-muted-foreground mb-4">{story.story}</p>
                       

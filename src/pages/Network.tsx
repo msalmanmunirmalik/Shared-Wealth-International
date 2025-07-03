@@ -115,65 +115,7 @@ const Network = () => {
         </div>
       </section>
 
-      {/* Filters */}
-      <section className="py-8 bg-background border-b border-border">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-muted-foreground" />
-              <span className="font-medium text-navy">Filter by:</span>
-            </div>
-            
-            <select 
-              value={selectedFilters.sector}
-              onChange={(e) => setSelectedFilters({...selectedFilters, sector: e.target.value})}
-              className="px-3 py-2 border border-border rounded-md bg-background"
-            >
-              <option value="all">All Sectors</option>
-              <option value="Technology">Technology</option>
-              <option value="Housing & Finance">Housing & Finance</option>
-              <option value="Environmental">Environmental</option>
-              <option value="Healthcare">Healthcare</option>
-              <option value="Agriculture">Agriculture</option>
-              <option value="Manufacturing">Manufacturing</option>
-            </select>
-
-            <select 
-              value={selectedFilters.region}
-              onChange={(e) => setSelectedFilters({...selectedFilters, region: e.target.value})}
-              className="px-3 py-2 border border-border rounded-md bg-background"
-            >
-              <option value="all">All Regions</option>
-              <option value="UK">UK</option>
-              <option value="Europe">Europe</option>
-              <option value="North America">North America</option>
-              <option value="Africa">Africa</option>
-              <option value="Asia">Asia</option>
-            </select>
-
-            <select 
-              value={selectedFilters.size}
-              onChange={(e) => setSelectedFilters({...selectedFilters, size: e.target.value})}
-              className="px-3 py-2 border border-border rounded-md bg-background"
-            >
-              <option value="all">All Sizes</option>
-              <option value="Small">Small (10-25)</option>
-              <option value="Medium">Medium (25-100)</option>
-              <option value="Large">Large (100+)</option>
-            </select>
-
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setSelectedFilters({sector: "all", region: "all", size: "all"})}
-            >
-              Reset Filters
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Companies Grid */}
+      {/* Companies Grid with Left Sidebar */}
       <section className="py-16 lg:py-24 bg-background">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="text-center mb-12">
@@ -185,44 +127,119 @@ const Network = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredCompanies.map((company, index) => (
-              <Card key={company.name} className="animate-fade-in hover:shadow-lg transition-all duration-300" style={{ animationDelay: `${index * 0.1}s` }}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-xl text-navy">{company.name}</CardTitle>
-                      <CardDescription className="flex items-center mt-1">
-                        <MapPin className="w-4 h-4 mr-1" />
-                        {company.location}
-                      </CardDescription>
-                    </div>
-                    <Badge variant="secondary">{company.sector}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">{company.description}</p>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <h4 className="font-semibold text-navy text-sm mb-1">Shared Wealth Mechanisms:</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {company.mechanisms.map((mechanism) => (
-                          <Badge key={mechanism} variant="outline" className="text-xs">
-                            {mechanism}
-                          </Badge>
-                        ))}
+          <div className="flex gap-8">
+            {/* Left Sidebar Filters */}
+            <div className="w-80 bg-card border border-border rounded-lg p-6 h-fit">
+              <div className="flex items-center gap-2 mb-6">
+                <Filter className="w-5 h-5 text-navy" />
+                <h3 className="font-bold text-navy text-lg">Filters</h3>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <label className="block font-semibold text-navy mb-2">Sector</label>
+                  <select 
+                    value={selectedFilters.sector}
+                    onChange={(e) => setSelectedFilters({...selectedFilters, sector: e.target.value})}
+                    className="w-full px-3 py-2 border border-border rounded-md bg-background"
+                  >
+                    <option value="all">All Sectors</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Housing & Finance">Housing & Finance</option>
+                    <option value="Environmental">Environmental</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Agriculture">Agriculture</option>
+                    <option value="Manufacturing">Manufacturing</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-navy mb-2">Region</label>
+                  <select 
+                    value={selectedFilters.region}
+                    onChange={(e) => setSelectedFilters({...selectedFilters, region: e.target.value})}
+                    className="w-full px-3 py-2 border border-border rounded-md bg-background"
+                  >
+                    <option value="all">All Regions</option>
+                    <option value="UK">UK</option>
+                    <option value="Europe">Europe</option>
+                    <option value="North America">North America</option>
+                    <option value="Africa">Africa</option>
+                    <option value="Asia">Asia</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-navy mb-2">Company Size</label>
+                  <select 
+                    value={selectedFilters.size}
+                    onChange={(e) => setSelectedFilters({...selectedFilters, size: e.target.value})}
+                    className="w-full px-3 py-2 border border-border rounded-md bg-background"
+                  >
+                    <option value="all">All Sizes</option>
+                    <option value="Small">Small (10-25)</option>
+                    <option value="Medium">Medium (25-100)</option>
+                    <option value="Large">Large (100+)</option>
+                  </select>
+                </div>
+
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setSelectedFilters({sector: "all", region: "all", size: "all"})}
+                >
+                  Reset Filters
+                </Button>
+              </div>
+            </div>
+
+            {/* Companies Grid */}
+            <div className="flex-1">
+              <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+                {filteredCompanies.map((company, index) => (
+                  <Card key={company.name} className="animate-fade-in hover:shadow-lg transition-all duration-300" style={{ animationDelay: `${index * 0.1}s` }}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <CardTitle className="text-xl text-navy">{company.name}</CardTitle>
+                          <CardDescription className="flex items-center mt-1">
+                            <MapPin className="w-4 h-4 mr-1" />
+                            {company.location}
+                          </CardDescription>
+                        </div>
+                        <Badge variant="secondary">{company.sector}</Badge>
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Users className="w-4 h-4 mr-1" />
-                      {company.employees} employees
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    </CardHeader>
+                    <CardContent>
+                      {/* Video Placeholder */}
+                      <div className="aspect-video bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
+                        <div className="text-background text-sm font-medium">1-min Introduction Video</div>
+                      </div>
+                      
+                      <p className="text-muted-foreground mb-4">{company.description}</p>
+                      
+                      <div className="space-y-3">
+                        <div>
+                          <h4 className="font-semibold text-navy text-sm mb-1">Shared Wealth Mechanisms:</h4>
+                          <div className="flex flex-wrap gap-1">
+                            {company.mechanisms.map((mechanism) => (
+                              <Badge key={mechanism} variant="outline" className="text-xs">
+                                {mechanism}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <Users className="w-4 h-4 mr-1" />
+                          {company.employees} employees
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>

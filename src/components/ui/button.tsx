@@ -22,6 +22,7 @@ const buttonVariants = cva(
         teal: "bg-teal text-background hover:bg-teal-light hover:shadow-teal transition-all duration-300 font-semibold",
         orange: "bg-orange text-background hover:bg-orange-light transition-all duration-300 font-semibold",
         navy: "bg-navy text-background hover:bg-navy-light transition-all duration-300 shadow-elegant",
+        purple: "bg-purple text-background hover:bg-purple/90 transition-all duration-300 font-semibold",
       },
       size: {
         default: "h-10 px-4 py-2",
