@@ -39,23 +39,26 @@ All colors MUST be HSL.
     --radius: 0.75rem;
 
     /* Enhanced Shared Wealth International brand colors */
-    --navy: 210 100% 12%;
-    --navy-light: 210 85% 22%;
-    --green: 125 65% 45%;
-    --green-light: 125 55% 60%;
-    --teal: 185 60% 40%;
-    --teal-light: 185 50% 55%;
-    --orange: 30 90% 58%;
-    --orange-light: 30 85% 72%;
-    --purple: 260 70% 45%;
-    --purple-light: 260 60% 60%;
+    --navy: 215 85% 16%;
+    --navy-light: 215 70% 28%;
+    --green: 142 76% 36%;
+    --green-light: 142 60% 50%;
+    --teal: 180 85% 35%;
+    --teal-light: 180 70% 48%;
+    --orange: 25 95% 53%;
+    --orange-light: 25 85% 65%;
+    --purple: 260 85% 40%;
+    --purple-light: 260 70% 55%;
+    --gold: 45 96% 53%;
+    --gold-light: 45 85% 65%;
 
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(var(--navy)), hsl(var(--navy-light)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--navy)), hsl(var(--teal)));
     --gradient-primary: linear-gradient(135deg, hsl(var(--green)), hsl(var(--teal)));
-    --gradient-accent: linear-gradient(135deg, hsl(var(--teal)), hsl(var(--green)));
-    --gradient-warm: linear-gradient(135deg, hsl(var(--orange)), hsl(var(--orange-light)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--teal)), hsl(var(--gold)));
+    --gradient-warm: linear-gradient(135deg, hsl(var(--orange)), hsl(var(--gold)));
     --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+    --gradient-wealth: linear-gradient(135deg, hsl(var(--gold)), hsl(var(--green)));
 
     /* Shadows */
     --shadow-elegant: 0 10px 30px -10px hsl(var(--navy) / 0.2);

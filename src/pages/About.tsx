@@ -9,21 +9,21 @@ const About = () => {
   const leadership = [
     {
       name: "Cliff Southcombe",
-      role: "Lead Facilitator & Strategic Advisor",
+      role: "Founder & Director",
       bio: "Visionary leader driving the global Shared Wealth movement with over 20 years of experience in sustainable business models.",
       expertise: "Strategic Planning, Stakeholder Engagement, Social Impact"
     },
     {
       name: "James Perry",
-      role: "Shareholding & Governance Specialist",
+      role: "Founder & Director",
       bio: "Expert in innovative ownership structures and democratic governance frameworks for equitable wealth distribution.",
       expertise: "Corporate Governance, Phantom Shares, Inclusive Decision-Making"
     },
     {
-      name: "Muhammad Malik",
-      role: "Legal/Technical Support & Ethical Oversight",
-      bio: "Legal expert ensuring ethical implementation of Shared Wealth principles across diverse regulatory environments.",
-      expertise: "Legal Frameworks, Regulatory Compliance, Ethical Standards"
+      name: "Dr. Muhammad Salman Munir Malik",
+      role: "Director Global Initiatives and Learning",
+      bio: "Strategic expert leading global partnerships and educational programs to expand Shared Wealth principles worldwide.",
+      expertise: "Strategic Planning & Execution, Global Partnership Development, Training & Educational Programs"
     }
   ];
 
@@ -58,17 +58,23 @@ const About = () => {
                 This evolution was catalyzed by our groundbreaking partnership with Terratai Ltd through a comprehensive 
                 Social Licence Agreement.
               </p>
-              <p className="text-lg text-muted-foreground mb-6">
-                What began as a mission to support social enterprises has grown into a comprehensive framework 
-                for transforming traditional business models. Today, we serve as the global hub for companies 
-                committed to shared wealth creation, connecting over 20 organizations across diverse sectors 
-                and geographies.
-              </p>
-              <p className="text-lg text-muted-foreground">
-                Our journey reflects a fundamental shift from charity-based approaches to systematic change 
-                in how value is created, shared, and governed in business. We believe that true economic 
-                equity requires structural transformation, not just good intentions.
-              </p>
+                <p className="text-lg text-muted-foreground mb-6">
+                  What began as a mission to support social enterprises has grown into a comprehensive framework 
+                  for transforming traditional business models. Today, we serve as the global hub for companies 
+                  committed to shared wealth creation, connecting over 20 organizations across diverse sectors 
+                  and geographies.
+                </p>
+                <p className="text-lg text-muted-foreground mb-6">
+                  Growing inequality of wealth ownership around the world has become a pressing issue, primarily 
+                  driven by the way businesses distribute the wealth they generate. At Shared Wealth International, 
+                  we aim to reverse this trend by championing a fair distribution of wealth among all those involved 
+                  in its creation - including the workforce, customers, and communities that support these businesses.
+                </p>
+                <p className="text-lg text-muted-foreground">
+                  We believe that by sharing wealth through various means such as shares, profit allocation, 
+                  sharing intellectual property, fair trade practices, and equitable compensation, we can create 
+                  a more just and sustainable world. Our intention is to start a movement that changes the world.
+                </p>
             </div>
           </div>
         </div>

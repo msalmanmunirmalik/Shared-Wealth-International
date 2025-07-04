@@ -73,6 +73,10 @@ export default {
 					DEFAULT: 'hsl(var(--purple))',
 					light: 'hsl(var(--purple-light))'
 				},
+				gold: {
+					DEFAULT: 'hsl(var(--gold))',
+					light: 'hsl(var(--gold-light))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -149,7 +153,8 @@ export default {
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-accent': 'var(--gradient-accent)',
 				'gradient-warm': 'var(--gradient-warm)',
-				'gradient-subtle': 'var(--gradient-subtle)'
+				'gradient-subtle': 'var(--gradient-subtle)',
+				'gradient-wealth': 'var(--gradient-wealth)'
 			}
 		}
 	},

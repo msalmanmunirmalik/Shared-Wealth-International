@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
@@ -15,7 +16,7 @@ const Hero = () => {
         <div className="py-16 lg:py-24">
           <div className="max-w-4xl mx-auto text-center">
             {/* Badge */}
-            <div className="inline-flex items-center px-4 py-2 bg-gold/20 border border-gold/30 rounded-full text-gold-light text-sm font-medium mb-8 animate-fade-in">
+            <div className="inline-flex items-center px-4 py-2 bg-gradient-wealth/20 border border-gold/30 rounded-full text-gold text-sm font-medium mb-8 animate-fade-in">
               <Star className="w-4 h-4 mr-2" />
               Global Hub for Equitable Wealth Distribution
             </div>
@@ -23,7 +24,7 @@ const Hero = () => {
             {/* Main Headline */}
             <h1 className="text-4xl lg:text-6xl font-bold mb-6 leading-tight animate-fade-in">
               Empowering{" "}
-              <span className="bg-gradient-to-r from-gold to-gold-light bg-clip-text text-transparent">
+              <span className="bg-gradient-wealth bg-clip-text text-transparent">
                 Shared Wealth
               </span>{" "}
               Creation
@@ -50,12 +51,16 @@ const Hero = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-              <Button variant="orange" size="lg" className="text-lg px-8">
-                Explore Our Model
-                <ArrowRight className="w-5 h-5 ml-2" />
+              <Button asChild variant="gold" size="lg" className="text-lg px-8">
+                <Link to="/model">
+                  Explore Our Model
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Link>
               </Button>
-              <Button variant="navy" size="lg" className="text-lg px-8">
-                Meet Our Network
+              <Button asChild variant="teal" size="lg" className="text-lg px-8">
+                <Link to="/network">
+                  Meet Our Network
+                </Link>
               </Button>
             </div>
           </div>
