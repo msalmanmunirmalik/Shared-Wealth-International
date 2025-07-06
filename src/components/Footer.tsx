@@ -44,51 +44,53 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-charcoal text-background">
+    <footer className="bg-navy text-background">
       <div className="container mx-auto px-4 lg:px-6">
         {/* Main Footer Content */}
-        <div className="py-16 lg:py-20">
-          <div className="grid lg:grid-cols-6 gap-8">
+        <div className="py-12 lg:py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
             {/* Brand Section */}
-            <div className="lg:col-span-2">
+            <div className="md:col-span-2 lg:col-span-2">
               <Link to="/" className="flex items-center space-x-2 mb-6">
-                <div className="w-8 h-8 bg-gradient-gold rounded-sm flex items-center justify-center">
-                  <span className="text-charcoal font-bold text-sm">SW</span>
-                </div>
-                <span className="text-lg font-bold">Shared Wealth International</span>
+                <img 
+                  src="/lovable-uploads/9fe137a2-80b1-40f6-a858-9330b4e5f96b.png" 
+                  alt="Shared Wealth International Logo" 
+                  className="w-8 h-8"
+                />
+                <span className="text-base lg:text-lg font-bold">Shared Wealth International</span>
               </Link>
               
-              <p className="text-background/80 mb-6 leading-relaxed">
+              <p className="text-background/80 mb-6 leading-relaxed text-sm lg:text-base">
                 Building a global network of companies committed to shared wealth creation, 
                 inclusive decision-making, and value-led approaches to business.
               </p>
 
               <div className="space-y-3">
                 <div className="flex items-center text-background/80">
-                  <Users className="w-4 h-4 mr-3 text-gold" />
+                  <Users className="w-4 h-4 mr-3 text-gold flex-shrink-0" />
                   <span className="text-sm">20+ Partner Companies</span>
                 </div>
                 <div className="flex items-center text-background/80">
-                  <MapPin className="w-4 h-4 mr-3 text-gold" />
+                  <MapPin className="w-4 h-4 mr-3 text-gold flex-shrink-0" />
                   <span className="text-sm">Global Network</span>
                 </div>
                 <div className="flex items-center text-background/80">
-                  <Mail className="w-4 h-4 mr-3 text-gold" />
-                  <span className="text-sm">contact@sharedwealthintl.org</span>
+                  <Mail className="w-4 h-4 mr-3 text-gold flex-shrink-0" />
+                  <span className="text-sm break-all sm:break-normal">contact@sharedwealthintl.org</span>
                 </div>
               </div>
             </div>
 
             {/* Navigation Sections */}
             {footerSections.map((section) => (
-              <div key={section.title}>
-                <h3 className="font-semibold text-gold mb-4">{section.title}</h3>
+              <div key={section.title} className="md:col-span-1">
+                <h3 className="font-semibold text-gold mb-3 lg:mb-4 text-base">{section.title}</h3>
                 <ul className="space-y-2">
                   {section.links.map((link) => (
                     <li key={link.name}>
                       <Link
                         to={link.href}
-                        className="text-background/80 hover:text-gold transition-colors duration-200 text-sm"
+                        className="text-background/80 hover:text-gold transition-colors duration-200 text-sm block py-1"
                       >
                         {link.name}
                       </Link>
@@ -101,19 +103,19 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="py-6 border-t border-background/20">
-          <div className="flex flex-col sm:flex-row justify-between items-center">
-            <p className="text-background/60 text-sm">
+        <div className="py-4 lg:py-6 border-t border-background/20">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-background/60 text-xs lg:text-sm text-center sm:text-left">
               © {currentYear} Shared Wealth International. All rights reserved.
             </p>
-            <div className="flex space-x-6 mt-4 sm:mt-0">
-              <Link to="/privacy" className="text-background/60 hover:text-gold transition-colors text-sm">
+            <div className="flex flex-wrap justify-center sm:justify-end gap-4 lg:gap-6">
+              <Link to="/privacy" className="text-background/60 hover:text-gold transition-colors text-xs lg:text-sm">
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="text-background/60 hover:text-gold transition-colors text-sm">
+              <Link to="/terms" className="text-background/60 hover:text-gold transition-colors text-xs lg:text-sm">
                 Terms of Service
               </Link>
-              <Link to="/contact" className="text-background/60 hover:text-gold transition-colors text-sm">
+              <Link to="/contact" className="text-background/60 hover:text-gold transition-colors text-xs lg:text-sm">
                 Contact Us
               </Link>
             </div>

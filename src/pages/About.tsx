@@ -11,19 +11,22 @@ const About = () => {
       name: "Cliff Southcombe",
       role: "Founder & Director",
       bio: "Visionary leader driving the global Shared Wealth movement with over 20 years of experience in sustainable business models.",
-      expertise: "Strategic Planning, Stakeholder Engagement, Social Impact"
+      expertise: "Strategic Planning, Stakeholder Engagement, Social Impact",
+      image: "/lovable-uploads/f7f6d7bf-0c80-41f2-885b-a2678b1733ef.png"
     },
     {
       name: "James Perry",
       role: "Founder & Director",
       bio: "Expert in innovative ownership structures and democratic governance frameworks for equitable wealth distribution.",
-      expertise: "Corporate Governance, Phantom Shares, Inclusive Decision-Making"
+      expertise: "Corporate Governance, Phantom Shares, Inclusive Decision-Making",
+      image: "/lovable-uploads/a04db650-e312-4313-9485-632a58b8fbf5.png"
     },
     {
       name: "Dr. Muhammad Salman Munir Malik",
       role: "Director Global Initiatives and Learning",
       bio: "Strategic expert leading global partnerships and educational programs to expand Shared Wealth principles worldwide.",
-      expertise: "Strategic Planning & Execution, Global Partnership Development, Training & Educational Programs"
+      expertise: "Strategic Planning & Execution, Global Partnership Development, Training & Educational Programs",
+      image: "/lovable-uploads/ab71454c-fd1a-4ed4-995d-21ccae08f423.png"
     }
   ];
 
@@ -140,22 +143,35 @@ const About = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {leadership.map((leader, index) => (
               <Card key={leader.name} className="animate-fade-in hover:shadow-lg transition-all duration-300" style={{ animationDelay: `${index * 0.2}s` }}>
-                <CardHeader>
-                  <div className="w-16 h-16 bg-gradient-primary rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-background font-bold text-xl">
-                      {leader.name.split(' ').map(n => n[0]).join('')}
-                    </span>
+                <CardHeader className="text-center">
+                  <div className="w-24 h-24 lg:w-28 lg:h-28 mx-auto mb-4 rounded-full overflow-hidden border-4 border-gold/20 shadow-lg">
+                    <img 
+                      src={leader.image} 
+                      alt={leader.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        target.style.display = 'none';
+                        const fallback = target.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
+                    />
+                    <div className="w-full h-full bg-gradient-primary rounded-full hidden items-center justify-center">
+                      <span className="text-background font-bold text-xl">
+                        {leader.name.split(' ').map(n => n[0]).join('')}
+                      </span>
+                    </div>
                   </div>
-                  <CardTitle className="text-xl text-navy text-center">{leader.name}</CardTitle>
-                  <CardDescription className="text-center font-medium text-teal">
+                  <CardTitle className="text-xl text-navy">{leader.name}</CardTitle>
+                  <CardDescription className="font-medium text-teal">
                     {leader.role}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4">{leader.bio}</p>
+                  <p className="text-muted-foreground mb-4 text-sm lg:text-base">{leader.bio}</p>
                   <div className="border-t border-border pt-4">
                     <p className="text-sm font-semibold text-navy mb-1">Expertise:</p>
                     <p className="text-sm text-muted-foreground">{leader.expertise}</p>
