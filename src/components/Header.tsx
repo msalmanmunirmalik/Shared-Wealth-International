@@ -22,7 +22,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <img 
-              src="/lovable-uploads/9fe137a2-80b1-40f6-a858-9330b4e5f96b.png" 
+              src="/lovable-uploads/60420f71-0b50-4e40-a77c-25c13b6e0a56.png" 
               alt="Shared Wealth International Logo" 
               className="w-8 h-8"
             />
