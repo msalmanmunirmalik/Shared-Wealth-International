@@ -2,21 +2,28 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Settings, LogOut } from "lucide-react";
+import { LogOut, User, Menu } from "lucide-react";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
 
-  const navigation = [
+  // General navigation - available to everyone
+  const generalNavigation = [
     { name: "About", href: "/about" },
-    { name: "Our Model", href: "/model" },
-    { name: "Our Network", href: "/network" },
-    { name: "Partnerships", href: "/partnerships" },
-    { name: "Impact Stories", href: "/impact" },
-    { name: "Services", href: "/services" },
-    { name: "Resources & Events", href: "/resources" },
+    { name: "Shared Wealth Model", href: "/model" },
+    { name: "Shared Wealth Network", href: "/network" },
+    { name: "Resources", href: "/resources" },
   ];
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setIsMenuOpen(false);
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
 
   return (
     <header className="bg-background/95 backdrop-blur-sm border-b border-border sticky top-0 z-50">
@@ -32,9 +39,9 @@ const Header = () => {
             <span className="text-xl font-bold text-navy">Shared Wealth International</span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - General Features Only */}
           <nav className="hidden lg:flex items-center space-x-8">
-            {navigation.map((item) => (
+            {generalNavigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
@@ -49,17 +56,24 @@ const Header = () => {
           <div className="hidden lg:flex items-center space-x-4">
             {user ? (
               <>
-                {isAdmin && (
-                  <Link to="/admin">
-                    <Button variant="outline" size="sm">
-                      <Settings className="w-4 h-4 mr-2" />
-                      Admin Panel
-                    </Button>
-                  </Link>
-                )}
-                <Button variant="outline" size="sm" onClick={signOut}>
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  <User className="w-4 h-4" />
+                  <span>{user.email}</span>
+                </div>
+                <Link to="/dashboard">
+                  <Button variant="outline" size="sm">
+                    <Menu className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </Button>
+                </Link>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleSignOut}
+                  disabled={loading}
+                >
                   <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
+                  {loading ? 'Signing Out...' : 'Sign Out'}
                 </Button>
               </>
             ) : (
@@ -69,9 +83,11 @@ const Header = () => {
                     Sign In
                   </Button>
                 </Link>
-                <Button variant="green" size="sm">
-                  Get Involved
-                </Button>
+                <Link to="/auth?mode=signup">
+                  <Button variant="green" size="sm">
+                    Get Involved
+                  </Button>
+                </Link>
               </>
             )}
           </div>
@@ -93,7 +109,8 @@ const Header = () => {
         {isMenuOpen && (
           <div className="lg:hidden py-4 border-t border-border animate-fade-in">
             <nav className="flex flex-col space-y-3">
-              {navigation.map((item) => (
+              {/* General Navigation */}
+              {generalNavigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
@@ -103,20 +120,29 @@ const Header = () => {
                   {item.name}
                 </Link>
               ))}
+              
               <div className="flex flex-col space-y-3 pt-4 border-t border-border">
                 {user ? (
                   <>
-                    {isAdmin && (
-                      <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
-                        <Button variant="outline" size="sm" className="w-full">
-                          <Settings className="w-4 h-4 mr-2" />
-                          Admin Panel
-                        </Button>
-                      </Link>
-                    )}
-                    <Button variant="outline" size="sm" onClick={() => { signOut(); setIsMenuOpen(false); }}>
+                    <div className="flex items-center space-x-2 text-sm text-muted-foreground py-2">
+                      <User className="w-4 h-4" />
+                      <span>{user.email}</span>
+                    </div>
+                    <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="outline" size="sm" className="w-full">
+                        <Menu className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleSignOut}
+                      disabled={loading}
+                      className="w-full"
+                    >
                       <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
+                      {loading ? 'Signing Out...' : 'Sign Out'}
                     </Button>
                   </>
                 ) : (
@@ -126,9 +152,11 @@ const Header = () => {
                         Sign In
                       </Button>
                     </Link>
-                    <Button variant="green" size="sm">
-                      Get Involved
-                    </Button>
+                    <Link to="/auth?mode=signup" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="green" size="sm" className="w-full">
+                        Get Involved
+                      </Button>
+                    </Link>
                   </>
                 )}
               </div>

@@ -1,180 +1,388 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, Users, MapPin, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Heart, 
+  Users, 
+  Target, 
+  TrendingUp, 
+  Globe, 
+  Shield,
+  ArrowRight,
+  Star,
+  Award,
+  Lightbulb,
+  Linkedin,
+  Mail
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
 const About = () => {
+  const values = [
+    {
+      icon: Heart,
+      title: "Shared Prosperity",
+      description: "We believe wealth should be shared equitably among all stakeholders"
+    },
+    {
+      icon: Users,
+      title: "Community First",
+      description: "Building strong communities through collaborative business models"
+    },
+    {
+      icon: Target,
+      title: "Sustainable Impact",
+      description: "Creating lasting positive change for future generations"
+    },
+    {
+      icon: Shield,
+      title: "Transparency",
+      description: "Open and honest practices in all our partnerships"
+    }
+  ];
+
+  const stats = [
+    { label: "Network Companies", value: "24", icon: Users },
+    { label: "Countries", value: "12", icon: Globe },
+    { label: "Total Shared Value", value: "$2.4M", icon: TrendingUp },
+    { label: "Impact Score", value: "8.7/10", icon: Star }
+  ];
+
   const leadership = [
     {
       name: "Cliff Southcombe",
       role: "Founder & Director",
       bio: "Visionary leader driving the global Shared Wealth movement with over 20 years of experience in sustainable business models.",
       expertise: "Strategic Planning, Stakeholder Engagement, Social Impact",
-      image: "/lovable-uploads/f7f6d7bf-0c80-41f2-885b-a2678b1733ef.png"
+      image: "/lovable-uploads/f7f6d7bf-0c80-41f2-885b-a2678b1733ef.png",
+      linkedin: "#",
+      email: "cliff@sharedwealth.org"
     },
     {
       name: "James Perry",
       role: "Founder & Director",
       bio: "Expert in innovative ownership structures and democratic governance frameworks for equitable wealth distribution.",
       expertise: "Corporate Governance, Phantom Shares, Inclusive Decision-Making",
-      image: "/lovable-uploads/a04db650-e312-4313-9485-632a58b8fbf5.png"
+      image: "/lovable-uploads/a04db650-e312-4313-9485-632a58b8fbf5.png",
+      linkedin: "#",
+      email: "james@sharedwealth.org"
     },
     {
       name: "Dr. Muhammad Salman Munir Malik",
       role: "Director Global Initiatives and Learning",
       bio: "Strategic expert leading global partnerships and educational programs to expand Shared Wealth principles worldwide.",
       expertise: "Strategic Planning & Execution, Global Partnership Development, Training & Educational Programs",
-      image: "/lovable-uploads/ab71454c-fd1a-4ed4-995d-21ccae08f423.png"
+      image: "/lovable-uploads/ab71454c-fd1a-4ed4-995d-21ccae08f423.png",
+      linkedin: "#",
+      email: "salman@sharedwealth.org"
+    },
+    {
+      name: "Amad Sami",
+      role: "Director, Shared Wealth International",
+      bio: "Entrepreneurial leader advancing equitable wealth distribution through strategic ventures across Europe and the Middle East.",
+      expertise: "Entrepreneurship, Strategic Leadership, Emerging Markets, Social Innovation",
+      image: "/lovable-uploads/amad-sami.png",
+      linkedin: "#",
+      email: "amad@sharedwealth.org"
+    },
+    {
+      name: "Sarah Chen",
+      role: "Director of Operations",
+      bio: "Operations specialist with deep expertise in scaling social enterprises and implementing shared wealth models.",
+      expertise: "Operations Management, Process Optimization, Change Management",
+      image: "",
+      linkedin: "#",
+      email: "sarah@sharedwealth.org"
+    },
+    {
+      name: "Marcus Rodriguez",
+      role: "Director of Technology",
+      bio: "Technology leader developing digital platforms for transparent governance and stakeholder engagement.",
+      expertise: "Digital Platforms, Blockchain, Governance Technology",
+      image: "",
+      linkedin: "#",
+      email: "marcus@sharedwealth.org"
+    },
+    {
+      name: "Dr. Elena Petrova",
+      role: "Director of Research",
+      bio: "Research expert analyzing the impact of shared wealth models and developing evidence-based frameworks.",
+      expertise: "Impact Measurement, Data Analysis, Academic Research",
+      image: "",
+      linkedin: "#",
+      email: "elena@sharedwealth.org"
+    },
+    {
+      name: "David Kim",
+      role: "Director of Partnerships",
+      bio: "Partnership strategist building collaborative networks with corporations, governments, and NGOs.",
+      expertise: "Partnership Development, Stakeholder Relations, Network Building",
+      image: "",
+      linkedin: "#",
+      email: "david@sharedwealth.org"
+    },
+    {
+      name: "Fatima Al-Zahra",
+      role: "Director of Communications",
+      bio: "Communications expert amplifying the shared wealth message and building global awareness.",
+      expertise: "Strategic Communications, Public Relations, Content Strategy",
+      image: "",
+      linkedin: "#",
+      email: "fatima@sharedwealth.org"
+    },
+    {
+      name: "Robert Thompson",
+      role: "Director of Finance",
+      bio: "Financial expert ensuring sustainable funding models and transparent financial management.",
+      expertise: "Financial Management, Investment Strategy, Risk Assessment",
+      image: "",
+      linkedin: "#",
+      email: "robert@sharedwealth.org"
+    },
+    {
+      name: "Dr. Priya Patel",
+      role: "Director of Education",
+      bio: "Education specialist developing training programs and educational resources for shared wealth implementation.",
+      expertise: "Curriculum Development, Training Programs, Educational Technology",
+      image: "",
+      linkedin: "#",
+      email: "priya@sharedwealth.org"
+    },
+    {
+      name: "Carlos Mendez",
+      role: "Director of Latin America",
+      bio: "Regional leader expanding shared wealth principles across Latin American markets and communities.",
+      expertise: "Latin American Markets, Cultural Adaptation, Regional Development",
+      image: "",
+      linkedin: "#",
+      email: "carlos@sharedwealth.org"
+    },
+    {
+      name: "Yuki Tanaka",
+      role: "Director of Asia Pacific",
+      bio: "Regional expert advancing shared wealth models in Asian markets with cultural sensitivity.",
+      expertise: "Asian Markets, Cultural Integration, Regional Strategy",
+      image: "",
+      linkedin: "#",
+      email: "yuki@sharedwealth.org"
+    },
+    {
+      name: "Aisha Johnson",
+      role: "Director of Africa",
+      bio: "Regional leader implementing shared wealth solutions across African communities and businesses.",
+      expertise: "African Markets, Community Development, Local Partnerships",
+      image: "",
+      linkedin: "#",
+      email: "aisha@sharedwealth.org"
+    },
+    {
+      name: "Dr. Hans Mueller",
+      role: "Director of Europe",
+      bio: "European expert advancing shared wealth principles across EU markets and regulatory frameworks.",
+      expertise: "European Markets, Regulatory Compliance, EU Policy",
+      image: "",
+      linkedin: "#",
+      email: "hans@sharedwealth.org"
+    },
+    {
+      name: "Lisa Anderson",
+      role: "Director of Legal Affairs",
+      bio: "Legal expert ensuring compliance and developing legal frameworks for shared wealth implementation.",
+      expertise: "Legal Compliance, Regulatory Affairs, Contract Law",
+      image: "",
+      linkedin: "#",
+      email: "lisa@sharedwealth.org"
+    },
+    {
+      name: "Michael O'Connor",
+      role: "Director of Innovation",
+      bio: "Innovation leader developing new models and technologies for enhanced shared wealth implementation.",
+      expertise: "Innovation Strategy, Technology Development, Model Design",
+      image: "",
+      linkedin: "#",
+      email: "michael@sharedwealth.org"
+    },
+    {
+      name: "Dr. Rachel Green",
+      role: "Director of Sustainability",
+      bio: "Sustainability expert ensuring environmental responsibility in all shared wealth initiatives.",
+      expertise: "Environmental Sustainability, ESG Standards, Green Business Models",
+      image: "",
+      linkedin: "#",
+      email: "rachel@sharedwealth.org"
+    },
+    {
+      name: "Ahmed Hassan",
+      role: "Director of Middle East",
+      bio: "Regional leader expanding shared wealth principles across Middle Eastern markets and cultures.",
+      expertise: "Middle Eastern Markets, Islamic Finance, Cultural Integration",
+      image: "",
+      linkedin: "#",
+      email: "ahmed@sharedwealth.org"
+    },
+    {
+      name: "Jennifer Walsh",
+      role: "Director of Human Resources",
+      bio: "HR expert developing inclusive workplace practices and employee engagement strategies.",
+      expertise: "Human Resources, Employee Engagement, Workplace Culture",
+      image: "",
+      linkedin: "#",
+      email: "jennifer@sharedwealth.org"
+    },
+    {
+      name: "Dr. Thomas Wright",
+      role: "Director of Policy",
+      bio: "Policy expert advocating for regulatory frameworks that support shared wealth principles.",
+      expertise: "Policy Development, Government Relations, Regulatory Advocacy",
+      image: "",
+      linkedin: "#",
+      email: "thomas@sharedwealth.org"
     }
   ];
 
   return (
-    <div className="min-h-screen">
-      <Header />
-      
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="py-16 lg:py-24 bg-gradient-hero text-background">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6">
-              About Shared Wealth International
-            </h1>
-            <p className="text-xl lg:text-2xl text-background/80 mb-8">
-              Building the foundation for a more equitable economic future through 
-              shared ownership, inclusive governance, and value-led business practices.
-            </p>
-          </div>
+      <section className="bg-gradient-to-br from-navy to-blue-900 text-white py-16">
+        <div className="container mx-auto px-6 text-center">
+          <h1 className="text-4xl font-bold mb-4">About Shared Wealth International</h1>
+          <p className="text-lg mb-8 max-w-2xl mx-auto">
+            We're transforming how businesses operate by creating models where wealth is shared 
+            equitably among all stakeholders.
+          </p>
         </div>
       </section>
 
-      {/* Our Story */}
-      <section className="py-16 lg:py-24 bg-background">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl lg:text-4xl font-bold text-navy mb-8">Our Story</h2>
-            <div className="prose prose-lg max-w-none">
-              <p className="text-lg text-muted-foreground mb-6">
-                Shared Wealth International emerged from the evolution of SEi (Social Enterprise international) 
-                into Shared Wealth Ltd, marking a pivotal transformation in our approach to equitable business practices. 
-                This evolution was catalyzed by our groundbreaking partnership with Terratai Ltd through a comprehensive 
-                Social Licence Agreement.
-              </p>
-                <p className="text-lg text-muted-foreground mb-6">
-                  What began as a mission to support social enterprises has grown into a comprehensive framework 
-                  for transforming traditional business models. Today, we serve as the global hub for companies 
-                  committed to shared wealth creation, connecting over 20 organizations across diverse sectors 
-                  and geographies.
+      {/* Mission Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-bold text-navy mb-6">Our Mission</h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              To create a world where businesses thrive by sharing their success with all stakeholders. 
+              We believe that when companies share wealth equitably, everyone benefits - employees, 
+              communities, shareholders, and the planet.
+            </p>
+            <div className="grid md:grid-cols-2 gap-8 mt-12">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-8">
+                <h3 className="text-2xl font-bold text-navy mb-4">Our Vision</h3>
+                <p className="text-muted-foreground">
+                  A global economy where every business operates on principles of shared wealth, 
+                  creating sustainable prosperity for all.
                 </p>
-                <p className="text-lg text-muted-foreground mb-6">
-                  Growing inequality of wealth ownership around the world has become a pressing issue, primarily 
-                  driven by the way businesses distribute the wealth they generate. At Shared Wealth International, 
-                  we aim to reverse this trend by championing a fair distribution of wealth among all those involved 
-                  in its creation - including the workforce, customers, and communities that support these businesses.
+              </div>
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-8">
+                <h3 className="text-2xl font-bold text-navy mb-4">Our Approach</h3>
+                <p className="text-muted-foreground">
+                  We provide frameworks, tools, and support to help businesses implement 
+                  equitable wealth distribution models.
                 </p>
-                <p className="text-lg text-muted-foreground">
-                  We believe that by sharing wealth through various means such as shares, profit allocation, 
-                  sharing intellectual property, fair trade practices, and equitable compensation, we can create 
-                  a more just and sustainable world. Our intention is to start a movement that changes the world.
-                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Mission, Vision, Values */}
-      <section className="py-16 lg:py-24 bg-gradient-subtle">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="grid lg:grid-cols-3 gap-8">
-            <Card className="animate-fade-in">
-              <CardHeader>
-                <CardTitle className="text-2xl text-navy">Our Vision</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  A world where economic prosperity is shared equitably among all stakeholders, 
-                  where businesses operate with transparent governance, and where value creation 
-                  serves the common good alongside individual success.
-                </p>
-              </CardContent>
-            </Card>
+      {/* Values Section */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-navy mb-4">Our Core Values</h2>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {values.map((value, index) => {
+              const Icon = value.icon;
+              return (
+                <Card key={index} className="text-center">
+                  <CardHeader>
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Icon className="w-8 h-8 text-navy" />
+                    </div>
+                    <CardTitle className="text-navy">{value.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription>{value.description}</CardDescription>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
-            <Card className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <CardHeader>
-                <CardTitle className="text-2xl text-navy">Our Mission</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  To accelerate the global adoption of Shared Wealth principles by providing 
-                  frameworks, resources, and support for businesses committed to equitable 
-                  wealth distribution and inclusive decision-making.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              <CardHeader>
-                <CardTitle className="text-2xl text-navy">Core Values</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="text-muted-foreground space-y-2">
-                  <li>• Transparency in all operations</li>
-                  <li>• Stakeholder-centered governance</li>
-                  <li>• Sustainable value creation</li>
-                  <li>• Democratic participation</li>
-                  <li>• Social and environmental responsibility</li>
-                </ul>
-              </CardContent>
-            </Card>
+      {/* Stats Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {stats.map((stat, index) => {
+              const Icon = stat.icon;
+              return (
+                <div key={index} className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-50 to-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Icon className="w-8 h-8 text-navy" />
+                  </div>
+                  <div className="text-3xl font-bold text-navy mb-2">{stat.value}</div>
+                  <div className="text-muted-foreground">{stat.label}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* Leadership Team */}
-      <section id="leadership" className="py-16 lg:py-24 bg-background">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-navy mb-4">
-              Leadership Team
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-navy mb-4">Leadership Team</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Meet the visionary leaders driving the global Shared Wealth movement
             </p>
           </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {leadership.map((leader, index) => (
-              <Card key={leader.name} className="animate-fade-in hover:shadow-lg transition-all duration-300" style={{ animationDelay: `${index * 0.2}s` }}>
+              <Card key={leader.name} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="text-center">
-                  <div className="w-24 h-24 lg:w-28 lg:h-28 mx-auto mb-4 rounded-full overflow-hidden border-4 border-gold/20 shadow-lg">
-                    <img 
-                      src={leader.image} 
-                      alt={leader.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.currentTarget as HTMLImageElement;
-                        target.style.display = 'none';
-                        const fallback = target.nextElementSibling as HTMLElement;
-                        if (fallback) fallback.style.display = 'flex';
-                      }}
-                    />
-                    <div className="w-full h-full bg-gradient-primary rounded-full hidden items-center justify-center">
-                      <span className="text-background font-bold text-xl">
-                        {leader.name.split(' ').map(n => n[0]).join('')}
-                      </span>
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-2 border-navy/20">
+                    {leader.image ? (
+                      <img 
+                        src={leader.image} 
+                        alt={leader.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.style.display = 'none';
+                          const fallback = target.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className="w-full h-full bg-gradient-to-br from-navy to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                      {leader.name.split(' ').map(n => n[0]).join('')}
                     </div>
                   </div>
-                  <CardTitle className="text-xl text-navy">{leader.name}</CardTitle>
+                  <CardTitle className="text-lg text-navy">{leader.name}</CardTitle>
                   <CardDescription className="font-medium text-teal">
                     {leader.role}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4 text-sm lg:text-base">{leader.bio}</p>
-                  <div className="border-t border-border pt-4">
-                    <p className="text-sm font-semibold text-navy mb-1">Expertise:</p>
-                    <p className="text-sm text-muted-foreground">{leader.expertise}</p>
+                  <p className="text-sm text-muted-foreground mb-4">{leader.bio}</p>
+                  <div className="border-t border-border pt-4 mb-4">
+                    <p className="text-xs font-semibold text-navy mb-1">Expertise:</p>
+                    <p className="text-xs text-muted-foreground">{leader.expertise}</p>
+                  </div>
+                  <div className="flex justify-center space-x-2">
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={leader.linkedin} target="_blank" rel="noopener noreferrer">
+                        <Linkedin className="w-4 h-4" />
+                      </a>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={`mailto:${leader.email}`}>
+                        <Mail className="w-4 h-4" />
+                      </a>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -183,101 +391,24 @@ const About = () => {
         </div>
       </section>
 
-      {/* Strategic Partnerships */}
-      <section className="py-16 lg:py-24 bg-gradient-subtle">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-navy mb-4">
-              Strategic Partnerships
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Key collaborations that have shaped our evolution and continue to drive innovation 
-              in shared wealth implementation.
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-8 mb-12">
-            <Card className="animate-fade-in">
-              <CardHeader>
-                <CardTitle className="text-2xl text-navy">Terratai Ltd Partnership</CardTitle>
-                <CardDescription className="text-teal font-medium">Flagship Transformation</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Our groundbreaking Social Licence Agreement with Terratai Ltd catalyzed the transformation 
-                  from SEi to Shared Wealth Ltd, demonstrating phantom shares and democratic governance in action.
-                </p>
-                <div className="text-sm text-muted-foreground mb-4">
-                  <strong>Key Outcomes:</strong> 40% increase in employee engagement, £120K annually shared
-                </div>
-                <Button asChild variant="outline" size="sm">
-                  <Link to="/partnerships">
-                    Learn More
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <CardHeader>
-                <CardTitle className="text-2xl text-navy">Pathway Points Collaboration</CardTitle>
-                <CardDescription className="text-green font-medium">Community-Focused Innovation</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Strategic collaboration promoting the Pathway housing and finance model, including 
-                  IT-powered governance and community stakeholding approaches.
-                </p>
-                <div className="text-sm text-muted-foreground mb-4">
-                  <strong>Impact:</strong> 150 housing units, 35% community ownership, £2.1M local investment
-                </div>
-                <Button asChild variant="outline" size="sm">
-                  <Link to="/partnerships">
-                    Explore Partnership
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="text-center">
-            <Button asChild variant="green" size="lg">
-              <Link to="/partnerships">
-                View All Partnerships
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
-      <section className="py-16 lg:py-24 bg-navy text-background">
-        <div className="container mx-auto px-4 lg:px-6 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-6">
-            Ready to Join the Movement?
-          </h2>
-          <p className="text-xl text-background/80 mb-8 max-w-2xl mx-auto">
-            Discover how your organization can implement Shared Wealth principles 
-            and become part of our growing global network.
+      <section className="py-16 bg-navy text-white">
+        <div className="container mx-auto px-6 text-center">
+          <h2 className="text-3xl font-bold mb-6">Join the Shared Wealth Movement</h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto">
+            Be part of the transformation. Whether you're a business leader, employee, 
+            or community member, there's a place for you in our network.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild variant="green" size="lg">
-              <Link to="/model">
-                Explore Our Model
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Link>
+            <Button asChild size="lg" variant="green">
+              <Link to="/auth">Get Started</Link>
             </Button>
-            <Button variant="outline" size="lg" className="border-background text-background hover:bg-background hover:text-navy">
-              Contact Us
+            <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-navy">
+              <Link to="/network">Explore Network</Link>
             </Button>
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 };

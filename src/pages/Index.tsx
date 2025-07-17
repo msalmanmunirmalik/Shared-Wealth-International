@@ -1,4 +1,3 @@
-import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import CorePillars from "@/components/CorePillars";
 import InteractiveToolsHome from "@/components/InteractiveToolsHome";
@@ -8,11 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Users, Building, MapPin, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { user } = useAuth();
   return (
     <div className="min-h-screen">
-      <Header />
       <Hero />
       <CorePillars />
       <InteractiveToolsHome />
@@ -42,13 +42,21 @@ const Index = () => {
                 <span className="text-lg">Global Reach</span>
               </div>
             </div>
-            
-            <Button asChild variant="green" size="lg">
-              <Link to="/network">
-                Explore Our Network
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Link>
-            </Button>
+            {user ? (
+              <Button asChild variant="green" size="lg">
+                <Link to="/dashboard">
+                  Go to Dashboard
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild variant="green" size="lg">
+                <Link to="/auth">
+                  Get Started
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </section>

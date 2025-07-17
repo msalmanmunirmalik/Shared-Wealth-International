@@ -44,14 +44,14 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-navy text-background">
+    <footer className="bg-navy text-background" aria-label="Site footer">
       <div className="container mx-auto px-4 lg:px-6">
         {/* Main Footer Content */}
         <div className="py-12 lg:py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
             {/* Brand Section */}
             <div className="md:col-span-2 lg:col-span-2">
-              <Link to="/" className="flex items-center space-x-2 mb-6">
+              <Link to="/" className="flex items-center space-x-2 mb-6" aria-label="Home">
                 <img 
                   src="/lovable-uploads/9fe137a2-80b1-40f6-a858-9330b4e5f96b.png" 
                   alt="Shared Wealth International Logo" 
@@ -65,25 +65,27 @@ const Footer = () => {
                 inclusive decision-making, and value-led approaches to business.
               </p>
 
-              <div className="space-y-3">
+              <address className="not-italic space-y-3" aria-label="Contact information">
                 <div className="flex items-center text-background/80">
-                  <Users className="w-4 h-4 mr-3 text-gold flex-shrink-0" />
+                  <Users className="w-4 h-4 mr-3 text-gold flex-shrink-0" aria-hidden="true" />
                   <span className="text-sm">20+ Partner Companies</span>
                 </div>
                 <div className="flex items-center text-background/80">
-                  <MapPin className="w-4 h-4 mr-3 text-gold flex-shrink-0" />
+                  <MapPin className="w-4 h-4 mr-3 text-gold flex-shrink-0" aria-hidden="true" />
                   <span className="text-sm">Global Network</span>
                 </div>
                 <div className="flex items-center text-background/80">
-                  <Mail className="w-4 h-4 mr-3 text-gold flex-shrink-0" />
-                  <span className="text-sm break-all sm:break-normal">contact@sharedwealthintl.org</span>
+                  <Mail className="w-4 h-4 mr-3 text-gold flex-shrink-0" aria-hidden="true" />
+                  <a href="mailto:contact@sharedwealthintl.org" className="text-sm break-all sm:break-normal underline hover:text-gold" aria-label="Email contact@sharedwealthintl.org">
+                    contact@sharedwealthintl.org
+                  </a>
                 </div>
-              </div>
+              </address>
             </div>
 
             {/* Navigation Sections */}
             {footerSections.map((section) => (
-              <div key={section.title} className="md:col-span-1">
+              <nav key={section.title} className="md:col-span-1" aria-label={section.title}>
                 <h3 className="font-semibold text-gold mb-3 lg:mb-4 text-base">{section.title}</h3>
                 <ul className="space-y-2">
                   {section.links.map((link) => (
@@ -91,13 +93,14 @@ const Footer = () => {
                       <Link
                         to={link.href}
                         className="text-background/80 hover:text-gold transition-colors duration-200 text-sm block py-1"
+                        aria-label={link.name}
                       >
                         {link.name}
                       </Link>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </nav>
             ))}
           </div>
         </div>
@@ -108,17 +111,17 @@ const Footer = () => {
             <p className="text-background/60 text-xs lg:text-sm text-center sm:text-left">
               © {currentYear} Shared Wealth International. All rights reserved.
             </p>
-            <div className="flex flex-wrap justify-center sm:justify-end gap-4 lg:gap-6">
-              <Link to="/privacy" className="text-background/60 hover:text-gold transition-colors text-xs lg:text-sm">
+            <nav className="flex flex-wrap justify-center sm:justify-end gap-4 lg:gap-6" aria-label="Legal and contact links">
+              <Link to="/privacy" className="text-background/60 hover:text-gold transition-colors text-xs lg:text-sm" aria-label="Privacy Policy">
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="text-background/60 hover:text-gold transition-colors text-xs lg:text-sm">
+              <Link to="/terms" className="text-background/60 hover:text-gold transition-colors text-xs lg:text-sm" aria-label="Terms of Service">
                 Terms of Service
               </Link>
-              <Link to="/contact" className="text-background/60 hover:text-gold transition-colors text-xs lg:text-sm">
+              <Link to="/contact" className="text-background/60 hover:text-gold transition-colors text-xs lg:text-sm" aria-label="Contact Us">
                 Contact Us
               </Link>
-            </div>
+            </nav>
           </div>
         </div>
       </div>

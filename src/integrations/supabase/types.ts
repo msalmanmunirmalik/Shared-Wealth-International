@@ -41,6 +41,118 @@ export type Database = {
         }
         Relationships: []
       }
+      companies: {
+        Row: {
+          approved: boolean | null
+          created_at: string | null
+          description: string | null
+          id: string
+          location: string | null
+          logo_url: string | null
+          name: string
+          sector: string | null
+          website: string | null
+        }
+        Insert: {
+          approved?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          location?: string | null
+          logo_url?: string | null
+          name: string
+          sector?: string | null
+          website?: string | null
+        }
+        Update: {
+          approved?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          location?: string | null
+          logo_url?: string | null
+          name?: string
+          sector?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      company_posts: {
+        Row: {
+          approved: boolean | null
+          company_id: string
+          content: string
+          created_at: string | null
+          id: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          approved?: boolean | null
+          company_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          approved?: boolean | null
+          company_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_posts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_users: {
+        Row: {
+          company_id: string
+          id: string
+          is_active: boolean | null
+          joined_at: string | null
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          id?: string
+          is_active?: boolean | null
+          joined_at?: string | null
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          id?: string
+          is_active?: boolean | null
+          joined_at?: string | null
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_users_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_sections: {
         Row: {
           content: Json
@@ -235,6 +347,252 @@ export type Database = {
         }
         Relationships: []
       }
+      forum_topics: {
+        Row: {
+          id: string;
+          title: string;
+          content: string;
+          category: string;
+          author_id: string;
+          created_at: string;
+          updated_at: string;
+          view_count: number;
+          reply_count: number;
+          is_pinned: boolean;
+          is_locked: boolean;
+          image_url: string | null;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          content: string;
+          category: string;
+          author_id: string;
+          created_at?: string;
+          updated_at?: string;
+          view_count?: number;
+          reply_count?: number;
+          is_pinned?: boolean;
+          is_locked?: boolean;
+          image_url?: string | null;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          content?: string;
+          category?: string;
+          author_id?: string;
+          created_at?: string;
+          updated_at?: string;
+          view_count?: number;
+          reply_count?: number;
+          is_pinned?: boolean;
+          is_locked?: boolean;
+          image_url?: string | null;
+        };
+        Relationships: [];
+      };
+      forum_replies: {
+        Row: {
+          id: string;
+          topic_id: string;
+          content: string;
+          author_id: string;
+          created_at: string;
+          updated_at: string;
+          is_solution: boolean;
+        };
+        Insert: {
+          id?: string;
+          topic_id: string;
+          content: string;
+          author_id: string;
+          created_at?: string;
+          updated_at?: string;
+          is_solution?: boolean;
+        };
+        Update: {
+          id?: string;
+          topic_id?: string;
+          content?: string;
+          author_id?: string;
+          created_at?: string;
+          updated_at?: string;
+          is_solution?: boolean;
+        };
+        Relationships: [];
+      };
+      user_companies: {
+        Row: {
+          id: string;
+          user_id: string;
+          company_id: string | null;
+          company_name: string;
+          role: string;
+          position: string;
+          is_shared_wealth_licensed: boolean;
+          license_number: string | null;
+          license_date: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          company_id?: string | null;
+          company_name: string;
+          role: string;
+          position: string;
+          is_shared_wealth_licensed?: boolean;
+          license_number?: string | null;
+          license_date?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          company_id?: string | null;
+          company_name?: string;
+          role?: string;
+          position?: string;
+          is_shared_wealth_licensed?: boolean;
+          license_number?: string | null;
+          license_date?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      network_companies: {
+        Row: {
+          id: string;
+          name: string;
+          sector: string;
+          country: string;
+          description: string | null;
+          employees: number | null;
+          shared_value: string | null;
+          impact_score: number | null;
+          joined_date: string | null;
+          website: string | null;
+          logo: string | null;
+          highlights: string[] | null;
+          location: string | null;
+          status: string;
+          is_shared_wealth_licensed: boolean;
+          license_number: string | null;
+          license_date: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          sector: string;
+          country: string;
+          description?: string | null;
+          employees?: number | null;
+          shared_value?: string | null;
+          impact_score?: number | null;
+          joined_date?: string | null;
+          website?: string | null;
+          logo?: string | null;
+          highlights?: string[] | null;
+          location?: string | null;
+          status?: string;
+          is_shared_wealth_licensed?: boolean;
+          license_number?: string | null;
+          license_date?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          sector?: string;
+          country?: string;
+          description?: string | null;
+          employees?: number | null;
+          shared_value?: string | null;
+          impact_score?: number | null;
+          joined_date?: string | null;
+          website?: string | null;
+          logo?: string | null;
+          highlights?: string[] | null;
+          location?: string | null;
+          status?: string;
+          is_shared_wealth_licensed?: boolean;
+          license_number?: string | null;
+          license_date?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      company_applications: {
+        Row: {
+          id: string;
+          user_id: string;
+          company_name: string;
+          sector: string;
+          country: string;
+          description: string | null;
+          website: string | null;
+          employees: number | null;
+          is_shared_wealth_licensed: boolean;
+          license_number: string | null;
+          license_date: string | null;
+          applicant_role: string;
+          applicant_position: string;
+          status: string;
+          admin_notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          company_name: string;
+          sector: string;
+          country: string;
+          description?: string | null;
+          website?: string | null;
+          employees?: number | null;
+          is_shared_wealth_licensed?: boolean;
+          license_number?: string | null;
+          license_date?: string | null;
+          applicant_role: string;
+          applicant_position: string;
+          status?: string;
+          admin_notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          company_name?: string;
+          sector?: string;
+          country?: string;
+          description?: string | null;
+          website?: string | null;
+          employees?: number | null;
+          is_shared_wealth_licensed?: boolean;
+          license_number?: string | null;
+          license_date?: string | null;
+          applicant_role?: string;
+          applicant_position?: string;
+          status?: string;
+          admin_notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     }
     Views: {
       [_ in never]: never

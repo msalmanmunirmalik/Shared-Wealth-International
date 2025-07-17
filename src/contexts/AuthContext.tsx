@@ -6,11 +6,11 @@ import { useToast } from '@/hooks/use-toast';
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  isAdmin: boolean;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,58 +26,74 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log('Setting up auth state listener...');
+    
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting initial session:', error);
+        } else {
+          console.log('Initial session:', session?.user?.email);
+          setSession(session);
+          setUser(session?.user ?? null);
+        }
+      } catch (error) {
+        console.error('Exception getting initial session:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getInitialSession();
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
+        
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (session?.user) {
-          // Check if user is admin
-          setTimeout(async () => {
-            try {
-              const { data: adminUser } = await supabase
-                .from('admin_users')
-                .select('*')
-                .eq('user_id', session.user.id)
-                .single();
-              
-              setIsAdmin(!!adminUser);
-            } catch (error) {
-              setIsAdmin(false);
-            }
-          }, 0);
-        } else {
-          setIsAdmin(false);
+        if (event === 'SIGNED_IN') {
+          toast({
+            title: "Welcome!",
+            description: `Signed in as ${session?.user?.email}`,
+          });
+        } else if (event === 'SIGNED_OUT') {
+          toast({
+            title: "Signed out",
+            description: "You have been signed out successfully",
+          });
         }
         
         setLoading(false);
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      console.log('Cleaning up auth subscription');
+      subscription.unsubscribe();
+    };
+  }, [toast]);
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('Attempting sign in for:', email);
+      setLoading(true);
+      
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
       if (error) {
+        console.error('Sign in error:', error);
         toast({
           title: "Sign In Failed",
           description: error.message,
@@ -87,18 +103,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       return { error };
     } catch (error: any) {
+      console.error('Sign in exception:', error);
       toast({
         title: "Sign In Failed",
         description: "An unexpected error occurred",
         variant: "destructive"
       });
       return { error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signUp = async (email: string, password: string) => {
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      console.log('Attempting sign up for:', email);
+      setLoading(true);
+      
+      const redirectUrl = `${window.location.origin}/auth`;
       
       const { error } = await supabase.auth.signUp({
         email,
@@ -109,6 +131,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
       
       if (error) {
+        console.error('Sign up error:', error);
         toast({
           title: "Sign Up Failed",
           description: error.message,
@@ -123,33 +146,98 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       return { error };
     } catch (error: any) {
+      console.error('Sign up exception:', error);
       toast({
         title: "Sign Up Failed",
         description: "An unexpected error occurred",
         variant: "destructive"
       });
       return { error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    setIsAdmin(false);
-    toast({
-      title: "Signed out successfully"
-    });
+    try {
+      console.log('Signing out user:', user?.email);
+      setLoading(true);
+      
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Sign out error:', error);
+        toast({
+          title: "Sign Out Failed",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        console.log('Sign out successful');
+        setUser(null);
+        setSession(null);
+        toast({
+          title: "Signed out successfully",
+          description: "You have been signed out",
+        });
+      }
+    } catch (error) {
+      console.error('Sign out exception:', error);
+      toast({
+        title: "Sign Out Failed",
+        description: "An error occurred while signing out",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetPassword = async (email: string) => {
+    try {
+      console.log('Attempting password reset for:', email);
+      setLoading(true);
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth`
+      });
+      
+      if (error) {
+        console.error('Password reset error:', error);
+        toast({
+          title: "Password Reset Failed",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Check your email",
+          description: "Password reset instructions sent to your email",
+        });
+      }
+      
+      return { error };
+    } catch (error: any) {
+      console.error('Password reset exception:', error);
+      toast({
+        title: "Password Reset Failed",
+        description: "An unexpected error occurred",
+        variant: "destructive"
+      });
+      return { error };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const value = {
     user,
     session,
-    isAdmin,
     loading,
     signIn,
     signUp,
-    signOut
+    signOut,
+    resetPassword
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

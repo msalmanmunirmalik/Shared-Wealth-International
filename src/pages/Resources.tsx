@@ -1,471 +1,790 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Download, Search, BookOpen, FileText, Video, Calendar } from "lucide-react";
-import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Calculator, 
+  Target, 
+  Settings, 
+  BarChart3, 
+  BookOpen, 
+  Download,
+  Play,
+  FileText,
+  Users,
+  TrendingUp,
+  ArrowRight,
+  ExternalLink,
+  Star,
+  Clock,
+  Globe,
+  Lightbulb
+} from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Resources = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState("tools");
 
-  const resources = [
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["tools", "guides", "cases", "webinars", "research", "events", "forum"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  const interactiveTools = [
     {
-      title: "Become a Shared Wealth Enterprise Toolkit",
-      description: "Comprehensive guide with templates and frameworks to transform your organization into a shared wealth enterprise.",
+      title: "Impact Calculator",
+      description: "Calculate potential benefits and ROI of implementing shared wealth practices",
+      icon: Calculator,
+      status: "Live",
+      time: "5 min",
+      path: "/calculator",
+      features: ["ROI Analysis", "Employee Impact", "Community Benefits"],
+      color: "from-blue-50 to-indigo-100"
+    },
+    {
+      title: "Readiness Assessment",
+      description: "Evaluate your organization's readiness for shared wealth implementation",
+      icon: Target,
+      status: "Live",
+      time: "10 min",
+      path: "/assessment",
+      features: ["Organizational Readiness", "Stakeholder Analysis", "Implementation Roadmap"],
+      color: "from-green-50 to-emerald-100"
+    },
+    {
+      title: "Governance Simulator",
+      description: "Simulate different governance scenarios and decision-making processes",
+      icon: Settings,
+      status: "Live",
+      time: "15 min",
+      path: "/simulator",
+      features: ["Governance Models", "Decision Scenarios", "Stakeholder Impact"],
+      color: "from-purple-50 to-violet-100"
+    },
+    {
+      title: "Model Configurator",
+      description: "Design your custom shared wealth model with interactive components",
+      icon: BarChart3,
+      status: "Live",
+      time: "20 min",
+      path: "/configurator",
+      features: ["Model Design", "Component Selection", "Customization Options"],
+      color: "from-orange-50 to-amber-100"
+    }
+  ];
+
+  const guides = [
+    {
+      title: "Shared Wealth Implementation Guide",
+      description: "Comprehensive step-by-step guide for implementing shared wealth principles",
+      type: "PDF Guide",
+      pages: 45,
+      downloadUrl: "#",
+      icon: FileText,
+      tags: ["Implementation", "Step-by-Step", "Best Practices"]
+    },
+    {
+      title: "Phantom Shares Framework",
+      description: "Detailed framework for implementing phantom share programs",
+      type: "Template",
+      pages: 32,
+      downloadUrl: "#",
+      icon: TrendingUp,
+      tags: ["Phantom Shares", "Employee Ownership", "Templates"]
+    },
+    {
+      title: "Democratic Governance Handbook",
+      description: "Handbook for implementing inclusive decision-making processes",
+      type: "Handbook",
+      pages: 28,
+      downloadUrl: "#",
+      icon: Users,
+      tags: ["Governance", "Decision-Making", "Inclusive"]
+    },
+    {
+      title: "Community Investment Toolkit",
+      description: "Toolkit for developing community investment and engagement programs",
       type: "Toolkit",
-      category: "Implementation",
-      format: "PDF",
-      pages: "45 pages",
-      downloadUrl: "#"
-    },
-    {
-      title: "Phantom Shares Implementation Guide",
-      description: "Step-by-step guide to implementing phantom share programs for employee wealth sharing without equity dilution.",
-      type: "Guide",
-      category: "Financial Models",
-      format: "PDF",
-      pages: "28 pages",
-      downloadUrl: "#"
-    },
-    {
-      title: "Democratic Governance Framework",
-      description: "Framework for establishing inclusive decision-making processes and stakeholder governance structures.",
-      type: "Framework",
-      category: "Governance",
-      format: "PDF",
-      pages: "32 pages",
-      downloadUrl: "#"
-    },
-    {
-      title: "Social Audit Methodology",
-      description: "Comprehensive methodology for conducting social audits and measuring shared wealth impact.",
-      type: "Methodology",
-      category: "Impact Measurement",
-      format: "PDF",
-      pages: "38 pages",
-      downloadUrl: "#"
-    },
-    {
-      title: "Community Stakeholding Models",
-      description: "Research paper examining different approaches to community participation in business value creation.",
-      type: "Research",
-      category: "Community Engagement",
-      format: "PDF",
-      pages: "52 pages",
-      downloadUrl: "#"
-    },
-    {
-      title: "Legal Structures for Shared Wealth",
-      description: "White paper analyzing legal frameworks and structures that support shared wealth business models.",
-      type: "White Paper",
-      category: "Legal",
-      format: "PDF",
-      pages: "41 pages",
-      downloadUrl: "#"
+      pages: 38,
+      downloadUrl: "#",
+      icon: Globe,
+      tags: ["Community", "Investment", "Engagement"]
     }
   ];
 
-  const blogPosts = [
+  const caseStudies = [
     {
-      title: "The Evolution from SEi to Shared Wealth International",
-      date: "2025-06-15",
-      author: "Cliff Southcombe",
-      excerpt: "Exploring the journey of transformation and the lessons learned in our evolution toward comprehensive shared wealth frameworks.",
-      readTime: "8 min read"
+      title: "Terratai Ltd: Phantom Shares Success",
+      description: "How Terratai achieved 40% increase in employee engagement through phantom shares",
+      company: "Terratai Ltd",
+      sector: "Manufacturing",
+      impact: "40% Engagement Increase",
+      readTime: "8 min",
+      image: "/lovable-uploads/terratai-logo.png",
+      tags: ["Phantom Shares", "Employee Engagement", "Manufacturing"]
     },
     {
-      title: "IT-Powered Governance: The Future of Democratic Decision-Making",
-      date: "2025-06-01",
-      author: "James Perry",
-      excerpt: "How technology is enabling more inclusive and efficient governance structures in modern organizations.",
-      readTime: "6 min read"
+      title: "GreenEnergy Co: Profit Sharing Model",
+      description: "Case study of 15% profit sharing implementation and community investment",
+      company: "GreenEnergy Co",
+      sector: "Renewable Energy",
+      impact: "15% Profit Sharing",
+      readTime: "10 min",
+      image: "",
+      tags: ["Profit Sharing", "Community Investment", "Energy"]
     },
     {
-      title: "Measuring Impact: The Social Audit Framework in Action",
-      date: "2025-05-20",
-      author: "Muhammad Malik",
-      excerpt: "Real-world examples of how our social audit framework creates transparency and drives continuous improvement.",
-      readTime: "10 min read"
+      title: "CommunityBank: Stakeholder Governance",
+      description: "Implementing stakeholder governance in financial services",
+      company: "CommunityBank",
+      sector: "Financial Services",
+      impact: "Stakeholder Governance",
+      readTime: "12 min",
+      image: "",
+      tags: ["Governance", "Financial Services", "Stakeholders"]
     }
   ];
 
-  const pastEvents = [
+  const webinars = [
     {
-      title: "Shared Wealth Summit 2024",
-      date: "December 5-6, 2024",
-      location: "London, UK",
-      type: "Past",
-      description: "Annual gathering featuring 150+ participants and breakthrough discussions on democratic governance.",
-      highlights: ["150+ attendees", "20 speakers", "5 workshops"]
+      title: "Introduction to Shared Wealth Principles",
+      description: "Learn the fundamentals of shared wealth and how it transforms business",
+      duration: "45 min",
+      speaker: "Cliff Southcombe",
+      date: "2024-01-15",
+      attendees: 234,
+      recordingUrl: "#",
+      tags: ["Introduction", "Fundamentals", "Overview"]
     },
     {
-      title: "European Cooperative Conference",
-      date: "November 12, 2024",
-      location: "Berlin, Germany",
-      type: "Past",
-      description: "Keynote presentation on shared wealth models to 300+ cooperative leaders.",
-      highlights: ["300+ participants", "Keynote speech", "Partnership agreements"]
+      title: "Implementing Phantom Share Programs",
+      description: "Practical guide to designing and implementing phantom share programs",
+      duration: "60 min",
+      speaker: "James Perry",
+      date: "2024-01-22",
+      attendees: 189,
+      recordingUrl: "#",
+      tags: ["Phantom Shares", "Implementation", "Practical"]
+    },
+    {
+      title: "Democratic Governance in Practice",
+      description: "Real-world examples of democratic governance implementation",
+      duration: "50 min",
+      speaker: "Dr. Salman Malik",
+      date: "2024-01-29",
+      attendees: 156,
+      recordingUrl: "#",
+      tags: ["Governance", "Democratic", "Examples"]
     }
   ];
 
-  const currentEvents = [
+  const research = [
     {
-      title: "Shared Wealth Summer School 2025",
-      date: "July 15-19, 2025",
-      location: "Edinburgh, Scotland",
-      type: "Open",
-      description: "Intensive 5-day program covering all aspects of shared wealth implementation.",
-      highlights: ["5-day intensive", "Certification", "Networking"]
+      title: "The Impact of Shared Wealth on Employee Engagement",
+      description: "Research study analyzing the correlation between shared wealth and employee satisfaction",
+      authors: "Dr. Elena Petrova, Dr. Rachel Green",
+      publication: "Journal of Business Ethics",
+      year: 2023,
+      citations: 45,
+      downloadUrl: "#",
+      tags: ["Research", "Employee Engagement", "Academic"]
     },
     {
-      title: "Monthly Webinar: Phantom Shares Deep Dive",
-      date: "July 25, 2025",
-      location: "Online",
-      type: "Open",
-      description: "Detailed exploration of phantom share mechanisms and implementation strategies.",
-      highlights: ["Expert speakers", "Q&A session", "Resources included"]
-    }
-  ];
-
-  const futureEvents = [
-    {
-      title: "Democratic Governance Workshop",
-      date: "August 10, 2025",
-      location: "London, UK",
-      type: "Future",
-      description: "Hands-on workshop for implementing inclusive decision-making processes.",
-      highlights: ["Interactive sessions", "Case studies", "Implementation tools"]
+      title: "Economic Benefits of Stakeholder Capitalism",
+      description: "Comprehensive analysis of stakeholder capitalism vs traditional shareholder models",
+      authors: "Dr. Thomas Wright, Marcus Rodriguez",
+      publication: "Harvard Business Review",
+      year: 2023,
+      citations: 89,
+      downloadUrl: "#",
+      tags: ["Research", "Stakeholder Capitalism", "Economics"]
     },
     {
-      title: "Global Shared Wealth Conference 2026",
-      date: "March 15-17, 2026",
-      location: "Edinburgh, Scotland",
-      type: "Future",
-      description: "International conference bringing together shared wealth practitioners from around the world.",
-      highlights: ["3 days", "Global speakers", "Innovation showcase"]
+      title: "Community Investment ROI Analysis",
+      description: "Quantitative analysis of return on investment for community investment programs",
+      authors: "David Kim, Sarah Chen",
+      publication: "Social Enterprise Journal",
+      year: 2023,
+      citations: 32,
+      downloadUrl: "#",
+      tags: ["Research", "ROI", "Community Investment"]
     }
   ];
-
-  const allEvents = [...pastEvents, ...currentEvents, ...futureEvents];
-
-  const filteredResources = resources.filter(resource => {
-    const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         resource.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || resource.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  const categories = ["all", ...new Set(resources.map(r => r.category))];
 
   return (
-    <div className="min-h-screen">
-      <Header />
-      
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="py-16 lg:py-24 bg-gradient-hero text-background">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6">
-              Resources & Events
-            </h1>
-            <p className="text-xl lg:text-2xl text-background/80 mb-8">
-              Access our comprehensive library of guides, research, and insights 
-              to advance your shared wealth journey.
-            </p>
-            <div className="flex items-center justify-center gap-8 text-background/90">
-              <div className="flex items-center">
-                <BookOpen className="w-5 h-5 mr-2" />
-                <span>Practical Guides</span>
-              </div>
-              <div className="flex items-center">
-                <FileText className="w-5 h-5 mr-2" />
-                <span>Research Papers</span>
-              </div>
-              <div className="flex items-center">
-                <Video className="w-5 h-5 mr-2" />
-                <span>Webinars & Events</span>
-              </div>
-            </div>
-          </div>
+      <section className="bg-gradient-to-br from-purple-600 to-indigo-700 text-white py-16">
+        <div className="container mx-auto px-6 text-center">
+          <h1 className="text-4xl font-bold mb-4">Resources & Tools</h1>
+          <p className="text-lg mb-8 max-w-2xl mx-auto">
+            Access interactive tools, guides, case studies, and research to help you 
+            implement shared wealth principles in your organization.
+          </p>
         </div>
       </section>
 
-      {/* Resource Library */}
-      <section className="py-16 lg:py-24 bg-background">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-navy mb-4">
-              Resource Library
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Comprehensive collection of toolkits, guides, and frameworks 
-              for implementing shared wealth principles.
-            </p>
-          </div>
+      {/* Main Content */}
+      <section className="py-16">
+        <div className="container mx-auto px-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-7">
+              <TabsTrigger value="tools">Interactive Tools</TabsTrigger>
+              <TabsTrigger value="guides">Guides & Templates</TabsTrigger>
+              <TabsTrigger value="cases">Case Studies</TabsTrigger>
+              <TabsTrigger value="webinars">Webinars</TabsTrigger>
+              <TabsTrigger value="research">Research</TabsTrigger>
+              <TabsTrigger value="events">Events</TabsTrigger>
+              <TabsTrigger value="forum">Forum</TabsTrigger>
+            </TabsList>
 
-          {/* Search and Filter */}
-          <div className="flex flex-col md:flex-row gap-4 mb-8">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Search resources..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <select 
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-2 border border-border rounded-md bg-background min-w-[200px]"
-            >
-              {categories.map(category => (
-                <option key={category} value={category}>
-                  {category === "all" ? "All Categories" : category}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Resources Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredResources.map((resource, index) => (
-              <Card key={resource.title} className="animate-fade-in hover:shadow-lg transition-all duration-300" style={{ animationDelay: `${index * 0.1}s` }}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <Badge variant="secondary" className="mb-2">{resource.type}</Badge>
-                      <CardTitle className="text-lg text-navy">{resource.title}</CardTitle>
-                      <CardDescription className="text-teal font-medium">
-                        {resource.category}
-                      </CardDescription>
-                    </div>
-                    <Download className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">{resource.description}</p>
-                  
-                  <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-                    <span>{resource.format}</span>
-                    <span>{resource.pages}</span>
-                  </div>
-                  
-                  <Button variant="outline" className="w-full">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Blog & News */}
-      <section className="py-16 lg:py-24 bg-gradient-subtle">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-navy mb-4">
-              Latest Insights
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Stay updated with the latest thinking and developments in 
-              shared wealth creation.
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-8">
-            {blogPosts.map((post, index) => (
-              <Card key={post.title} className="animate-fade-in hover:shadow-lg transition-all duration-300" style={{ animationDelay: `${index * 0.2}s` }}>
-                <CardHeader>
-                  <CardTitle className="text-xl text-navy">{post.title}</CardTitle>
-                  <CardDescription>
-                    <div className="flex items-center justify-between text-sm">
-                      <span>By {post.author}</span>
-                      <span>{post.readTime}</span>
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {new Date(post.date).toLocaleDateString()}
-                    </div>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">{post.excerpt}</p>
-                  <Button variant="outline" size="sm">
-                    Read More
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Events Section */}
-      <section className="py-16 lg:py-24 bg-background">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-navy mb-4">
-              Events & Programs
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Join our educational events, workshops, and webinars to deepen 
-              your understanding of shared wealth principles.
-            </p>
-          </div>
-
-          {/* Currently Open Events */}
-          <div className="mb-16">
-            <h3 className="text-2xl font-bold text-navy mb-8 text-center">Currently Open for Registration</h3>
-            <div className="grid lg:grid-cols-2 gap-8">
-              {currentEvents.map((event, index) => (
-                <Card key={event.title} className="animate-fade-in hover:shadow-lg transition-all duration-300 border-green/30" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <Badge variant="secondary" className="mb-2 bg-green/10 text-green border-green/20">
-                          {event.type === "Open" ? "Registration Open" : event.type}
-                        </Badge>
-                        <CardTitle className="text-xl text-navy">{event.title}</CardTitle>
-                        <CardDescription>
-                          <div className="flex items-center gap-1 mt-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>{event.date}</span>
+            {/* Interactive Tools */}
+            <TabsContent value="tools" className="space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-navy mb-4">Interactive Tools</h2>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Use our interactive tools to assess, calculate, and design your shared wealth implementation.
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                {interactiveTools.map((tool, index) => {
+                  const Icon = tool.icon;
+                  return (
+                    <Card key={index} className="hover:shadow-lg transition-shadow">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div className={`w-16 h-16 bg-gradient-to-br ${tool.color} rounded-lg flex items-center justify-center`}>
+                            <Icon className="w-8 h-8 text-navy" />
                           </div>
-                          <div className="text-sm mt-1">{event.location}</div>
-                        </CardDescription>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="secondary" className="text-xs">
+                              {tool.status}
+                            </Badge>
+                            <div className="flex items-center text-xs text-muted-foreground">
+                              <Clock className="w-3 h-3 mr-1" />
+                              {tool.time}
+                            </div>
+                          </div>
+                        </div>
+                        <CardTitle className="text-navy">{tool.title}</CardTitle>
+                        <CardDescription>{tool.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="mb-4">
+                          <div className="text-xs font-semibold text-navy mb-2">Features:</div>
+                          <div className="flex flex-wrap gap-1">
+                            {tool.features.map((feature, featureIndex) => (
+                              <Badge key={featureIndex} variant="outline" className="text-xs">
+                                {feature}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        <Button asChild className="w-full">
+                          <Link to={tool.path}>
+                            Launch Tool
+                            <ArrowRight className="w-4 h-4 ml-2" />
+                          </Link>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </TabsContent>
+
+            {/* Guides & Templates */}
+            <TabsContent value="guides" className="space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-navy mb-4">Guides & Templates</h2>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Download comprehensive guides, templates, and frameworks to support your implementation.
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                {guides.map((guide, index) => {
+                  const Icon = guide.icon;
+                  return (
+                    <Card key={index} className="hover:shadow-lg transition-shadow">
+                      <CardHeader>
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex items-center justify-center">
+                            <Icon className="w-6 h-6 text-navy" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-navy">{guide.title}</CardTitle>
+                            <CardDescription>{guide.description}</CardDescription>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="text-sm text-muted-foreground">
+                            {guide.type} • {guide.pages} pages
+                          </div>
+                        </div>
+                        <div className="mb-4">
+                          <div className="flex flex-wrap gap-1">
+                            {guide.tags.map((tag, tagIndex) => (
+                              <Badge key={tagIndex} variant="outline" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        <Button asChild className="w-full">
+                          <a href={guide.downloadUrl}>
+                            <Download className="w-4 h-4 mr-2" />
+                            Download
+                          </a>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </TabsContent>
+
+            {/* Case Studies */}
+            <TabsContent value="cases" className="space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-navy mb-4">Case Studies</h2>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Learn from real-world examples of successful shared wealth implementations.
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {caseStudies.map((study, index) => (
+                  <Card key={index} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge variant="secondary">{study.sector}</Badge>
+                        <div className="flex items-center text-xs text-muted-foreground">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {study.readTime}
+                        </div>
+                      </div>
+                      <CardTitle className="text-navy text-lg">{study.title}</CardTitle>
+                      <CardDescription>{study.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="mb-4">
+                        <div className="text-sm font-semibold text-green-600 mb-2">
+                          Impact: {study.impact}
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {study.tags.map((tag, tagIndex) => (
+                            <Badge key={tagIndex} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <Button asChild className="w-full">
+                        <Link to={`/case-studies/${study.company.toLowerCase().replace(/\s+/g, '-')}`}>
+                          Read Case Study
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            {/* Webinars */}
+            <TabsContent value="webinars" className="space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-navy mb-4">Webinars & Recordings</h2>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Watch expert-led webinars and learn from industry leaders.
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {webinars.map((webinar, index) => (
+                  <Card key={index} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge variant="secondary">{webinar.duration}</Badge>
+                        <div className="flex items-center text-xs text-muted-foreground">
+                          <Users className="w-3 h-3 mr-1" />
+                          {webinar.attendees}
+                        </div>
+                      </div>
+                      <CardTitle className="text-navy text-lg">{webinar.title}</CardTitle>
+                      <CardDescription>{webinar.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="mb-4">
+                        <div className="text-sm text-muted-foreground mb-2">
+                          Speaker: {webinar.speaker}
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {webinar.tags.map((tag, tagIndex) => (
+                            <Badge key={tagIndex} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <Button asChild className="w-full">
+                        <a href={webinar.recordingUrl}>
+                          <Play className="w-4 h-4 mr-2" />
+                          Watch Recording
+                        </a>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            {/* Research */}
+            <TabsContent value="research" className="space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-navy mb-4">Research & Publications</h2>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Access academic research and publications on shared wealth principles.
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                {research.map((paper, index) => (
+                  <Card key={index} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge variant="secondary">{paper.year}</Badge>
+                        <div className="flex items-center text-xs text-muted-foreground">
+                          <Star className="w-3 h-3 mr-1" />
+                          {paper.citations} citations
+                        </div>
+                      </div>
+                      <CardTitle className="text-navy">{paper.title}</CardTitle>
+                      <CardDescription>{paper.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="mb-4">
+                        <div className="text-sm text-muted-foreground mb-2">
+                          Authors: {paper.authors}
+                        </div>
+                        <div className="text-sm text-muted-foreground mb-2">
+                          Publication: {paper.publication}
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {paper.tags.map((tag, tagIndex) => (
+                            <Badge key={tagIndex} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <Button asChild className="w-full">
+                        <a href={paper.downloadUrl}>
+                          <Download className="w-4 h-4 mr-2" />
+                          Download Paper
+                        </a>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            {/* Events */}
+            <TabsContent value="events" className="space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-navy mb-4">Events & Networking</h2>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Join our community events, workshops, and networking opportunities.
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant="secondary">Workshop</Badge>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Clock className="w-3 h-3 mr-1" />
+                        Mar 15, 2024
                       </div>
                     </div>
+                    <CardTitle className="text-navy text-lg">Shared Wealth Implementation Workshop</CardTitle>
+                    <CardDescription>Hands-on workshop for implementing shared wealth practices</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground mb-4">{event.description}</p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {event.highlights.map((highlight) => (
-                        <Badge key={highlight} variant="outline" className="text-xs">
-                          {highlight}
-                        </Badge>
-                      ))}
+                    <div className="mb-4">
+                      <div className="text-sm text-muted-foreground mb-2">
+                        Location: Virtual / London
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        <Badge variant="outline" className="text-xs">Implementation</Badge>
+                        <Badge variant="outline" className="text-xs">Workshop</Badge>
+                        <Badge variant="outline" className="text-xs">Networking</Badge>
+                      </div>
                     </div>
-                    <Button variant="green" size="sm" className="w-full">
-                      Register Now
+                    <Button asChild className="w-full">
+                      <Link to="/events">
+                        View Details
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
                     </Button>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          </div>
 
-          {/* Future Events */}
-          <div className="mb-16">
-            <h3 className="text-2xl font-bold text-navy mb-8 text-center">Upcoming Events</h3>
-            <div className="grid lg:grid-cols-2 gap-8">
-              {futureEvents.map((event, index) => (
-                <Card key={event.title} className="animate-fade-in hover:shadow-lg transition-all duration-300" style={{ animationDelay: `${index * 0.1}s` }}>
+                <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <Badge variant="outline" className="mb-2">
-                          Coming Soon
-                        </Badge>
-                        <CardTitle className="text-lg text-navy">{event.title}</CardTitle>
-                        <CardDescription>
-                          <div className="flex items-center gap-1 mt-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>{event.date}</span>
-                          </div>
-                          <div className="text-sm mt-1">{event.location}</div>
-                        </CardDescription>
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant="secondary">Conference</Badge>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Clock className="w-3 h-3 mr-1" />
+                        Apr 22, 2024
                       </div>
                     </div>
+                    <CardTitle className="text-navy text-lg">Annual Shared Wealth Summit</CardTitle>
+                    <CardDescription>Join industry leaders and practitioners for our annual conference</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground mb-4">{event.description}</p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {event.highlights.map((highlight) => (
-                        <Badge key={highlight} variant="outline" className="text-xs">
-                          {highlight}
-                        </Badge>
-                      ))}
+                    <div className="mb-4">
+                      <div className="text-sm text-muted-foreground mb-2">
+                        Location: Manchester, UK
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        <Badge variant="outline" className="text-xs">Conference</Badge>
+                        <Badge variant="outline" className="text-xs">Networking</Badge>
+                        <Badge variant="outline" className="text-xs">Keynotes</Badge>
+                      </div>
                     </div>
-                    <Button variant="outline" size="sm" className="w-full">
-                      Notify Me
+                    <Button asChild className="w-full">
+                      <Link to="/events">
+                        View Details
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
                     </Button>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          </div>
 
-          {/* Past Events */}
-          <div>
-            <h3 className="text-2xl font-bold text-navy mb-8 text-center">Past Events & Achievements</h3>
-            <div className="grid lg:grid-cols-2 gap-8">
-              {pastEvents.map((event, index) => (
-                <Card key={event.title} className="animate-fade-in hover:shadow-lg transition-all duration-300 bg-muted/30" style={{ animationDelay: `${index * 0.1}s` }}>
+                <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <Badge variant="secondary" className="mb-2">
-                          {event.type}
-                        </Badge>
-                        <CardTitle className="text-lg text-navy">{event.title}</CardTitle>
-                        <CardDescription>
-                          <div className="flex items-center gap-1 mt-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>{event.date}</span>
-                          </div>
-                          <div className="text-sm mt-1">{event.location}</div>
-                        </CardDescription>
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant="secondary">Networking</Badge>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Clock className="w-3 h-3 mr-1" />
+                        May 10, 2024
                       </div>
                     </div>
+                    <CardTitle className="text-navy text-lg">Community Meetup</CardTitle>
+                    <CardDescription>Connect with fellow shared wealth practitioners</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground mb-4">{event.description}</p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {event.highlights.map((highlight) => (
-                        <Badge key={highlight} variant="outline" className="text-xs">
-                          {highlight}
-                        </Badge>
-                      ))}
+                    <div className="mb-4">
+                      <div className="text-sm text-muted-foreground mb-2">
+                        Location: Various Cities
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        <Badge variant="outline" className="text-xs">Networking</Badge>
+                        <Badge variant="outline" className="text-xs">Community</Badge>
+                        <Badge variant="outline" className="text-xs">Local</Badge>
+                      </div>
                     </div>
-                    <Button variant="outline" size="sm" className="w-full">
-                      View Highlights
+                    <Button asChild className="w-full">
+                      <Link to="/events">
+                        View Details
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
                     </Button>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          </div>
+              </div>
+
+              <div className="text-center">
+                <Button asChild size="lg">
+                  <Link to="/events">
+                    View All Events
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+            </TabsContent>
+
+            {/* Forum */}
+            <TabsContent value="forum" className="space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-navy mb-4">Community Forum</h2>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Connect with the shared wealth community, ask questions, and share experiences.
+                </p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant="secondary">Implementation</Badge>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Users className="w-3 h-3 mr-1" />
+                        24 replies
+                      </div>
+                    </div>
+                    <CardTitle className="text-navy text-lg">Getting Started with Profit Sharing</CardTitle>
+                    <CardDescription>Tips and best practices for implementing profit sharing programs</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="mb-4">
+                      <div className="text-sm text-muted-foreground mb-2">
+                        Started by: Sarah Johnson • 2 days ago
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        <Badge variant="outline" className="text-xs">Profit Sharing</Badge>
+                        <Badge variant="outline" className="text-xs">Implementation</Badge>
+                        <Badge variant="outline" className="text-xs">Best Practices</Badge>
+                      </div>
+                    </div>
+                    <Button asChild className="w-full">
+                      <Link to="/forum">
+                        Join Discussion
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant="secondary">Governance</Badge>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Users className="w-3 h-3 mr-1" />
+                        18 replies
+                      </div>
+                    </div>
+                    <CardTitle className="text-navy text-lg">Employee Board Representation</CardTitle>
+                    <CardDescription>Experiences with employee representation on company boards</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="mb-4">
+                      <div className="text-sm text-muted-foreground mb-2">
+                        Started by: Michael Chen • 1 week ago
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        <Badge variant="outline" className="text-xs">Governance</Badge>
+                        <Badge variant="outline" className="text-xs">Board</Badge>
+                        <Badge variant="outline" className="text-xs">Experience</Badge>
+                      </div>
+                    </div>
+                    <Button asChild className="w-full">
+                      <Link to="/forum">
+                        Join Discussion
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant="secondary">Community</Badge>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Users className="w-3 h-3 mr-1" />
+                        32 replies
+                      </div>
+                    </div>
+                    <CardTitle className="text-navy text-lg">Measuring Social Impact</CardTitle>
+                    <CardDescription>How do you measure the social impact of shared wealth initiatives?</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="mb-4">
+                      <div className="text-sm text-muted-foreground mb-2">
+                        Started by: Elena Petrova • 3 days ago
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        <Badge variant="outline" className="text-xs">Impact</Badge>
+                        <Badge variant="outline" className="text-xs">Measurement</Badge>
+                        <Badge variant="outline" className="text-xs">Social</Badge>
+                      </div>
+                    </div>
+                    <Button asChild className="w-full">
+                      <Link to="/forum">
+                        Join Discussion
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant="secondary">Resources</Badge>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <Users className="w-3 h-3 mr-1" />
+                        15 replies
+                      </div>
+                    </div>
+                    <CardTitle className="text-navy text-lg">Recommended Reading List</CardTitle>
+                    <CardDescription>Share your favorite books and resources on shared wealth</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="mb-4">
+                      <div className="text-sm text-muted-foreground mb-2">
+                        Started by: David Kim • 5 days ago
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        <Badge variant="outline" className="text-xs">Resources</Badge>
+                        <Badge variant="outline" className="text-xs">Books</Badge>
+                        <Badge variant="outline" className="text-xs">Learning</Badge>
+                      </div>
+                    </div>
+                    <Button asChild className="w-full">
+                      <Link to="/forum">
+                        Join Discussion
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="text-center">
+                <Button asChild size="lg">
+                  <Link to="/forum">
+                    Join the Forum
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 lg:py-24 bg-navy text-background">
-        <div className="container mx-auto px-4 lg:px-6 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-6">
-            Stay Connected
-          </h2>
-          <p className="text-xl text-background/80 mb-8 max-w-2xl mx-auto">
-            Subscribe to our newsletter for the latest resources, insights, 
-            and updates from the shared wealth community.
+      <section className="py-16 bg-navy text-white">
+        <div className="container mx-auto px-6 text-center">
+          <h2 className="text-3xl font-bold mb-6">Ready to Get Started?</h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto">
+            Use our tools and resources to begin your shared wealth journey today.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-            <Input 
-              placeholder="Enter your email" 
-              className="bg-background text-foreground"
-            />
-            <Button variant="green" size="lg">
-              Subscribe
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" variant="green">
+              <Link to="/dashboard">Start Assessment</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-navy">
+              <Link to="/model">Learn Our Model</Link>
             </Button>
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 };
