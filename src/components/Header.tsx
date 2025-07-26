@@ -3,16 +3,23 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LogOut, User, Menu } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut, loading } = useAuth();
+  const { t, i18n } = useTranslation();
+
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    i18n.changeLanguage(e.target.value);
+  };
 
   // General navigation - available to everyone
   const generalNavigation = [
     { name: "About", href: "/about" },
     { name: "Shared Wealth Model", href: "/model" },
     { name: "Shared Wealth Network", href: "/network" },
+    { name: "Collaboration Hub", href: "/collaboration-hub" },
     { name: "Resources", href: "/resources" },
   ];
 
@@ -36,7 +43,8 @@ const Header = () => {
               alt="Shared Wealth International Logo" 
               className="w-8 h-8"
             />
-            <span className="text-xl font-bold text-navy">Shared Wealth International</span>
+            <span className="text-xl font-bold text-navy">{t('welcome')}</span>
+            <Link to="/knowledge-hub" style={{ marginLeft: 16, fontWeight: 'bold' }}>{t('knowledgeHub')}</Link>
           </Link>
 
           {/* Desktop Navigation - General Features Only */}
@@ -61,11 +69,11 @@ const Header = () => {
                   <span>{user.email}</span>
                 </div>
                 <Link to="/dashboard">
-                  <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm">
                     <Menu className="w-4 h-4 mr-2" />
                     Dashboard
-                  </Button>
-                </Link>
+                    </Button>
+                  </Link>
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -84,9 +92,9 @@ const Header = () => {
                   </Button>
                 </Link>
                 <Link to="/auth?mode=signup">
-                  <Button variant="green" size="sm">
-                    Get Involved
-                  </Button>
+                <Button variant="green" size="sm">
+                  Get Involved
+                </Button>
                 </Link>
               </>
             )}
@@ -129,11 +137,11 @@ const Header = () => {
                       <span>{user.email}</span>
                     </div>
                     <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="outline" size="sm" className="w-full">
+                        <Button variant="outline" size="sm" className="w-full">
                         <Menu className="w-4 h-4 mr-2" />
                         Dashboard
-                      </Button>
-                    </Link>
+                        </Button>
+                      </Link>
                     <Button 
                       variant="outline" 
                       size="sm" 
@@ -154,8 +162,8 @@ const Header = () => {
                     </Link>
                     <Link to="/auth?mode=signup" onClick={() => setIsMenuOpen(false)}>
                       <Button variant="green" size="sm" className="w-full">
-                        Get Involved
-                      </Button>
+                      Get Involved
+                    </Button>
                     </Link>
                   </>
                 )}

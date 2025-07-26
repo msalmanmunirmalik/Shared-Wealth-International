@@ -169,13 +169,13 @@ const Model = () => {
               const Icon = principle.icon;
               return (
                 <Card key={index} className="text-center hover:shadow-lg transition-shadow">
-                  <CardHeader>
+                <CardHeader>
                     <div className={`w-16 h-16 bg-gradient-to-br ${principle.color} rounded-full flex items-center justify-center mx-auto mb-4`}>
                       <Icon className="w-8 h-8 text-navy" />
                     </div>
                     <CardTitle className="text-navy">{principle.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
+                </CardHeader>
+                <CardContent>
                     <CardDescription>{principle.description}</CardDescription>
                   </CardContent>
                 </Card>
@@ -204,7 +204,7 @@ const Model = () => {
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex items-center justify-center">
                         <Icon className="w-6 h-6 text-navy" />
                       </div>
-                      <div>
+                    <div>
                         <CardTitle className="text-navy">{component.title}</CardTitle>
                         <CardDescription>{component.description}</CardDescription>
                       </div>
@@ -217,7 +217,7 @@ const Model = () => {
                           <CheckCircle className="w-4 h-4 text-green-600" />
                           <span className="text-sm">{benefit}</span>
                         </div>
-                      ))}
+                        ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -254,8 +254,8 @@ const Model = () => {
                   </CardHeader>
                   <CardContent>
                     <CardDescription>{step.description}</CardDescription>
-                  </CardContent>
-                </Card>
+                </CardContent>
+              </Card>
               );
             })}
           </div>
@@ -341,7 +341,7 @@ const Model = () => {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-navy">GreenEnergy Co</CardTitle>
                   <Badge variant="secondary">Renewable Energy</Badge>
-                </div>
+            </div>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">
@@ -352,12 +352,12 @@ const Model = () => {
                   <div>
                     <div className="font-bold text-green-600">15%</div>
                     <div className="text-muted-foreground">Profit Sharing</div>
-                  </div>
+            </div>
                   <div>
                     <div className="font-bold text-green-600">95%</div>
                     <div className="text-muted-foreground">Satisfaction Rate</div>
-                  </div>
-                </div>
+            </div>
+            </div>
               </CardContent>
             </Card>
           </div>

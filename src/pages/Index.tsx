@@ -50,12 +50,12 @@ const Index = () => {
                 </Link>
               </Button>
             ) : (
-              <Button asChild variant="green" size="lg">
+            <Button asChild variant="green" size="lg">
                 <Link to="/auth">
                   Get Started
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
-              </Button>
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Link>
+            </Button>
             )}
           </div>
         </div>

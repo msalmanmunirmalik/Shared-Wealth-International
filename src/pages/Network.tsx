@@ -527,7 +527,7 @@ const Network = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 h-12 border-2 border-gray-200 focus:border-navy"
                   />
-                </div>
+              </div>
               </div>
               <div className="flex gap-4">
                 <Select value={selectedSector} onValueChange={setSelectedSector}>
@@ -568,7 +568,7 @@ const Network = () => {
               <div>
                 <h2 className="text-3xl font-bold text-navy mb-2">
                   {filteredCompanies.length} Companies Found
-                </h2>
+            </h2>
                 <p className="text-muted-foreground">
                   Explore our network of shared wealth pioneers
                 </p>
@@ -576,8 +576,8 @@ const Network = () => {
               <Button variant="outline" asChild className="h-12 px-6">
                 <Link to="/dashboard">Join Network</Link>
               </Button>
-            </div>
-            
+                </div>
+
             {isLoading ? (
               <div className="text-center py-20">
                 <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -614,8 +614,8 @@ const Network = () => {
                           <CardTitle className="text-lg font-bold text-navy group-hover:text-navy/80 transition-colors line-clamp-2">
                             {company.name}
                           </CardTitle>
-                        </div>
-                        
+            </div>
+
                         <div className="flex items-center space-x-2 mb-3">
                           <Badge className={`text-xs font-medium border ${getStatusColor(company.status)}`}>
                             {company.status}
@@ -627,8 +627,8 @@ const Network = () => {
                           <span className="truncate">{company.location}</span>
                         </CardDescription>
                       </div>
-                    </div>
-                  </CardHeader>
+                      </div>
+                    </CardHeader>
                   
                   <CardContent className="pt-0">
                     <p className="text-sm text-muted-foreground mb-6 leading-relaxed line-clamp-3">
@@ -652,15 +652,15 @@ const Network = () => {
                       <div className="text-center p-3 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg">
                         <div className="text-lg font-bold text-amber-700">{company.joinedDate}</div>
                         <div className="text-xs text-amber-600 font-medium">Joined</div>
-                      </div>
-                    </div>
-
+                          </div>
+                        </div>
+                        
                     {/* Key Highlights */}
                     <div className="mb-6">
                       <div className="text-xs font-semibold text-navy mb-3 flex items-center">
                         <Award className="w-3 h-3 mr-1" />
                         Key Highlights
-                      </div>
+                        </div>
                       <div className="flex flex-wrap gap-2">
                         {company.highlights.slice(0, 3).map((highlight, index) => (
                           <Badge key={index} variant="outline" className="text-xs bg-white/50">
@@ -689,10 +689,10 @@ const Network = () => {
                           <ArrowRight className="w-4 h-4 ml-2" />
                         </Link>
                       </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               
               {filteredCompanies.length === 0 && (
                 <div className="text-center py-20">
@@ -713,11 +713,11 @@ const Network = () => {
                   >
                     Clear All Filters
                   </Button>
-                </div>
+              </div>
               )}
             </div>
           )}
-        </div>
+          </div>
         </div>
       </section>
 
@@ -736,13 +736,13 @@ const Network = () => {
                   <Briefcase className="w-5 h-5 mr-2" />
                   Start Assessment
                 </Link>
-              </Button>
+            </Button>
               <Button asChild size="lg" variant="outline" className="h-14 px-8 border-2 border-white text-white hover:bg-white hover:text-navy">
                 <Link to="/model" className="flex items-center">
                   <Target className="w-5 h-5 mr-2" />
                   Learn Our Model
                 </Link>
-              </Button>
+            </Button>
             </div>
           </div>
         </div>

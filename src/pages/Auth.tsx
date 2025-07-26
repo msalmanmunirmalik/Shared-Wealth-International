@@ -99,7 +99,7 @@ const Auth = () => {
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred");
     } finally {
-      setIsLoading(false);
+    setIsLoading(false);
     }
   };
 
@@ -156,7 +156,7 @@ const Auth = () => {
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred");
     } finally {
-      setIsLoading(false);
+    setIsLoading(false);
     }
   };
 
@@ -215,25 +215,25 @@ const Auth = () => {
               </Button>
             </form>
           ) : mode === "signin" ? (
-            <form onSubmit={handleSignIn} className="space-y-4">
+              <form onSubmit={handleSignIn} className="space-y-4">
               <Label htmlFor="email">Email</Label>
-              <Input
+                  <Input
                 id="email"
-                type="email"
-                value={email}
+                    type="email"
+                    value={email}
                 onChange={e => setEmail(e.target.value)}
-                required
+                    required
                 autoFocus
-              />
+                  />
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Input
+                  <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  value={password}
+                    value={password}
                   onChange={e => setPassword(e.target.value)}
-                  required
-                />
+                    required
+                  />
                 <Button
                   type="button"
                   variant="ghost"
@@ -244,7 +244,7 @@ const Auth = () => {
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
-              </div>
+                </div>
               <div className="flex justify-between items-center">
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Signing In..." : "Sign In"}
@@ -259,14 +259,14 @@ const Auth = () => {
                   Forgot password?
                 </button>
               </div>
-            </form>
+              </form>
           ) : (
-            <form onSubmit={handleSignUp} className="space-y-4">
+              <form onSubmit={handleSignUp} className="space-y-4">
               <Label htmlFor="signupEmail">Email</Label>
-              <Input
+                  <Input
                 id="signupEmail"
-                type="email"
-                value={email}
+                    type="email"
+                    value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
                 autoFocus
@@ -278,8 +278,8 @@ const Auth = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  required
-                />
+                    required
+                  />
                 <Button
                   type="button"
                   variant="ghost"
@@ -290,15 +290,15 @@ const Auth = () => {
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
-              </div>
+                </div>
               <Label htmlFor="confirmPassword">Confirm Password</Label>
               <div className="relative">
-                <Input
+                  <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
-                  required
+                    required
                 />
                 <Button
                   type="button"
@@ -310,11 +310,11 @@ const Auth = () => {
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
-              </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Creating Account..." : "Sign Up"}
-              </Button>
-            </form>
+                </Button>
+              </form>
           )}
           <div className="mt-6 text-center text-sm">
             {mode === "signin" ? (

@@ -87,6 +87,10 @@ export type Database = {
           title: string
           type: string
           user_id: string
+          collaboration_type: string | null
+          related_companies: string[] | null
+          impact_metrics: Json | null
+          shared_wealth_contribution: string | null
         }
         Insert: {
           approved?: boolean | null
@@ -97,6 +101,10 @@ export type Database = {
           title: string
           type: string
           user_id: string
+          collaboration_type?: string | null
+          related_companies?: string[] | null
+          impact_metrics?: Json | null
+          shared_wealth_contribution?: string | null
         }
         Update: {
           approved?: boolean | null
@@ -107,6 +115,10 @@ export type Database = {
           title?: string
           type?: string
           user_id?: string
+          collaboration_type?: string | null
+          related_companies?: string[] | null
+          impact_metrics?: Json | null
+          shared_wealth_contribution?: string | null
         }
         Relationships: [
           {
@@ -592,6 +604,222 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      collaboration_meetings: {
+        Row: {
+          id: string;
+          company_id: string;
+          meeting_title: string;
+          meeting_date: string;
+          participants: string[];
+          meeting_notes: string | null;
+          outcomes: string | null;
+          impact_score: number | null;
+          shared_wealth_contribution: string | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          meeting_title: string;
+          meeting_date: string;
+          participants: string[];
+          meeting_notes?: string | null;
+          outcomes?: string | null;
+          impact_score?: number | null;
+          shared_wealth_contribution?: string | null;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          company_id?: string;
+          meeting_title?: string;
+          meeting_date?: string;
+          participants?: string[];
+          meeting_notes?: string | null;
+          outcomes?: string | null;
+          impact_score?: number | null;
+          shared_wealth_contribution?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "collaboration_meetings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaboration_meetings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ];
+      };
+      company_growth_metrics: {
+        Row: {
+          id: string;
+          company_id: string;
+          metric_date: string;
+          metric_type: string;
+          metric_value: number;
+          metric_unit: string | null;
+          notes: string | null;
+          shared_wealth_impact: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          metric_date: string;
+          metric_type: string;
+          metric_value: number;
+          metric_unit?: string | null;
+          notes?: string | null;
+          shared_wealth_impact?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          company_id?: string;
+          metric_date?: string;
+          metric_type?: string;
+          metric_value?: number;
+          metric_unit?: string | null;
+          notes?: string | null;
+          shared_wealth_impact?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "company_growth_metrics_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          }
+        ];
+      };
+      network_connections: {
+        Row: {
+          id: string;
+          source_company_id: string;
+          target_company_id: string;
+          connection_type: string;
+          connection_date: string;
+          description: string | null;
+          outcome: string | null;
+          value_generated: string | null;
+          created_by: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          source_company_id: string;
+          target_company_id: string;
+          connection_type: string;
+          connection_date: string;
+          description?: string | null;
+          outcome?: string | null;
+          value_generated?: string | null;
+          created_by: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          source_company_id?: string;
+          target_company_id?: string;
+          connection_type?: string;
+          connection_date?: string;
+          description?: string | null;
+          outcome?: string | null;
+          value_generated?: string | null;
+          created_by?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "network_connections_source_company_id_fkey"
+            columns: ["source_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "network_connections_target_company_id_fkey"
+            columns: ["target_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "network_connections_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ];
+      };
+      activity_feed: {
+        Row: {
+          id: string;
+          activity_type: string;
+          company_id: string;
+          user_id: string;
+          title: string;
+          description: string | null;
+          metadata: Json | null;
+          is_featured: boolean | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          activity_type: string;
+          company_id: string;
+          user_id: string;
+          title: string;
+          description?: string | null;
+          metadata?: Json | null;
+          is_featured?: boolean | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          activity_type?: string;
+          company_id?: string;
+          user_id?: string;
+          title?: string;
+          description?: string | null;
+          metadata?: Json | null;
+          is_featured?: boolean | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "activity_feed_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_feed_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ];
       };
     }
     Views: {

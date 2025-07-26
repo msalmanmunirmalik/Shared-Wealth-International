@@ -294,16 +294,16 @@ const About = () => {
               const Icon = value.icon;
               return (
                 <Card key={index} className="text-center">
-                  <CardHeader>
+              <CardHeader>
                     <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <Icon className="w-8 h-8 text-navy" />
                     </div>
                     <CardTitle className="text-navy">{value.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
+              </CardHeader>
+              <CardContent>
                     <CardDescription>{value.description}</CardDescription>
-                  </CardContent>
-                </Card>
+              </CardContent>
+            </Card>
               );
             })}
           </div>
@@ -345,20 +345,20 @@ const About = () => {
                 <CardHeader className="text-center">
                   <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-2 border-navy/20">
                     {leader.image ? (
-                      <img 
-                        src={leader.image} 
-                        alt={leader.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.currentTarget as HTMLImageElement;
-                          target.style.display = 'none';
-                          const fallback = target.nextElementSibling as HTMLElement;
-                          if (fallback) fallback.style.display = 'flex';
-                        }}
-                      />
+                    <img 
+                      src={leader.image} 
+                      alt={leader.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        target.style.display = 'none';
+                        const fallback = target.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
+                    />
                     ) : null}
                     <div className="w-full h-full bg-gradient-to-br from-navy to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                      {leader.name.split(' ').map(n => n[0]).join('')}
+                        {leader.name.split(' ').map(n => n[0]).join('')}
                     </div>
                   </div>
                   <CardTitle className="text-lg text-navy">{leader.name}</CardTitle>

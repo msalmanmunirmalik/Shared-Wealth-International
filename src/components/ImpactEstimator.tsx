@@ -143,40 +143,40 @@ const ImpactEstimator = () => {
         </TabsList>
 
         <TabsContent value="calculator" className="space-y-6">
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Input Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center text-navy">
-                  <Calculator className="w-5 h-5 mr-2" />
-                  Company Information
-                </CardTitle>
-                <CardDescription>
+      <div className="grid lg:grid-cols-2 gap-8">
+        {/* Input Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center text-navy">
+              <Calculator className="w-5 h-5 mr-2" />
+              Company Information
+            </CardTitle>
+            <CardDescription>
                   Enter your company details for personalized impact analysis
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="revenue">Annual Revenue</Label>
-                  <Input
-                    id="revenue"
-                    type="number"
-                    value={inputs.revenue}
-                    onChange={(e) => setInputs({...inputs, revenue: Number(e.target.value)})}
-                    placeholder="1000000"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="employees">Number of Employees</Label>
-                  <Input
-                    id="employees"
-                    type="number"
-                    value={inputs.employees}
-                    onChange={(e) => setInputs({...inputs, employees: Number(e.target.value)})}
-                    placeholder="50"
-                  />
-                </div>
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="revenue">Annual Revenue</Label>
+              <Input
+                id="revenue"
+                type="number"
+                value={inputs.revenue}
+                onChange={(e) => setInputs({...inputs, revenue: Number(e.target.value)})}
+                placeholder="1000000"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="employees">Number of Employees</Label>
+              <Input
+                id="employees"
+                type="number"
+                value={inputs.employees}
+                onChange={(e) => setInputs({...inputs, employees: Number(e.target.value)})}
+                placeholder="50"
+              />
+            </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="industry">Industry</Label>
@@ -204,17 +204,17 @@ const ImpactEstimator = () => {
                     placeholder="5"
                   />
                 </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="profit-margin">Current Profit Margin (%)</Label>
-                  <Input
-                    id="profit-margin"
-                    type="number"
-                    value={inputs.profitMargin}
-                    onChange={(e) => setInputs({...inputs, profitMargin: Number(e.target.value)})}
-                    placeholder="15"
-                  />
-                </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="profit-margin">Current Profit Margin (%)</Label>
+              <Input
+                id="profit-margin"
+                type="number"
+                value={inputs.profitMargin}
+                onChange={(e) => setInputs({...inputs, profitMargin: Number(e.target.value)})}
+                placeholder="15"
+              />
+            </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="turnover">Current Annual Turnover Rate (%)</Label>
@@ -226,57 +226,57 @@ const ImpactEstimator = () => {
                     placeholder="15"
                   />
                 </div>
-                
-                <div className="space-y-4">
-                  <Label>Desired % of Profit/Value to Share: {inputs.sharePercentage}%</Label>
-                  <Slider
-                    value={[inputs.sharePercentage]}
-                    onValueChange={(value) => setInputs({...inputs, sharePercentage: value[0]})}
+            
+            <div className="space-y-4">
+              <Label>Desired % of Profit/Value to Share: {inputs.sharePercentage}%</Label>
+              <Slider
+                value={[inputs.sharePercentage]}
+                onValueChange={(value) => setInputs({...inputs, sharePercentage: value[0]})}
                     max={30}
-                    min={5}
-                    step={1}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>5%</span>
+                min={5}
+                step={1}
+                className="w-full"
+              />
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>5%</span>
                     <span>30%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-            {/* Results Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center text-navy">
-                  <TrendingUp className="w-5 h-5 mr-2" />
-                  Estimated Impact
-                </CardTitle>
-                <CardDescription>
-                  Projected benefits of implementing shared wealth practices
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-gradient-subtle rounded-lg">
-                    <DollarSign className="w-8 h-8 mx-auto mb-2 text-green" />
-                    <div className="text-2xl font-bold text-navy">{formatCurrency(results.sharedValue)}</div>
-                    <div className="text-sm text-muted-foreground">Value Shared Annually</div>
-                  </div>
-                  
-                  <div className="text-center p-4 bg-gradient-subtle rounded-lg">
-                    <TrendingUp className="w-8 h-8 mx-auto mb-2 text-teal" />
-                    <div className="text-2xl font-bold text-navy">{formatCurrency(results.productivityIncrease)}</div>
-                    <div className="text-sm text-muted-foreground">Productivity Boost</div>
-                  </div>
-                  
-                  <div className="text-center p-4 bg-gradient-subtle rounded-lg">
-                    <Users className="w-8 h-8 mx-auto mb-2 text-orange" />
-                    <div className="text-2xl font-bold text-navy">{formatCurrency(results.retentionBenefit)}</div>
-                    <div className="text-sm text-muted-foreground">Retention Savings</div>
-                  </div>
-                  
-                  <div className="text-center p-4 bg-gradient-subtle rounded-lg">
+        {/* Results Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center text-navy">
+              <TrendingUp className="w-5 h-5 mr-2" />
+              Estimated Impact
+            </CardTitle>
+            <CardDescription>
+              Projected benefits of implementing shared wealth practices
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-4 bg-gradient-subtle rounded-lg">
+                <DollarSign className="w-8 h-8 mx-auto mb-2 text-green" />
+                <div className="text-2xl font-bold text-navy">{formatCurrency(results.sharedValue)}</div>
+                <div className="text-sm text-muted-foreground">Value Shared Annually</div>
+              </div>
+              
+              <div className="text-center p-4 bg-gradient-subtle rounded-lg">
+                <TrendingUp className="w-8 h-8 mx-auto mb-2 text-teal" />
+                <div className="text-2xl font-bold text-navy">{formatCurrency(results.productivityIncrease)}</div>
+                <div className="text-sm text-muted-foreground">Productivity Boost</div>
+              </div>
+              
+              <div className="text-center p-4 bg-gradient-subtle rounded-lg">
+                <Users className="w-8 h-8 mx-auto mb-2 text-orange" />
+                <div className="text-2xl font-bold text-navy">{formatCurrency(results.retentionBenefit)}</div>
+                <div className="text-sm text-muted-foreground">Retention Savings</div>
+              </div>
+              
+              <div className="text-center p-4 bg-gradient-subtle rounded-lg">
                     <Leaf className="w-8 h-8 mx-auto mb-2 text-green" />
                     <div className="text-2xl font-bold text-navy">{formatCurrency(results.environmentalImpact)}</div>
                     <div className="text-sm text-muted-foreground">Environmental Value</div>
@@ -301,21 +301,21 @@ const ImpactEstimator = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Payback Period</span>
                     <span className="text-sm font-bold">{results.paybackPeriod.toFixed(1)} months</span>
-                  </div>
-                </div>
-                
-                <div className="space-y-3 pt-4 border-t border-border">
-                  <h4 className="font-semibold text-navy">Key Benefits Summary:</h4>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li>• Estimated {formatPercentage((results.productivityIncrease / inputs.revenue) * 100)} increase in productivity</li>
+              </div>
+            </div>
+            
+            <div className="space-y-3 pt-4 border-t border-border">
+              <h4 className="font-semibold text-navy">Key Benefits Summary:</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• Estimated {formatPercentage((results.productivityIncrease / inputs.revenue) * 100)} increase in productivity</li>
                     <li>• Potential {formatPercentage(Math.min(inputs.sharePercentage / 5, 25))} reduction in employee turnover</li>
                     <li>• {formatPercentage((results.environmentalImpact / inputs.revenue) * 100)} of revenue in environmental value creation</li>
                     <li>• {results.stakeholderSatisfaction.toFixed(0)}/100 stakeholder satisfaction score</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
         </TabsContent>
 
         <TabsContent value="results" className="space-y-6">

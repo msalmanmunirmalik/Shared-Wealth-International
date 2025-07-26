@@ -174,8 +174,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
       } else {
         console.log('Sign out successful');
-        setUser(null);
-        setSession(null);
+    setUser(null);
+    setSession(null);
         toast({
           title: "Signed out successfully",
           description: "You have been signed out",
@@ -219,11 +219,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return { error };
     } catch (error: any) {
       console.error('Password reset exception:', error);
-      toast({
+    toast({
         title: "Password Reset Failed",
         description: "An unexpected error occurred",
         variant: "destructive"
-      });
+    });
       return { error };
     } finally {
       setLoading(false);

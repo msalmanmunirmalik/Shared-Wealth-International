@@ -1,0 +1,256 @@
+-- Enhanced Collaboration & Analytics Migration
+-- This migration adds support for tracking collaborations, meetings, and analytics
+-- for the Shared Wealth International real-time updates system
+
+-- 1. Collaboration Meetings Table
+CREATE TABLE public.collaboration_meetings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
+  meeting_title TEXT NOT NULL,
+  meeting_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  participants TEXT[] NOT NULL, -- Array of participant names/companies
+  meeting_notes TEXT,
+  outcomes TEXT,
+  impact_score INTEGER CHECK (impact_score >= 1 AND impact_score <= 10), -- 1-10 scale
+  shared_wealth_contribution TEXT, -- How SWI contributed to this meeting
+  created_by UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- 2. Company Growth Metrics Table
+CREATE TABLE public.company_growth_metrics (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
+  metric_date DATE NOT NULL,
+  metric_type TEXT NOT NULL, -- 'revenue', 'employees', 'customers', 'partnerships', 'media_reach'
+  metric_value NUMERIC NOT NULL,
+  metric_unit TEXT, -- 'USD', 'count', 'percentage', etc.
+  notes TEXT,
+  shared_wealth_impact TEXT, -- How SWI contributed to this growth
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- 3. Network Connections Table
+CREATE TABLE public.network_connections (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  source_company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
+  target_company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
+  connection_type TEXT NOT NULL, -- 'meeting', 'partnership', 'referral', 'collaboration'
+  connection_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  description TEXT,
+  outcome TEXT,
+  value_generated TEXT, -- Description of value created
+  created_by UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  UNIQUE(source_company_id, target_company_id, connection_date)
+);
+
+-- 4. Enhanced Company Posts with Collaboration Tags
+ALTER TABLE public.company_posts ADD COLUMN IF NOT EXISTS collaboration_type TEXT; -- 'meeting', 'partnership', 'growth', 'milestone'
+ALTER TABLE public.company_posts ADD COLUMN IF NOT EXISTS related_companies UUID[]; -- Array of related company IDs
+ALTER TABLE public.company_posts ADD COLUMN IF NOT EXISTS impact_metrics JSONB; -- Store impact data as JSON
+ALTER TABLE public.company_posts ADD COLUMN IF NOT EXISTS shared_wealth_contribution TEXT; -- How SWI helped
+
+-- 5. Real-time Activity Feed Table
+CREATE TABLE public.activity_feed (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  activity_type TEXT NOT NULL, -- 'post', 'meeting', 'growth', 'connection', 'milestone'
+  company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT,
+  metadata JSONB, -- Flexible metadata storage
+  is_featured BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Enable RLS on all new tables
+ALTER TABLE public.collaboration_meetings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.company_growth_metrics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.network_connections ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.activity_feed ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for Collaboration Meetings
+CREATE POLICY "Public can view approved collaboration meetings" 
+ON public.collaboration_meetings FOR SELECT 
+USING (true);
+
+CREATE POLICY "Company users can create collaboration meetings" 
+ON public.collaboration_meetings FOR INSERT 
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.company_users 
+    WHERE company_id = collaboration_meetings.company_id 
+    AND user_id = auth.uid() 
+    AND is_active = true
+  )
+);
+
+CREATE POLICY "Meeting creators can update their meetings" 
+ON public.collaboration_meetings FOR UPDATE 
+USING (created_by = auth.uid());
+
+-- RLS Policies for Growth Metrics
+CREATE POLICY "Public can view growth metrics" 
+ON public.company_growth_metrics FOR SELECT 
+USING (true);
+
+CREATE POLICY "Company users can create growth metrics" 
+ON public.company_growth_metrics FOR INSERT 
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.company_users 
+    WHERE company_id = company_growth_metrics.company_id 
+    AND user_id = auth.uid() 
+    AND is_active = true
+  )
+);
+
+-- RLS Policies for Network Connections
+CREATE POLICY "Public can view network connections" 
+ON public.network_connections FOR SELECT 
+USING (true);
+
+CREATE POLICY "Company users can create network connections" 
+ON public.network_connections FOR INSERT 
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.company_users 
+    WHERE company_id = network_connections.source_company_id 
+    AND user_id = auth.uid() 
+    AND is_active = true
+  )
+);
+
+-- RLS Policies for Activity Feed
+CREATE POLICY "Public can view activity feed" 
+ON public.activity_feed FOR SELECT 
+USING (true);
+
+CREATE POLICY "Company users can create activity feed entries" 
+ON public.activity_feed FOR INSERT 
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.company_users 
+    WHERE company_id = activity_feed.company_id 
+    AND user_id = auth.uid() 
+    AND is_active = true
+  )
+);
+
+-- Create indexes for better performance
+CREATE INDEX idx_collaboration_meetings_company_date ON public.collaboration_meetings(company_id, meeting_date);
+CREATE INDEX idx_growth_metrics_company_type ON public.company_growth_metrics(company_id, metric_type);
+CREATE INDEX idx_network_connections_companies ON public.network_connections(source_company_id, target_company_id);
+CREATE INDEX idx_activity_feed_company_type ON public.activity_feed(company_id, activity_type);
+CREATE INDEX idx_activity_feed_created_at ON public.activity_feed(created_at DESC);
+
+-- Function to automatically create activity feed entries
+CREATE OR REPLACE FUNCTION public.create_activity_feed_entry()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  -- Create activity feed entry for new collaboration meetings
+  IF TG_TABLE_NAME = 'collaboration_meetings' THEN
+    INSERT INTO public.activity_feed (
+      activity_type,
+      company_id,
+      user_id,
+      title,
+      description,
+      metadata
+    ) VALUES (
+      'meeting',
+      NEW.company_id,
+      NEW.created_by,
+      NEW.meeting_title,
+      NEW.outcomes,
+      jsonb_build_object(
+        'participants', NEW.participants,
+        'impact_score', NEW.impact_score,
+        'shared_wealth_contribution', NEW.shared_wealth_contribution
+      )
+    );
+  END IF;
+  
+  -- Create activity feed entry for new growth metrics
+  IF TG_TABLE_NAME = 'company_growth_metrics' THEN
+    INSERT INTO public.activity_feed (
+      activity_type,
+      company_id,
+      user_id,
+      title,
+      description,
+      metadata
+    ) VALUES (
+      'growth',
+      NEW.company_id,
+      (SELECT created_by FROM public.company_users WHERE company_id = NEW.company_id LIMIT 1),
+      NEW.metric_type || ' Growth',
+      NEW.notes,
+      jsonb_build_object(
+        'metric_value', NEW.metric_value,
+        'metric_unit', NEW.metric_unit,
+        'shared_wealth_impact', NEW.shared_wealth_impact
+      )
+    );
+  END IF;
+  
+  -- Create activity feed entry for new network connections
+  IF TG_TABLE_NAME = 'network_connections' THEN
+    INSERT INTO public.activity_feed (
+      activity_type,
+      company_id,
+      user_id,
+      title,
+      description,
+      metadata
+    ) VALUES (
+      'connection',
+      NEW.source_company_id,
+      NEW.created_by,
+      'New ' || NEW.connection_type || ' Connection',
+      NEW.description,
+      jsonb_build_object(
+        'target_company_id', NEW.target_company_id,
+        'outcome', NEW.outcome,
+        'value_generated', NEW.value_generated
+      )
+    );
+  END IF;
+  
+  RETURN NEW;
+END;
+$$;
+
+-- Triggers to automatically create activity feed entries
+CREATE TRIGGER trigger_collaboration_meeting_activity
+  AFTER INSERT ON public.collaboration_meetings
+  FOR EACH ROW EXECUTE FUNCTION public.create_activity_feed_entry();
+
+CREATE TRIGGER trigger_growth_metric_activity
+  AFTER INSERT ON public.company_growth_metrics
+  FOR EACH ROW EXECUTE FUNCTION public.create_activity_feed_entry();
+
+CREATE TRIGGER trigger_network_connection_activity
+  AFTER INSERT ON public.network_connections
+  FOR EACH ROW EXECUTE FUNCTION public.create_activity_feed_entry();
+
+-- Function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+-- Trigger for collaboration_meetings updated_at
+CREATE TRIGGER update_collaboration_meetings_updated_at
+  BEFORE UPDATE ON public.collaboration_meetings
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column(); 
