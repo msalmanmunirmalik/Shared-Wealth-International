@@ -243,7 +243,7 @@ const About = () => {
   return (
     <div className="min-h-screen bg-gradient-subtle">
       {/* Hero Section */}
-      <section className="section-padding bg-gradient-hero">
+      <section className="section-padding" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #059669 100%)' }}>
         <div className="container mx-auto container-padding text-center">
           <h1 className="heading-1 mb-4 text-white">About Shared Wealth International</h1>
           <p className="body-large mb-8 max-w-2xl mx-auto text-white/90">

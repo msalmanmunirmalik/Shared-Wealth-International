@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
-    <section className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #10b981 100%)' }}>
+    <section className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #059669 100%)' }}>
       {/* Subtle Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -17,14 +17,14 @@ const Hero = () => {
           <div className="max-w-4xl mx-auto text-center">
             {/* Professional Badge */}
             <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-8 animate-fade-in-up bg-white/10 backdrop-blur-sm border border-white/20 text-white">
-              <Star className="w-4 h-4 mr-2 text-white" />
+              <Star className="w-4 h-4 mr-2 text-green-300" />
               Global Hub for Equitable Wealth Distribution
             </div>
 
             {/* Main Headline */}
             <h1 className="heading-1 mb-6 text-white animate-fade-in-up">
               Empowering{" "}
-              <span className="text-white font-bold">
+              <span className="text-green-300 font-bold">
                 Shared Wealth
               </span>{" "}
               Creation
@@ -39,25 +39,25 @@ const Hero = () => {
             {/* Key Stats */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-8 mb-10 animate-fade-in-up">
               <div className="flex items-center text-white/90">
-                <Users className="w-5 h-5 mr-2 text-white" />
+                <Users className="w-5 h-5 mr-2 text-green-300" />
                 <span className="text-lg font-medium">20+ Partner Companies</span>
               </div>
               <div className="hidden sm:block w-px h-6 bg-white/20" />
               <div className="flex items-center text-white/90">
-                <Star className="w-5 h-5 mr-2 text-white" />
+                <Star className="w-5 h-5 mr-2 text-green-300" />
                 <span className="text-lg font-medium">Global Impact Network</span>
               </div>
             </div>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up">
-              <Button asChild size="lg" className="btn-primary text-lg px-8 bg-white text-navy hover:bg-white/90">
+              <Button asChild size="lg" className="text-lg px-8 bg-green-500 hover:bg-green-600 text-white border-0">
                 <Link to="/model">
                   Explore Our Model
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
-              <Button asChild size="lg" className="btn-outline text-lg px-8 border-white text-white hover:bg-white hover:text-navy">
+              <Button asChild size="lg" className="text-lg px-8 bg-green-500 hover:bg-green-600 text-white border-0">
                 <Link to="/network">
                   Meet Our Network
                 </Link>
