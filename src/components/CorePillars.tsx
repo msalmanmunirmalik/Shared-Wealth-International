@@ -69,13 +69,11 @@ const CorePillars = () => {
   const [activePillar, setActivePillar] = useState<string | null>(null);
 
   return (
-    <section className="py-16 lg:py-24 bg-gradient-subtle">
-      <div className="container mx-auto px-4 lg:px-6">
+    <section className="section-padding bg-white">
+      <div className="container mx-auto container-padding">
         <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-charcoal mb-4">
-            The Three Core Pillars
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <h2 className="heading-2 mb-4">The Three Core Pillars</h2>
+          <p className="body-large max-w-3xl mx-auto">
             Our comprehensive framework for building equitable and sustainable business models 
             that benefit all stakeholders.
           </p>
@@ -89,17 +87,16 @@ const CorePillars = () => {
             return (
               <Card
                 key={pillar.id}
-                className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                  isActive ? 'ring-2 ring-gold shadow-gold' : ''
-                } animate-fade-in`}
-                style={{ animationDelay: `${index * 0.2}s` }}
+                className={`cursor-pointer transition-all duration-300 hover-lift card-professional ${
+                  isActive ? 'ring-2 ring-gold shadow-lg' : ''
+                }`}
                 onClick={() => setActivePillar(isActive ? null : pillar.id)}
               >
                 <CardHeader className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-gold rounded-full flex items-center justify-center">
-                    <Icon className="w-8 h-8 text-charcoal" />
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center bg-gold/10">
+                    <Icon className="w-8 h-8 text-gold" />
                   </div>
-                  <CardTitle className="text-xl font-bold text-charcoal">
+                  <CardTitle className="text-xl font-bold text-navy">
                     {pillar.title}
                   </CardTitle>
                   <CardDescription className="text-muted-foreground">
@@ -108,14 +105,14 @@ const CorePillars = () => {
                 </CardHeader>
 
                 {isActive && (
-                  <CardContent className="animate-fade-in">
+                  <CardContent className="animate-fade-in-up">
                     <div className="space-y-6">
                       <div>
-                        <h4 className="font-semibold text-charcoal mb-3">Key Mechanisms:</h4>
+                        <h4 className="font-semibold mb-3 text-foreground">Key Mechanisms:</h4>
                         <ul className="space-y-2">
                           {pillar.details.map((detail, idx) => (
                             <li key={idx} className="flex items-start">
-                              <Circle className="w-2 h-2 text-gold mt-2 mr-3 flex-shrink-0" />
+                              <Circle className="w-2 h-2 mt-2 mr-3 flex-shrink-0 text-gold" />
                               <span className="text-sm text-muted-foreground">{detail}</span>
                             </li>
                           ))}
@@ -123,12 +120,12 @@ const CorePillars = () => {
                       </div>
 
                       <div>
-                        <h4 className="font-semibold text-charcoal mb-3">Real Examples:</h4>
+                        <h4 className="font-semibold mb-3 text-foreground">Real Examples:</h4>
                         <ul className="space-y-2">
                           {pillar.examples.map((example, idx) => (
                             <li key={idx} className="flex items-start">
-                              <Star className="w-2 h-2 text-gold mt-2 mr-3 flex-shrink-0" />
-                              <span className="text-sm text-muted-foreground italic">{example}</span>
+                              <Star className="w-2 h-2 mt-2 mr-3 flex-shrink-0 text-gold" />
+                              <span className="text-sm italic text-muted-foreground">{example}</span>
                             </li>
                           ))}
                         </ul>
@@ -142,7 +139,7 @@ const CorePillars = () => {
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-muted-foreground mb-6">
+          <p className="text-muted-foreground">
             Click on each pillar to explore detailed mechanisms and real-world examples
           </p>
         </div>

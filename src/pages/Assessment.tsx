@@ -238,15 +238,15 @@ const Assessment = () => {
   const progress = ((currentStep + 1) / questions.length) * 100;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-green-600 to-emerald-700 text-white py-16">
+      <section className="py-16" style={{ background: 'linear-gradient(135deg, #07264e 0%, #086075 100%)' }}>
         <div className="container mx-auto px-6 text-center">
           <div className="flex justify-center mb-4">
-            <Target className="w-16 h-16" />
+            <Target className="w-16 h-16 text-white" />
           </div>
-          <h1 className="text-4xl font-bold mb-4">Readiness Assessment</h1>
-          <p className="text-lg mb-8 max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold mb-4 text-white">Readiness Assessment</h1>
+          <p className="text-lg mb-8 max-w-2xl mx-auto text-white/80">
             Evaluate your organization's readiness for implementing shared wealth practices.
           </p>
         </div>
@@ -258,11 +258,11 @@ const Assessment = () => {
           {!results ? (
             <div className="space-y-8">
               {/* Progress */}
-              <Card>
+              <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
                 <CardContent className="p-6">
                   <div className="flex justify-between items-center mb-4">
-                    <span className="text-sm font-medium">Progress</span>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm font-medium" style={{ color: '#07264e' }}>Progress</span>
+                    <span className="text-sm" style={{ color: '#086075' }}>
                       {currentStep + 1} of {questions.length}
                     </span>
                   </div>
@@ -272,15 +272,15 @@ const Assessment = () => {
 
               {/* Current Question */}
               {currentQuestion && (
-                <Card>
+                <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <Badge variant="secondary">{currentQuestion.category}</Badge>
-                      <span className="text-sm text-muted-foreground">
+                      <Badge variant="secondary" style={{ backgroundColor: 'rgba(234, 188, 39, 0.1)', color: '#eabc27' }}>{currentQuestion.category}</Badge>
+                      <span className="text-sm" style={{ color: '#086075' }}>
                         Question {currentStep + 1}
                       </span>
                     </div>
-                    <CardTitle className="text-navy">{currentQuestion.question}</CardTitle>
+                    <CardTitle style={{ color: '#07264e' }}>{currentQuestion.question}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <RadioGroup
@@ -291,7 +291,7 @@ const Assessment = () => {
                       {currentQuestion.options.map((option) => (
                         <div key={option.value} className="flex items-center space-x-3">
                           <RadioGroupItem value={option.value} id={option.value} />
-                          <Label htmlFor={option.value} className="flex-1 cursor-pointer">
+                          <Label htmlFor={option.value} className="flex-1 cursor-pointer" style={{ color: '#086075' }}>
                             {option.label}
                           </Label>
                         </div>
@@ -307,6 +307,7 @@ const Assessment = () => {
                   variant="outline"
                   onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
                   disabled={currentStep === 0}
+                  style={{ borderColor: '#086075', color: '#086075' }}
                 >
                   Previous
                 </Button>
@@ -315,6 +316,7 @@ const Assessment = () => {
                   <Button
                     onClick={() => setCurrentStep(currentStep + 1)}
                     disabled={!answers[currentQuestion?.id]}
+                    style={{ background: 'linear-gradient(135deg, #eabc27 0%, #34a63b 100%)', color: 'white' }}
                   >
                     Next
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -323,6 +325,7 @@ const Assessment = () => {
                   <Button
                     onClick={calculateResults}
                     disabled={!answers[currentQuestion?.id] || isCalculating}
+                    style={{ background: 'linear-gradient(135deg, #eabc27 0%, #34a63b 100%)', color: 'white' }}
                   >
                     {isCalculating ? (
                       <>
@@ -343,10 +346,10 @@ const Assessment = () => {
             /* Results */
             <div className="space-y-8">
               {/* Overall Score */}
-              <Card>
+              <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
                 <CardHeader>
-                  <CardTitle className="text-navy">Assessment Results</CardTitle>
-                  <CardDescription>
+                  <CardTitle style={{ color: '#07264e' }}>Assessment Results</CardTitle>
+                  <CardDescription style={{ color: '#086075' }}>
                     Your organization's readiness for shared wealth implementation
                   </CardDescription>
                 </CardHeader>
@@ -358,7 +361,7 @@ const Assessment = () => {
                     <div className={`text-xl font-medium ${results.readinessColor}`}>
                       {results.readinessLevel}
                     </div>
-                    <div className="text-sm text-muted-foreground mt-2">
+                    <div className="text-sm mt-2" style={{ color: '#086075' }}>
                       {results.answeredQuestions} of {results.totalQuestions} questions answered
                     </div>
                   </div>
@@ -368,16 +371,16 @@ const Assessment = () => {
               </Card>
 
               {/* Category Breakdown */}
-              <Card>
+              <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
                 <CardHeader>
-                  <CardTitle className="text-navy">Category Breakdown</CardTitle>
+                  <CardTitle style={{ color: '#07264e' }}>Category Breakdown</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {categories.map((category) => (
                     <div key={category}>
                       <div className="flex justify-between mb-2">
-                        <span className="text-sm font-medium">{category}</span>
-                        <span className="text-sm font-bold">
+                        <span className="text-sm font-medium" style={{ color: '#07264e' }}>{category}</span>
+                        <span className="text-sm font-bold" style={{ color: '#086075' }}>
                           {results.categoryScores[category]?.toFixed(0) || 0}%
                         </span>
                       </div>
@@ -388,17 +391,17 @@ const Assessment = () => {
               </Card>
 
               {/* Recommendations */}
-              <Card>
+              <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
                 <CardHeader>
-                  <CardTitle className="text-navy">Next Steps</CardTitle>
+                  <CardTitle style={{ color: '#07264e' }}>Next Steps</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {results.recommendations.map((recommendation, index) => (
                       <div key={index} className="flex items-start space-x-3">
-                        <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                        <CheckCircle className="w-5 h-5 mt-0.5" style={{ color: '#34a63b' }} />
                         <div>
-                          <div className="font-medium">{recommendation}</div>
+                          <div className="font-medium" style={{ color: '#07264e' }}>{recommendation}</div>
                         </div>
                       </div>
                     ))}
@@ -407,7 +410,7 @@ const Assessment = () => {
               </Card>
 
               <div className="flex justify-center">
-                <Button onClick={resetAssessment} variant="outline">
+                <Button onClick={resetAssessment} variant="outline" style={{ borderColor: '#086075', color: '#086075' }}>
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Retake Assessment
                 </Button>

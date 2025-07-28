@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Fix Tool</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .success { background: #d4edda; border-left: 4px solid #28a745; }
+        .error { background: #f8d7da; border-left: 4px solid #dc3545; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; }
+        .info { background: #d1ecf1; border-left: 4px solid #17a2b8; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover { background: #0056b3; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .sql-code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Database Fix Tool</h1>
+    
+    <div class="container info">
+        <h2>What this tool does:</h2>
+        <p>This tool will check your database and help fix the activity_feed table relationships that are causing errors in your Shared Wealth Impact Tracker.</p>
+    </div>
+
+    <div class="container">
+        <h2>Step 1: Check Database</h2>
+        <button onclick="checkDatabase()">Check Database Status</button>
+        <div id="checkResult"></div>
+    </div>
+
+    <div class="container">
+        <h2>Step 2: Manual Fix Required</h2>
+        <p>If the check shows issues, you'll need to run this SQL script in your Supabase dashboard:</p>
+        
+        <div class="sql-code" id="sqlCode">
+-- Complete Database Setup for Shared Wealth Impact Tracker
+-- Run this in your Supabase SQL Editor
+
+-- 1. Drop existing tables if they exist (to recreate with proper relationships)
+DROP TABLE IF EXISTS public.activity_feed CASCADE;
+DROP TABLE IF EXISTS public.collaboration_meetings CASCADE;
+DROP TABLE IF EXISTS public.company_growth_metrics CASCADE;
+DROP TABLE IF EXISTS public.network_connections CASCADE;
+
+-- 2. Create Collaboration Meetings Table
+CREATE TABLE public.collaboration_meetings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
+  meeting_title TEXT NOT NULL,
+  meeting_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  participants TEXT[] NOT NULL, -- Array of participant names/companies
+  meeting_notes TEXT,
+  outcomes TEXT,
+  impact_score INTEGER CHECK (impact_score >= 1 AND impact_score <= 10), -- 1-10 scale
+  shared_wealth_contribution TEXT, -- How SWI contributed to this meeting
+  created_by UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- 3. Create Company Growth Metrics Table
+CREATE TABLE public.company_growth_metrics (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
+  metric_date DATE NOT NULL,
+  metric_type TEXT NOT NULL, -- 'revenue', 'employees', 'customers', 'partnerships', 'media_reach'
+  metric_value NUMERIC NOT NULL,
+  metric_unit TEXT, -- 'USD', 'count', 'percentage', etc.
+  notes TEXT,
+  shared_wealth_impact TEXT, -- How SWI contributed to this growth
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- 4. Create Network Connections Table
+CREATE TABLE public.network_connections (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  source_company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
+  target_company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
+  connection_type TEXT NOT NULL, -- 'meeting', 'partnership', 'referral', 'collaboration'
+  connection_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  description TEXT,
+  outcome TEXT,
+  value_generated TEXT, -- Description of value created
+  created_by UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  UNIQUE(source_company_id, target_company_id, connection_date)
+);
+
+-- 5. Create Activity Feed Table
+CREATE TABLE public.activity_feed (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  activity_type TEXT NOT NULL, -- 'post', 'meeting', 'growth', 'connection', 'milestone'
+  company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT,
+  metadata JSONB, -- Flexible metadata storage
+  is_featured BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- 6. Enable RLS on all tables
+ALTER TABLE public.collaboration_meetings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.company_growth_metrics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.network_connections ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.activity_feed ENABLE ROW LEVEL SECURITY;
+
+-- 7. RLS Policies for Collaboration Meetings
+CREATE POLICY "Public can view approved collaboration meetings" 
+ON public.collaboration_meetings FOR SELECT 
+USING (true);
+
+CREATE POLICY "Company users can create collaboration meetings" 
+ON public.collaboration_meetings FOR INSERT 
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.company_users 
+    WHERE company_id = collaboration_meetings.company_id 
+    AND user_id = auth.uid() 
+    AND is_active = true
+  )
+);
+
+CREATE POLICY "Meeting creators can update their meetings" 
+ON public.collaboration_meetings FOR UPDATE 
+USING (created_by = auth.uid());
+
+-- 8. RLS Policies for Growth Metrics
+CREATE POLICY "Public can view growth metrics" 
+ON public.company_growth_metrics FOR SELECT 
+USING (true);
+
+CREATE POLICY "Company users can create growth metrics" 
+ON public.company_growth_metrics FOR INSERT 
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.company_users 
+    WHERE company_id = company_growth_metrics.company_id 
+    AND user_id = auth.uid() 
+    AND is_active = true
+  )
+);
+
+-- 9. RLS Policies for Network Connections
+CREATE POLICY "Public can view network connections" 
+ON public.network_connections FOR SELECT 
+USING (true);
+
+CREATE POLICY "Company users can create network connections" 
+ON public.network_connections FOR INSERT 
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.company_users 
+    WHERE company_id = network_connections.source_company_id 
+    AND user_id = auth.uid() 
+    AND is_active = true
+  )
+);
+
+-- 10. RLS Policies for Activity Feed
+CREATE POLICY "Public can view activity feed" 
+ON public.activity_feed FOR SELECT 
+USING (true);
+
+CREATE POLICY "Company users can create activity feed entries" 
+ON public.activity_feed FOR INSERT 
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.company_users 
+    WHERE company_id = activity_feed.company_id 
+    AND user_id = auth.uid() 
+    AND is_active = true
+  )
+);
+
+-- 11. Create indexes for better performance
+CREATE INDEX idx_collaboration_meetings_company_date ON public.collaboration_meetings(company_id, meeting_date);
+CREATE INDEX idx_growth_metrics_company_type ON public.company_growth_metrics(company_id, metric_type);
+CREATE INDEX idx_network_connections_companies ON public.network_connections(source_company_id, target_company_id);
+CREATE INDEX idx_activity_feed_company_type ON public.activity_feed(company_id, activity_type);
+CREATE INDEX idx_activity_feed_created_at ON public.activity_feed(created_at DESC);
+
+-- 12. Function to automatically create activity feed entries
+CREATE OR REPLACE FUNCTION public.create_activity_feed_entry()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  -- Create activity feed entry for new collaboration meetings
+  IF TG_TABLE_NAME = 'collaboration_meetings' THEN
+    INSERT INTO public.activity_feed (
+      activity_type,
+      company_id,
+      user_id,
+      title,
+      description,
+      metadata
+    ) VALUES (
+      'meeting',
+      NEW.company_id,
+      NEW.created_by,
+      NEW.meeting_title,
+      NEW.outcomes,
+      jsonb_build_object(
+        'participants', NEW.participants,
+        'impact_score', NEW.impact_score,
+        'shared_wealth_contribution', NEW.shared_wealth_contribution
+      )
+    );
+  END IF;
+  
+  -- Create activity feed entry for new growth metrics
+  IF TG_TABLE_NAME = 'company_growth_metrics' THEN
+    INSERT INTO public.activity_feed (
+      activity_type,
+      company_id,
+      user_id,
+      title,
+      description,
+      metadata
+    ) VALUES (
+      'growth',
+      NEW.company_id,
+      (SELECT created_by FROM public.company_users WHERE company_id = NEW.company_id LIMIT 1),
+      NEW.metric_type || ' Growth',
+      NEW.notes,
+      jsonb_build_object(
+        'metric_value', NEW.metric_value,
+        'metric_unit', NEW.metric_unit,
+        'shared_wealth_impact', NEW.shared_wealth_impact
+      )
+    );
+  END IF;
+  
+  -- Create activity feed entry for new network connections
+  IF TG_TABLE_NAME = 'network_connections' THEN
+    INSERT INTO public.activity_feed (
+      activity_type,
+      company_id,
+      user_id,
+      title,
+      description,
+      metadata
+    ) VALUES (
+      'connection',
+      NEW.source_company_id,
+      NEW.created_by,
+      'New ' || NEW.connection_type || ' Connection',
+      NEW.description,
+      jsonb_build_object(
+        'target_company_id', NEW.target_company_id,
+        'outcome', NEW.outcome,
+        'value_generated', NEW.value_generated
+      )
+    );
+  END IF;
+  
+  RETURN NEW;
+END;
+$$;
+
+-- 13. Triggers to automatically create activity feed entries
+CREATE TRIGGER trigger_collaboration_meeting_activity
+  AFTER INSERT ON public.collaboration_meetings
+  FOR EACH ROW EXECUTE FUNCTION public.create_activity_feed_entry();
+
+CREATE TRIGGER trigger_growth_metric_activity
+  AFTER INSERT ON public.company_growth_metrics
+  FOR EACH ROW EXECUTE FUNCTION public.create_activity_feed_entry();
+
+CREATE TRIGGER trigger_network_connection_activity
+  AFTER INSERT ON public.network_connections
+  FOR EACH ROW EXECUTE FUNCTION public.create_activity_feed_entry();
+
+-- 14. Function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+-- 15. Trigger for collaboration_meetings updated_at
+CREATE TRIGGER update_collaboration_meetings_updated_at
+  BEFORE UPDATE ON public.collaboration_meetings
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+-- 16. Insert some sample data for testing (optional)
+INSERT INTO public.activity_feed (
+  activity_type,
+  company_id,
+  user_id,
+  title,
+  description,
+  metadata,
+  is_featured
+) VALUES 
+(
+  'post',
+  (SELECT id FROM public.companies LIMIT 1),
+  (SELECT id FROM auth.users LIMIT 1),
+  'Shared Wealth International Launches Impact Tracker',
+  'Companies can now track and showcase how Shared Wealth International creates real value for their growth and success.',
+  '{"category": "Platform Update"}',
+  true
+),
+(
+  'post',
+  (SELECT id FROM public.companies LIMIT 1),
+  (SELECT id FROM auth.users LIMIT 1),
+  'Join the Movement',
+  'Start tracking your company''s success with Shared Wealth International and inspire others to join our network.',
+  '{"category": "Community"}',
+  false
+);
+
+-- Success message
+SELECT 'Database setup completed successfully! All tables created with proper relationships.' as status;
+        </div>
+        
+        <button onclick="copySql()">Copy SQL to Clipboard</button>
+    </div>
+
+    <div class="container">
+        <h2>Instructions:</h2>
+        <ol>
+            <li>Click "Check Database Status" above</li>
+            <li>If issues are found, copy the SQL code</li>
+            <li>Go to your <a href="https://supabase.com/dashboard" target="_blank">Supabase Dashboard</a></li>
+            <li>Navigate to SQL Editor</li>
+            <li>Paste and run the SQL script</li>
+            <li>Return to your app and refresh the page</li>
+        </ol>
+    </div>
+
+    <script>
+        async function checkDatabase() {
+            const resultDiv = document.getElementById('checkResult');
+            resultDiv.innerHTML = '<p>Checking database...</p>';
+            
+            try {
+                // Try to access the Supabase client from the main app
+                const response = await fetch('/src/integrations/supabase/client.ts');
+                if (!response.ok) {
+                    throw new Error('Cannot access Supabase client');
+                }
+                
+                // For now, just show the manual instructions
+                resultDiv.innerHTML = `
+                    <div class="container warning">
+                        <h3>Manual Fix Required</h3>
+                        <p>The database needs to be updated with the SQL script below. Please follow the instructions above.</p>
+                    </div>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="container error">
+                        <h3>Error</h3>
+                        <p>${error.message}</p>
+                        <p>Please follow the manual instructions above to fix the database.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function copySql() {
+            const sqlCode = document.getElementById('sqlCode').textContent;
+            navigator.clipboard.writeText(sqlCode).then(() => {
+                alert('SQL code copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = sqlCode;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('SQL code copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html> 

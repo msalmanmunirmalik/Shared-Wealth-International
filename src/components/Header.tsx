@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, User, Menu } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 
 const Header = () => {
@@ -14,13 +14,38 @@ const Header = () => {
     i18n.changeLanguage(e.target.value);
   };
 
-  // General navigation - available to everyone
-  const generalNavigation = [
-    { name: "About", href: "/about" },
-    { name: "Shared Wealth Model", href: "/model" },
-    { name: "Shared Wealth Network", href: "/network" },
-    { name: "Collaboration Hub", href: "/collaboration-hub" },
-    { name: "Resources", href: "/resources" },
+  // Simplified navigation structure
+  const mainNavigation = [
+    { 
+      name: "About Us", 
+      href: "/about-us",
+      description: "Learn about our story, vision, and team",
+      icon: "💙"
+    },
+    { 
+      name: "Concept", 
+      href: "/model",
+      description: "Understand shared wealth principles",
+      icon: "📚"
+    },
+    { 
+      name: "Network", 
+      href: "/network",
+      description: "Connect with partner companies",
+      icon: "🌐"
+    },
+    { 
+      name: "Impact", 
+      href: "/collaboration-hub",
+      description: "Track and share impact stories",
+      icon: "📊"
+    },
+    { 
+      name: "Tools & Learning", 
+      href: "/resources",
+      description: "Interactive tools, calculators, and learning resources",
+      icon: "🛠️"
+    }
   ];
 
   const handleSignOut = async () => {
@@ -34,28 +59,36 @@ const Header = () => {
 
   return (
     <header className="bg-background/95 backdrop-blur-sm border-b border-border sticky top-0 z-50">
-      <div className="container mx-auto px-4 lg:px-6">
+      <div className="container mx-auto container-padding">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <img 
-              src="/lovable-uploads/60420f71-0b50-4e40-a77c-25c13b6e0a56.png" 
-              alt="Shared Wealth International Logo" 
-              className="w-8 h-8"
-            />
-            <span className="text-xl font-bold text-navy">{t('welcome')}</span>
-            <Link to="/knowledge-hub" style={{ marginLeft: 16, fontWeight: 'bold' }}>{t('knowledgeHub')}</Link>
-          </Link>
+          <div className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center space-x-2">
+              <img 
+                src="/lovable-uploads/60420f71-0b50-4e40-a77c-25c13b6e0a56.png" 
+                alt="Shared Wealth International Logo" 
+                className="w-8 h-8"
+              />
+              <span className="text-xl font-bold text-navy">Shared Wealth International Network</span>
+            </Link>
+          </div>
 
-          {/* Desktop Navigation - General Features Only */}
-          <nav className="hidden lg:flex items-center space-x-8">
-            {generalNavigation.map((item) => (
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center space-x-6">
+            {mainNavigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
-                className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm font-medium"
+                className="group relative px-3 py-2 text-sm font-medium nav-link rounded-md hover:bg-accent/50"
               >
-                {item.name}
+                <div className="flex items-center space-x-1">
+                  <span className="text-sm">{item.icon}</span>
+                  <span>{item.name}</span>
+                </div>
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                  {item.description}
+                </div>
               </Link>
             ))}
           </nav>
@@ -64,111 +97,143 @@ const Header = () => {
           <div className="hidden lg:flex items-center space-x-4">
             {user ? (
               <>
-                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                  <User className="w-4 h-4" />
-                  <span>{user.email}</span>
-                </div>
-                <Link to="/dashboard">
-                    <Button variant="outline" size="sm">
-                    <Menu className="w-4 h-4 mr-2" />
+                <Link to="/company-dashboard">
+                  <Button variant="ghost" className="nav-link">
+                    <User className="w-4 h-4 mr-2" />
                     Dashboard
-                    </Button>
-                  </Link>
+                  </Button>
+                </Link>
                 <Button 
-                  variant="outline" 
-                  size="sm" 
+                  variant="ghost" 
                   onClick={handleSignOut}
-                  disabled={loading}
+                  className="nav-link"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  {loading ? 'Signing Out...' : 'Sign Out'}
+                  Sign Out
                 </Button>
               </>
             ) : (
               <>
-                <Link to="/auth">
-                  <Button variant="outline" size="sm">
+                <Link to="/auth?mode=signin">
+                  <Button variant="ghost" className="nav-link">
                     Sign In
                   </Button>
                 </Link>
                 <Link to="/auth?mode=signup">
-                <Button variant="green" size="sm">
-                  Get Involved
-                </Button>
+                  <Button className="btn-primary">
+                    Join Network
+                  </Button>
                 </Link>
               </>
             )}
+            
+            {/* Language Selector */}
+            <select
+              value={i18n.language}
+              onChange={handleLanguageChange}
+              className="text-sm bg-transparent border border-border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-navy"
+            >
+              <option value="en">EN</option>
+              <option value="es">ES</option>
+              <option value="fr">FR</option>
+            </select>
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile Menu Button */}
           <button
-            className="lg:hidden p-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="lg:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent"
           >
-            <div className="w-6 h-6 flex flex-col justify-center space-y-1">
-              <div className={`h-0.5 bg-charcoal transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`} />
-              <div className={`h-0.5 bg-charcoal transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`} />
-              <div className={`h-0.5 bg-charcoal transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
-            </div>
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {isMenuOpen ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
+            </svg>
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-border animate-fade-in">
-            <nav className="flex flex-col space-y-3">
-              {/* General Navigation */}
-              {generalNavigation.map((item) => (
+          <div className="lg:hidden border-t border-border">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {mainNavigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="text-muted-foreground hover:text-primary transition-colors duration-200 py-2"
+                  className="block px-3 py-2 text-base font-medium nav-link rounded-md hover:bg-accent"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  {item.name}
+                  <div className="flex items-center space-x-2">
+                    <span>{item.icon}</span>
+                    <span>{item.name}</span>
+                  </div>
                 </Link>
               ))}
               
-              <div className="flex flex-col space-y-3 pt-4 border-t border-border">
+              <div className="pt-4 border-t border-border">
                 {user ? (
-                  <>
-                    <div className="flex items-center space-x-2 text-sm text-muted-foreground py-2">
-                      <User className="w-4 h-4" />
-                      <span>{user.email}</span>
-                    </div>
-                    <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
-                        <Button variant="outline" size="sm" className="w-full">
-                        <Menu className="w-4 h-4 mr-2" />
+                  <div className="space-y-2">
+                    <Link to="/company-dashboard">
+                      <Button variant="ghost" className="w-full justify-start nav-link">
+                        <User className="w-4 h-4 mr-2" />
                         Dashboard
-                        </Button>
-                      </Link>
+                      </Button>
+                    </Link>
                     <Button 
-                      variant="outline" 
-                      size="sm" 
+                      variant="ghost" 
                       onClick={handleSignOut}
-                      disabled={loading}
-                      className="w-full"
+                      className="w-full justify-start nav-link"
                     >
                       <LogOut className="w-4 h-4 mr-2" />
-                      {loading ? 'Signing Out...' : 'Sign Out'}
+                      Sign Out
                     </Button>
-                  </>
+                  </div>
                 ) : (
-                  <>
-                    <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="outline" size="sm" className="w-full">
+                  <div className="space-y-2">
+                    <Link to="/auth?mode=signin">
+                      <Button variant="ghost" className="w-full nav-link">
                         Sign In
                       </Button>
                     </Link>
-                    <Link to="/auth?mode=signup" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="green" size="sm" className="w-full">
-                      Get Involved
-                    </Button>
+                    <Link to="/auth?mode=signup">
+                      <Button className="w-full btn-primary">
+                        Join Network
+                      </Button>
                     </Link>
-                  </>
+                  </div>
                 )}
+                
+                {/* Mobile Language Selector */}
+                <div className="pt-2">
+                  <select
+                    value={i18n.language}
+                    onChange={handleLanguageChange}
+                    className="w-full text-sm bg-transparent border border-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-navy"
+                  >
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                  </select>
+                </div>
               </div>
-            </nav>
+            </div>
           </div>
         )}
       </div>

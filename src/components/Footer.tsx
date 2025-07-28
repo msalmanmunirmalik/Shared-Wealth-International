@@ -44,8 +44,8 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-navy text-background" aria-label="Site footer">
-      <div className="container mx-auto px-4 lg:px-6">
+    <footer className="bg-navy text-white" aria-label="Site footer">
+      <div className="container mx-auto container-padding">
         {/* Main Footer Content */}
         <div className="py-12 lg:py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
@@ -60,23 +60,23 @@ const Footer = () => {
                 <span className="text-base lg:text-lg font-bold">Shared Wealth International</span>
               </Link>
               
-              <p className="text-background/80 mb-6 leading-relaxed text-sm lg:text-base">
+              <p className="text-white/80 mb-6 leading-relaxed text-sm lg:text-base">
                 Building a global network of companies committed to shared wealth creation, 
                 inclusive decision-making, and value-led approaches to business.
               </p>
 
               <address className="not-italic space-y-3" aria-label="Contact information">
-                <div className="flex items-center text-background/80">
+                <div className="flex items-center text-white/80">
                   <Users className="w-4 h-4 mr-3 text-gold flex-shrink-0" aria-hidden="true" />
                   <span className="text-sm">20+ Partner Companies</span>
                 </div>
-                <div className="flex items-center text-background/80">
+                <div className="flex items-center text-white/80">
                   <MapPin className="w-4 h-4 mr-3 text-gold flex-shrink-0" aria-hidden="true" />
                   <span className="text-sm">Global Network</span>
                 </div>
-                <div className="flex items-center text-background/80">
+                <div className="flex items-center text-white/80">
                   <Mail className="w-4 h-4 mr-3 text-gold flex-shrink-0" aria-hidden="true" />
-                  <a href="mailto:contact@sharedwealthintl.org" className="text-sm break-all sm:break-normal underline hover:text-gold" aria-label="Email contact@sharedwealthintl.org">
+                  <a href="mailto:contact@sharedwealthintl.org" className="text-sm break-all sm:break-normal underline hover:text-gold transition-colors duration-200" aria-label="Email contact@sharedwealthintl.org">
                     contact@sharedwealthintl.org
                   </a>
                 </div>
@@ -92,7 +92,7 @@ const Footer = () => {
                     <li key={link.name}>
                       <Link
                         to={link.href}
-                        className="text-background/80 hover:text-gold transition-colors duration-200 text-sm block py-1"
+                        className="text-white/80 hover:text-gold transition-colors duration-200 text-sm block py-1"
                         aria-label={link.name}
                       >
                         {link.name}
@@ -106,19 +106,19 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="py-4 lg:py-6 border-t border-background/20">
+        <div className="py-4 lg:py-6 border-t border-white/20">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-background/60 text-xs lg:text-sm text-center sm:text-left">
+            <p className="text-white/60 text-xs lg:text-sm text-center sm:text-left">
               © {currentYear} Shared Wealth International. All rights reserved.
             </p>
             <nav className="flex flex-wrap justify-center sm:justify-end gap-4 lg:gap-6" aria-label="Legal and contact links">
-              <Link to="/privacy" className="text-background/60 hover:text-gold transition-colors text-xs lg:text-sm" aria-label="Privacy Policy">
+              <Link to="/privacy" className="text-white/60 hover:text-gold transition-colors duration-200 text-xs lg:text-sm" aria-label="Privacy Policy">
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="text-background/60 hover:text-gold transition-colors text-xs lg:text-sm" aria-label="Terms of Service">
+              <Link to="/terms" className="text-white/60 hover:text-gold transition-colors duration-200 text-xs lg:text-sm" aria-label="Terms of Service">
                 Terms of Service
               </Link>
-              <Link to="/contact" className="text-background/60 hover:text-gold transition-colors text-xs lg:text-sm" aria-label="Contact Us">
+              <Link to="/contact" className="text-white/60 hover:text-gold transition-colors duration-200 text-xs lg:text-sm" aria-label="Contact Us">
                 Contact Us
               </Link>
             </nav>

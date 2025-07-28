@@ -241,12 +241,12 @@ const About = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-subtle">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-navy to-blue-900 text-white py-16">
-        <div className="container mx-auto px-6 text-center">
-          <h1 className="text-4xl font-bold mb-4">About Shared Wealth International</h1>
-          <p className="text-lg mb-8 max-w-2xl mx-auto">
+      <section className="section-padding bg-gradient-hero">
+        <div className="container mx-auto container-padding text-center">
+          <h1 className="heading-1 mb-4 text-white">About Shared Wealth International</h1>
+          <p className="body-large mb-8 max-w-2xl mx-auto text-white/90">
             We're transforming how businesses operate by creating models where wealth is shared 
             equitably among all stakeholders.
           </p>
@@ -254,26 +254,26 @@ const About = () => {
       </section>
 
       {/* Mission Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-6">
+      <section className="section-padding bg-white">
+        <div className="container mx-auto container-padding">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-navy mb-6">Our Mission</h2>
-            <p className="text-lg text-muted-foreground mb-8">
+            <h2 className="heading-2 mb-6">Our Mission</h2>
+            <p className="body-large mb-8">
               To create a world where businesses thrive by sharing their success with all stakeholders. 
               We believe that when companies share wealth equitably, everyone benefits - employees, 
               communities, shareholders, and the planet.
             </p>
             <div className="grid md:grid-cols-2 gap-8 mt-12">
-              <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-8">
-                <h3 className="text-2xl font-bold text-navy mb-4">Our Vision</h3>
-                <p className="text-muted-foreground">
+              <div className="card-professional p-8">
+                <h3 className="heading-3 mb-4 text-navy">Our Vision</h3>
+                <p className="body-medium">
                   A global economy where every business operates on principles of shared wealth, 
                   creating sustainable prosperity for all.
                 </p>
               </div>
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-8">
-                <h3 className="text-2xl font-bold text-navy mb-4">Our Approach</h3>
-                <p className="text-muted-foreground">
+              <div className="card-professional p-8">
+                <h3 className="heading-3 mb-4 text-navy">Our Approach</h3>
+                <p className="body-medium">
                   We provide frameworks, tools, and support to help businesses implement 
                   equitable wealth distribution models.
                 </p>
@@ -284,26 +284,26 @@ const About = () => {
       </section>
 
       {/* Values Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-6">
+      <section className="section-padding bg-gradient-subtle">
+        <div className="container mx-auto container-padding">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-navy mb-4">Our Core Values</h2>
+            <h2 className="heading-2 mb-4">Our Core Values</h2>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {values.map((value, index) => {
               const Icon = value.icon;
               return (
-                <Card key={index} className="text-center">
-              <CardHeader>
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Icon className="w-8 h-8 text-navy" />
+                <Card key={index} className="card-professional text-center hover-lift">
+                  <CardHeader>
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-gold/10">
+                      <Icon className="w-8 h-8 text-gold" />
                     </div>
                     <CardTitle className="text-navy">{value.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                    <CardDescription>{value.description}</CardDescription>
-              </CardContent>
-            </Card>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-muted-foreground">{value.description}</CardDescription>
+                  </CardContent>
+                </Card>
               );
             })}
           </div>
@@ -311,17 +311,17 @@ const About = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-6">
+      <section className="section-padding bg-white">
+        <div className="container mx-auto container-padding">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => {
               const Icon = stat.icon;
               return (
                 <div key={index} className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-50 to-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-navy/10">
                     <Icon className="w-8 h-8 text-navy" />
                   </div>
-                  <div className="text-3xl font-bold text-navy mb-2">{stat.value}</div>
+                  <div className="text-3xl font-bold mb-2 text-navy">{stat.value}</div>
                   <div className="text-muted-foreground">{stat.label}</div>
                 </div>
               );
@@ -331,19 +331,19 @@ const About = () => {
       </section>
 
       {/* Leadership Team */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-6">
+      <section className="section-padding bg-gradient-hero">
+        <div className="container mx-auto container-padding">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-navy mb-4">Leadership Team</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <h2 className="heading-2 mb-4 text-white">Leadership Team</h2>
+            <p className="body-large text-white/90 max-w-2xl mx-auto">
               Meet the visionary leaders driving the global Shared Wealth movement
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {leadership.map((leader, index) => (
-              <Card key={leader.name} className="hover:shadow-lg transition-shadow">
+              <Card key={leader.name} className="card-professional hover-lift">
                 <CardHeader className="text-center">
-                  <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-2 border-navy/20">
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-2 border-gold/30">
                     {leader.image ? (
                     <img 
                       src={leader.image} 
@@ -357,28 +357,28 @@ const About = () => {
                       }}
                     />
                     ) : null}
-                    <div className="w-full h-full bg-gradient-to-br from-navy to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    <div className="w-full h-full rounded-full flex items-center justify-center text-white font-bold text-lg bg-gradient-accent">
                         {leader.name.split(' ').map(n => n[0]).join('')}
                     </div>
                   </div>
                   <CardTitle className="text-lg text-navy">{leader.name}</CardTitle>
-                  <CardDescription className="font-medium text-teal">
+                  <CardDescription className="font-medium text-muted-foreground">
                     {leader.role}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">{leader.bio}</p>
-                  <div className="border-t border-border pt-4 mb-4">
-                    <p className="text-xs font-semibold text-navy mb-1">Expertise:</p>
+                  <p className="text-sm mb-4 text-muted-foreground">{leader.bio}</p>
+                  <div className="border-t pt-4 mb-4 border-border">
+                    <p className="text-xs font-semibold mb-1 text-foreground">Expertise:</p>
                     <p className="text-xs text-muted-foreground">{leader.expertise}</p>
                   </div>
                   <div className="flex justify-center space-x-2">
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild className="border-navy text-navy hover:bg-navy hover:text-white">
                       <a href={leader.linkedin} target="_blank" rel="noopener noreferrer">
                         <Linkedin className="w-4 h-4" />
                       </a>
                     </Button>
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild className="border-navy text-navy hover:bg-navy hover:text-white">
                       <a href={`mailto:${leader.email}`}>
                         <Mail className="w-4 h-4" />
                       </a>
@@ -392,18 +392,18 @@ const About = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-navy text-white">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-6">Join the Shared Wealth Movement</h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
+      <section className="section-padding-sm bg-gradient-hero">
+        <div className="container mx-auto container-padding text-center">
+          <h2 className="heading-2 mb-6 text-white">Join the Shared Wealth Movement</h2>
+          <p className="body-large mb-8 max-w-2xl mx-auto text-white/90">
             Be part of the transformation. Whether you're a business leader, employee, 
             or community member, there's a place for you in our network.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" variant="green">
+            <Button asChild size="lg" className="btn-primary text-lg px-8 bg-white text-navy hover:bg-white/90">
               <Link to="/auth">Get Started</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-navy">
+            <Button asChild size="lg" className="btn-outline text-lg px-8 border-white text-white hover:bg-white hover:text-navy">
               <Link to="/network">Explore Network</Link>
             </Button>
           </div>

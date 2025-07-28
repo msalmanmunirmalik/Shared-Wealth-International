@@ -135,20 +135,20 @@ const Model = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-green-600 to-emerald-700 text-white py-20">
+      <section className="py-20" style={{ background: 'linear-gradient(135deg, #07264e 0%, #086075 100%)' }}>
         <div className="container mx-auto px-6 text-center">
-          <h1 className="text-5xl font-bold mb-6">Shared Wealth Model</h1>
-          <p className="text-xl mb-8 max-w-3xl mx-auto">
+          <h1 className="text-5xl font-bold mb-6 text-white">Shared Wealth Model</h1>
+          <p className="text-xl mb-8 max-w-3xl mx-auto text-white/80">
             A revolutionary approach to business that ensures wealth is shared equitably 
             among all stakeholders while maintaining profitability and sustainability.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" variant="green" className="text-white">
+            <Button asChild size="lg" className="text-white" style={{ background: 'linear-gradient(135deg, #eabc27 0%, #34a63b 100%)' }}>
               <Link to="/dashboard">Get Started</Link>
             </Button>
-            <Button asChild size="lg" variant="green" className="text-white">
+            <Button asChild size="lg" variant="outline" style={{ borderColor: '#eabc27', color: '#eabc27' }}>
               <Link to="/network">See Examples</Link>
             </Button>
           </div>
@@ -159,8 +159,8 @@ const Model = () => {
       <section className="py-20">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-navy mb-4">Core Principles</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4" style={{ color: '#07264e' }}>Core Principles</h2>
+            <p className="text-lg max-w-2xl mx-auto" style={{ color: '#086075' }}>
               The foundation of our shared wealth model is built on these four key principles.
             </p>
           </div>
@@ -168,15 +168,15 @@ const Model = () => {
             {principles.map((principle, index) => {
               const Icon = principle.icon;
               return (
-                <Card key={index} className="text-center hover:shadow-lg transition-shadow">
+                <Card key={index} className="text-center hover:shadow-lg transition-shadow" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
                 <CardHeader>
-                    <div className={`w-16 h-16 bg-gradient-to-br ${principle.color} rounded-full flex items-center justify-center mx-auto mb-4`}>
-                      <Icon className="w-8 h-8 text-navy" />
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'linear-gradient(135deg, #eabc27 0%, #34a63b 100%)' }}>
+                      <Icon className="w-8 h-8 text-white" />
                     </div>
-                    <CardTitle className="text-navy">{principle.title}</CardTitle>
+                    <CardTitle style={{ color: '#07264e' }}>{principle.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <CardDescription>{principle.description}</CardDescription>
+                    <CardDescription style={{ color: '#086075' }}>{principle.description}</CardDescription>
                   </CardContent>
                 </Card>
               );
@@ -186,11 +186,11 @@ const Model = () => {
       </section>
 
       {/* Model Components */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20" style={{ background: 'linear-gradient(135deg, #086075 0%, #34a63b 100%)' }}>
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-navy mb-4">Model Components</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold text-white mb-4">Model Components</h2>
+            <p className="text-lg text-white/80 max-w-2xl mx-auto">
               Our comprehensive approach combines multiple mechanisms to ensure equitable wealth distribution.
             </p>
           </div>

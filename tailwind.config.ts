@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
 	darkMode: ["class"],
@@ -52,18 +53,22 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Shared Wealth International brand colors from logo
+				// Professional Shared Wealth International brand colors
 				navy: {
 					DEFAULT: 'hsl(var(--navy))',
 					light: 'hsl(var(--navy-light))'
 				},
-				green: {
-					DEFAULT: 'hsl(var(--green))',
-					light: 'hsl(var(--green-light))'
+				gold: {
+					DEFAULT: 'hsl(var(--gold))',
+					light: 'hsl(var(--gold-light))'
 				},
 				teal: {
 					DEFAULT: 'hsl(var(--teal))',
 					light: 'hsl(var(--teal-light))'
+				},
+				green: {
+					DEFAULT: 'hsl(var(--green))',
+					light: 'hsl(var(--green-light))'
 				},
 				orange: {
 					DEFAULT: 'hsl(var(--orange))',
@@ -72,10 +77,6 @@ export default {
 				purple: {
 					DEFAULT: 'hsl(var(--purple))',
 					light: 'hsl(var(--purple-light))'
-				},
-				gold: {
-					DEFAULT: 'hsl(var(--gold))',
-					light: 'hsl(var(--gold-light))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
@@ -110,7 +111,7 @@ export default {
 						height: '0'
 					}
 				},
-				'fade-in': {
+				'fade-in-up': {
 					'0%': {
 						opacity: '0',
 						transform: 'translateY(20px)'
@@ -139,14 +140,25 @@ export default {
 						transform: 'translateY(0)',
 						opacity: '1'
 					}
+				},
+				'slide-in-right': {
+					'0%': {
+						transform: 'translateX(100%)',
+						opacity: '0'
+					},
+					'100%': {
+						transform: 'translateX(0)',
+						opacity: '1'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'fade-in': 'fade-in 0.6s ease-out',
+				'fade-in-up': 'fade-in-up 0.6s ease-out',
 				'scale-in': 'scale-in 0.4s ease-out',
-				'slide-up': 'slide-up 0.8s ease-out'
+				'slide-up': 'slide-up 0.8s ease-out',
+				'slide-in-right': 'slide-in-right 0.4s ease-out'
 			},
 			backgroundImage: {
 				'gradient-hero': 'var(--gradient-hero)',
@@ -154,9 +166,10 @@ export default {
 				'gradient-accent': 'var(--gradient-accent)',
 				'gradient-warm': 'var(--gradient-warm)',
 				'gradient-subtle': 'var(--gradient-subtle)',
-				'gradient-wealth': 'var(--gradient-wealth)'
+				'gradient-wealth': 'var(--gradient-wealth)',
+				'gradient-card': 'var(--gradient-card)'
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate],
 } satisfies Config;

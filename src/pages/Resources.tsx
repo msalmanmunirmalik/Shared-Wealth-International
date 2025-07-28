@@ -20,7 +20,16 @@ import {
   Star,
   Clock,
   Globe,
-  Lightbulb
+  Lightbulb,
+  Shield,
+  Building,
+  ClipboardCheck,
+  Upload,
+  LayoutDashboard,
+  Share2,
+  Scale,
+  PieChart,
+  DollarSign
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -37,48 +46,98 @@ const Resources = () => {
 
   const interactiveTools = [
     {
-      title: "Impact Calculator",
-      description: "Calculate potential benefits and ROI of implementing shared wealth practices",
+      title: "Wealth Distribution Analyzer",
+      description: "Analyze all aspects of company wealth including shares, IP, assets, and identify sharing opportunities",
       icon: Calculator,
       status: "Live",
-      time: "5 min",
-      path: "/calculator",
-      features: ["ROI Analysis", "Employee Impact", "Community Benefits"],
+      time: "15 min",
+      path: "/wealth-analyzer",
+      features: ["Share Ownership Analysis", "IP Valuation", "Asset Distribution", "Sharing Recommendations"],
       color: "from-blue-50 to-indigo-100"
+    },
+    {
+      title: "Communication Channel Optimizer",
+      description: "Map and optimize communication channels for inclusive decision-making across all stakeholders",
+      icon: Users,
+      status: "Live",
+      time: "12 min",
+      path: "/communication-optimizer",
+      features: ["Channel Mapping", "Inclusivity Assessment", "Decision Flow Analysis", "Optimization Strategies"],
+      color: "from-green-50 to-emerald-100"
+    },
+    {
+      title: "Values Alignment Assessment",
+      description: "Evaluate how company values align with actual practices and identify improvement areas",
+      icon: Target,
+      status: "Live",
+      time: "18 min",
+      path: "/values-assessment",
+      features: ["Values Audit", "Practice Analysis", "Gap Identification", "Alignment Roadmap"],
+      color: "from-purple-50 to-violet-100"
+    },
+    {
+      title: "Stakeholder Wealth Mapping",
+      description: "Map wealth distribution across all stakeholders and identify sharing opportunities",
+      icon: BarChart3,
+      status: "Live",
+      time: "20 min",
+      path: "/stakeholder-mapping",
+      features: ["Stakeholder Analysis", "Wealth Distribution", "Sharing Models", "Impact Projections"],
+      color: "from-orange-50 to-amber-100"
+    },
+    {
+      title: "Inclusive Decision Framework",
+      description: "Design and test inclusive decision-making processes for your organization",
+      icon: Settings,
+      status: "Live",
+      time: "25 min",
+      path: "/decision-framework",
+      features: ["Process Design", "Stakeholder Inclusion", "Scenario Testing", "Implementation Guide"],
+      color: "from-pink-50 to-rose-100"
+    },
+    {
+      title: "IP Sharing Simulator",
+      description: "Simulate different IP sharing models and their impact on innovation and value creation",
+      icon: Lightbulb,
+      status: "Live",
+      time: "15 min",
+      path: "/ip-simulator",
+      features: ["IP Valuation", "Sharing Models", "Innovation Impact", "Value Distribution"],
+      color: "from-yellow-50 to-amber-100"
     },
     {
       title: "Readiness Assessment",
       description: "Evaluate your organization's readiness for shared wealth implementation",
-      icon: Target,
+      icon: TrendingUp,
       status: "Live",
       time: "10 min",
       path: "/assessment",
       features: ["Organizational Readiness", "Stakeholder Analysis", "Implementation Roadmap"],
-      color: "from-green-50 to-emerald-100"
+      color: "from-teal-50 to-cyan-100"
     },
     {
       title: "Governance Simulator",
       description: "Simulate different governance scenarios and decision-making processes",
-      icon: Settings,
+      icon: Shield,
       status: "Live",
       time: "15 min",
       path: "/simulator",
       features: ["Governance Models", "Decision Scenarios", "Stakeholder Impact"],
-      color: "from-purple-50 to-violet-100"
-    },
-    {
-      title: "Model Configurator",
-      description: "Design your custom shared wealth model with interactive components",
-      icon: BarChart3,
-      status: "Live",
-      time: "20 min",
-      path: "/configurator",
-      features: ["Model Design", "Component Selection", "Customization Options"],
-      color: "from-orange-50 to-amber-100"
+      color: "from-indigo-50 to-blue-100"
     }
   ];
 
   const guides = [
+    {
+      title: "Shared Wealth Model",
+      description: "Comprehensive framework for creating sustainable value that benefits all stakeholders",
+      type: "Interactive Guide",
+      pages: 60,
+      downloadUrl: "/shared-wealth-model",
+      icon: BookOpen,
+      tags: ["Framework", "Principles", "Implementation"],
+      featured: true
+    },
     {
       title: "Shared Wealth Implementation Guide",
       description: "Comprehensive step-by-step guide for implementing shared wealth principles",
@@ -183,47 +242,160 @@ const Resources = () => {
     }
   ];
 
-  const research = [
+  const trainingCourses = [
     {
-      title: "The Impact of Shared Wealth on Employee Engagement",
-      description: "Research study analyzing the correlation between shared wealth and employee satisfaction",
-      authors: "Dr. Elena Petrova, Dr. Rachel Green",
-      publication: "Journal of Business Ethics",
-      year: 2023,
-      citations: 45,
-      downloadUrl: "#",
-      tags: ["Research", "Employee Engagement", "Academic"]
+      title: "Managing Working Hours of Staff",
+      description: "Learn effective strategies for managing and optimizing staff working hours in a shared wealth environment",
+      duration: "2 hours",
+      level: "Intermediate",
+      instructor: "Dr. Sarah Johnson",
+      category: "Operations",
+      modules: ["Time Tracking Systems", "Flexible Scheduling", "Work-Life Balance", "Productivity Optimization"],
+      icon: Clock,
+      color: "from-blue-50 to-indigo-100"
     },
     {
-      title: "Economic Benefits of Stakeholder Capitalism",
-      description: "Comprehensive analysis of stakeholder capitalism vs traditional shareholder models",
-      authors: "Dr. Thomas Wright, Marcus Rodriguez",
-      publication: "Harvard Business Review",
-      year: 2023,
-      citations: 89,
-      downloadUrl: "#",
-      tags: ["Research", "Stakeholder Capitalism", "Economics"]
+      title: "Stakeholder Engagement",
+      description: "Master the art of engaging all stakeholders in decision-making and value creation processes",
+      duration: "3 hours",
+      level: "Advanced",
+      instructor: "Prof. Michael Chen",
+      category: "Leadership",
+      modules: ["Stakeholder Mapping", "Communication Strategies", "Engagement Models", "Feedback Systems"],
+      icon: Users,
+      color: "from-green-50 to-emerald-100"
     },
     {
-      title: "Community Investment ROI Analysis",
-      description: "Quantitative analysis of return on investment for community investment programs",
-      authors: "David Kim, Sarah Chen",
-      publication: "Social Enterprise Journal",
-      year: 2023,
-      citations: 32,
-      downloadUrl: "#",
-      tags: ["Research", "ROI", "Community Investment"]
+      title: "Directory Companies",
+      description: "Understand how to build and manage a directory of companies committed to shared wealth principles",
+      duration: "1.5 hours",
+      level: "Beginner",
+      instructor: "Elena Petrova",
+      category: "Networking",
+      modules: ["Company Profiling", "Verification Processes", "Network Building", "Collaboration Opportunities"],
+      icon: Building,
+      color: "from-purple-50 to-violet-100"
+    },
+    {
+      title: "What are Social Economic Models that Work Really Well",
+      description: "Explore proven social economic models and their successful implementation strategies",
+      duration: "4 hours",
+      level: "Advanced",
+      instructor: "Dr. Thomas Wright",
+      category: "Strategy",
+      modules: ["Model Analysis", "Success Factors", "Implementation Roadmaps", "Case Studies"],
+      icon: TrendingUp,
+      color: "from-orange-50 to-amber-100"
+    },
+    {
+      title: "Standard Company Rule Book that Adheres to Your Values - Shared Wealth",
+      description: "Create comprehensive company policies and procedures that align with shared wealth principles",
+      duration: "2.5 hours",
+      level: "Intermediate",
+      instructor: "Legal Team",
+      category: "Governance",
+      modules: ["Policy Framework", "Value Integration", "Compliance Requirements", "Implementation Guide"],
+      icon: FileText,
+      color: "from-pink-50 to-rose-100"
+    },
+    {
+      title: "Social Audit Process",
+      description: "Learn how to conduct comprehensive social audits to measure and improve your shared wealth impact",
+      duration: "3.5 hours",
+      level: "Advanced",
+      instructor: "Audit Specialists",
+      category: "Assessment",
+      modules: ["Audit Framework", "Data Collection", "Impact Measurement", "Reporting Standards"],
+      icon: ClipboardCheck,
+      color: "from-yellow-50 to-amber-100"
+    },
+    {
+      title: "Upload Documents - Reviewed",
+      description: "Master the document management and review processes for shared wealth organizations",
+      duration: "1 hour",
+      level: "Beginner",
+      instructor: "Documentation Team",
+      category: "Operations",
+      modules: ["Document Standards", "Review Processes", "Version Control", "Access Management"],
+      icon: Upload,
+      color: "from-teal-50 to-cyan-100"
+    },
+    {
+      title: "Cashflow Management / Forecasting Tools",
+      description: "Learn advanced cashflow management and forecasting techniques for sustainable business growth",
+      duration: "3 hours",
+      level: "Intermediate",
+      instructor: "Financial Experts",
+      category: "Finance",
+      modules: ["Cashflow Analysis", "Forecasting Models", "Financial Planning", "Risk Management"],
+      icon: BarChart3,
+      color: "from-indigo-50 to-blue-100"
+    },
+    {
+      title: "Dashboard to Manage Shared Wealth",
+      description: "Design and implement effective dashboards for monitoring and managing shared wealth metrics",
+      duration: "2 hours",
+      level: "Intermediate",
+      instructor: "Data Analytics Team",
+      category: "Technology",
+      modules: ["Dashboard Design", "KPI Selection", "Data Visualization", "Real-time Monitoring"],
+      icon: LayoutDashboard,
+      color: "from-emerald-50 to-green-100"
+    },
+    {
+      title: "Phantom Equity Distribution / Share Distribution Platform",
+      description: "Implement effective phantom equity and share distribution systems for employee ownership",
+      duration: "4 hours",
+      level: "Advanced",
+      instructor: "Equity Specialists",
+      category: "Ownership",
+      modules: ["Phantom Equity Design", "Distribution Models", "Platform Implementation", "Legal Compliance"],
+      icon: Share2,
+      color: "from-red-50 to-pink-100"
+    },
+    {
+      title: "Legal Structures / Company Formation",
+      description: "Understand legal structures and company formation processes for shared wealth organizations",
+      duration: "3 hours",
+      level: "Intermediate",
+      instructor: "Legal Advisors",
+      category: "Legal",
+      modules: ["Legal Structures", "Formation Process", "Compliance Requirements", "Best Practices"],
+      icon: Scale,
+      color: "from-slate-50 to-gray-100"
+    },
+    {
+      title: "Types of Shares",
+      description: "Comprehensive guide to different types of shares and their applications in shared wealth models",
+      duration: "2.5 hours",
+      level: "Intermediate",
+      instructor: "Share Structure Experts",
+      category: "Ownership",
+      modules: ["Share Types", "Voting Rights", "Dividend Structures", "Transfer Restrictions"],
+      icon: PieChart,
+      color: "from-cyan-50 to-blue-100"
+    },
+    {
+      title: "Utilising Shares in Lieu of Payment",
+      description: "Learn how to effectively use shares as compensation and payment mechanisms",
+      duration: "2 hours",
+      level: "Advanced",
+      instructor: "Compensation Specialists",
+      category: "Compensation",
+      modules: ["Share-Based Compensation", "Valuation Methods", "Tax Implications", "Implementation Strategies"],
+      icon: DollarSign,
+      color: "from-lime-50 to-green-100"
     }
   ];
 
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-purple-600 to-indigo-700 text-white py-16">
+      <section className="py-16" style={{ background: 'linear-gradient(135deg, #07264e 0%, #086075 100%)' }}>
         <div className="container mx-auto px-6 text-center">
-          <h1 className="text-4xl font-bold mb-4">Resources & Tools</h1>
-          <p className="text-lg mb-8 max-w-2xl mx-auto">
-            Access interactive tools, guides, case studies, and research to help you 
+          <h1 className="text-4xl font-bold mb-4 text-white">Tools & Learning</h1>
+          <p className="text-lg mb-8 max-w-2xl mx-auto text-white/80">
+            Access interactive tools and comprehensive training courses to help you 
             implement shared wealth principles in your organization.
           </p>
         </div>
@@ -233,21 +405,17 @@ const Resources = () => {
       <section className="py-16">
         <div className="container mx-auto px-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="tools">Interactive Tools</TabsTrigger>
-              <TabsTrigger value="guides">Guides & Templates</TabsTrigger>
-              <TabsTrigger value="cases">Case Studies</TabsTrigger>
-              <TabsTrigger value="webinars">Webinars</TabsTrigger>
-              <TabsTrigger value="research">Research</TabsTrigger>
+              <TabsTrigger value="training">Training Courses</TabsTrigger>
               <TabsTrigger value="events">Events</TabsTrigger>
-              <TabsTrigger value="forum">Forum</TabsTrigger>
             </TabsList>
 
             {/* Interactive Tools */}
             <TabsContent value="tools" className="space-y-8">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-navy mb-4">Interactive Tools</h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                <h2 className="text-3xl font-bold mb-4" style={{ color: '#07264e' }}>Interactive Tools</h2>
+                <p className="text-lg max-w-2xl mx-auto" style={{ color: '#086075' }}>
                   Use our interactive tools to assess, calculate, and design your shared wealth implementation.
                 </p>
               </div>
@@ -256,37 +424,37 @@ const Resources = () => {
                 {interactiveTools.map((tool, index) => {
                   const Icon = tool.icon;
                   return (
-                    <Card key={index} className="hover:shadow-lg transition-shadow">
+                    <Card key={index} className="hover:shadow-lg transition-shadow" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
                       <CardHeader>
                         <div className="flex items-center justify-between">
                           <div className={`w-16 h-16 bg-gradient-to-br ${tool.color} rounded-lg flex items-center justify-center`}>
-                            <Icon className="w-8 h-8 text-navy" />
+                            <Icon className="w-8 h-8" style={{ color: '#07264e' }} />
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Badge variant="secondary" className="text-xs">
+                            <Badge variant="secondary" className="text-xs" style={{ backgroundColor: 'rgba(52, 166, 59, 0.1)', color: '#34a63b' }}>
                               {tool.status}
                             </Badge>
-                            <div className="flex items-center text-xs text-muted-foreground">
+                            <div className="flex items-center text-xs" style={{ color: '#086075' }}>
                               <Clock className="w-3 h-3 mr-1" />
                               {tool.time}
                             </div>
                           </div>
                         </div>
-                        <CardTitle className="text-navy">{tool.title}</CardTitle>
-                        <CardDescription>{tool.description}</CardDescription>
+                        <CardTitle style={{ color: '#07264e' }}>{tool.title}</CardTitle>
+                        <CardDescription style={{ color: '#086075' }}>{tool.description}</CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="mb-4">
-                          <div className="text-xs font-semibold text-navy mb-2">Features:</div>
+                          <div className="text-xs font-semibold mb-2" style={{ color: '#07264e' }}>Features:</div>
                           <div className="flex flex-wrap gap-1">
                             {tool.features.map((feature, featureIndex) => (
-                              <Badge key={featureIndex} variant="outline" className="text-xs">
+                              <Badge key={featureIndex} variant="outline" className="text-xs" style={{ borderColor: 'rgba(8, 96, 117, 0.2)', color: '#086075' }}>
                                 {feature}
                               </Badge>
                             ))}
                           </div>
                         </div>
-                        <Button asChild className="w-full">
+                        <Button asChild className="w-full" style={{ background: 'linear-gradient(135deg, #eabc27 0%, #34a63b 100%)', color: 'white' }}>
                           <Link to={tool.path}>
                             Launch Tool
                             <ArrowRight className="w-4 h-4 ml-2" />
@@ -299,51 +467,60 @@ const Resources = () => {
               </div>
             </TabsContent>
 
-            {/* Guides & Templates */}
-            <TabsContent value="guides" className="space-y-8">
+            {/* Training Courses */}
+            <TabsContent value="training" className="space-y-8">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-navy mb-4">Guides & Templates</h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Download comprehensive guides, templates, and frameworks to support your implementation.
+                <h2 className="text-3xl font-bold mb-4" style={{ color: '#07264e' }}>Training Courses</h2>
+                <p className="text-lg max-w-2xl mx-auto" style={{ color: '#086075' }}>
+                  Comprehensive training courses designed to help you master shared wealth implementation.
                 </p>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-6">
-                {guides.map((guide, index) => {
-                  const Icon = guide.icon;
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {trainingCourses.map((course, index) => {
+                  const Icon = course.icon;
                   return (
-                    <Card key={index} className="hover:shadow-lg transition-shadow">
+                    <Card key={index} className="hover:shadow-lg transition-shadow" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
                       <CardHeader>
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex items-center justify-center">
-                            <Icon className="w-6 h-6 text-navy" />
+                        <div className="flex items-center justify-between mb-3">
+                          <div className={`w-12 h-12 bg-gradient-to-br ${course.color} rounded-lg flex items-center justify-center`}>
+                            <Icon className="w-6 h-6" style={{ color: '#07264e' }} />
                           </div>
-                          <div>
-                            <CardTitle className="text-navy">{guide.title}</CardTitle>
-                            <CardDescription>{guide.description}</CardDescription>
+                          <div className="flex flex-col items-end">
+                            <Badge variant="secondary" className="text-xs mb-1" style={{ backgroundColor: 'rgba(234, 188, 39, 0.1)', color: '#eabc27' }}>
+                              {course.level}
+                            </Badge>
+                            <div className="flex items-center text-xs" style={{ color: '#086075' }}>
+                              <Clock className="w-3 h-3 mr-1" />
+                              {course.duration}
+                            </div>
                           </div>
                         </div>
+                        <CardTitle className="text-lg" style={{ color: '#07264e' }}>{course.title}</CardTitle>
+                        <CardDescription style={{ color: '#086075' }}>{course.description}</CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="text-sm text-muted-foreground">
-                            {guide.type} • {guide.pages} pages
-                          </div>
-                        </div>
                         <div className="mb-4">
+                          <div className="text-sm font-medium mb-2" style={{ color: '#07264e' }}>
+                            Instructor: {course.instructor}
+                          </div>
+                          <div className="text-sm mb-3" style={{ color: '#086075' }}>
+                            Category: {course.category}
+                          </div>
+                          <div className="text-xs font-medium mb-2" style={{ color: '#07264e' }}>Modules:</div>
                           <div className="flex flex-wrap gap-1">
-                            {guide.tags.map((tag, tagIndex) => (
-                              <Badge key={tagIndex} variant="outline" className="text-xs">
-                                {tag}
+                            {course.modules.map((module, moduleIndex) => (
+                              <Badge key={moduleIndex} variant="outline" className="text-xs" style={{ borderColor: 'rgba(8, 96, 117, 0.2)', color: '#086075' }}>
+                                {module}
                               </Badge>
                             ))}
                           </div>
                         </div>
-                        <Button asChild className="w-full">
-                          <a href={guide.downloadUrl}>
-                            <Download className="w-4 h-4 mr-2" />
-                            Download
-                          </a>
+                        <Button asChild className="w-full" style={{ background: 'linear-gradient(135deg, #eabc27 0%, #34a63b 100%)', color: 'white' }}>
+                          <Link to={`/training/${course.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                            Enroll Now
+                            <ArrowRight className="w-4 h-4 ml-2" />
+                          </Link>
                         </Button>
                       </CardContent>
                     </Card>
@@ -352,158 +529,11 @@ const Resources = () => {
               </div>
             </TabsContent>
 
-            {/* Case Studies */}
-            <TabsContent value="cases" className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-navy mb-4">Case Studies</h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Learn from real-world examples of successful shared wealth implementations.
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {caseStudies.map((study, index) => (
-                  <Card key={index} className="hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <div className="flex items-center justify-between mb-2">
-                        <Badge variant="secondary">{study.sector}</Badge>
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <Clock className="w-3 h-3 mr-1" />
-                          {study.readTime}
-                        </div>
-                      </div>
-                      <CardTitle className="text-navy text-lg">{study.title}</CardTitle>
-                      <CardDescription>{study.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="mb-4">
-                        <div className="text-sm font-semibold text-green-600 mb-2">
-                          Impact: {study.impact}
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          {study.tags.map((tag, tagIndex) => (
-                            <Badge key={tagIndex} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <Button asChild className="w-full">
-                        <Link to={`/case-studies/${study.company.toLowerCase().replace(/\s+/g, '-')}`}>
-                          Read Case Study
-                          <ArrowRight className="w-4 h-4 ml-2" />
-                        </Link>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-
-            {/* Webinars */}
-            <TabsContent value="webinars" className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-navy mb-4">Webinars & Recordings</h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Watch expert-led webinars and learn from industry leaders.
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {webinars.map((webinar, index) => (
-                  <Card key={index} className="hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <div className="flex items-center justify-between mb-2">
-                        <Badge variant="secondary">{webinar.duration}</Badge>
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <Users className="w-3 h-3 mr-1" />
-                          {webinar.attendees}
-                        </div>
-                      </div>
-                      <CardTitle className="text-navy text-lg">{webinar.title}</CardTitle>
-                      <CardDescription>{webinar.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="mb-4">
-                        <div className="text-sm text-muted-foreground mb-2">
-                          Speaker: {webinar.speaker}
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          {webinar.tags.map((tag, tagIndex) => (
-                            <Badge key={tagIndex} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <Button asChild className="w-full">
-                        <a href={webinar.recordingUrl}>
-                          <Play className="w-4 h-4 mr-2" />
-                          Watch Recording
-                        </a>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-
-            {/* Research */}
-            <TabsContent value="research" className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-navy mb-4">Research & Publications</h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Access academic research and publications on shared wealth principles.
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {research.map((paper, index) => (
-                  <Card key={index} className="hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <div className="flex items-center justify-between mb-2">
-                        <Badge variant="secondary">{paper.year}</Badge>
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <Star className="w-3 h-3 mr-1" />
-                          {paper.citations} citations
-                        </div>
-                      </div>
-                      <CardTitle className="text-navy">{paper.title}</CardTitle>
-                      <CardDescription>{paper.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="mb-4">
-                        <div className="text-sm text-muted-foreground mb-2">
-                          Authors: {paper.authors}
-                        </div>
-                        <div className="text-sm text-muted-foreground mb-2">
-                          Publication: {paper.publication}
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          {paper.tags.map((tag, tagIndex) => (
-                            <Badge key={tagIndex} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <Button asChild className="w-full">
-                        <a href={paper.downloadUrl}>
-                          <Download className="w-4 h-4 mr-2" />
-                          Download Paper
-                        </a>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-
             {/* Events */}
             <TabsContent value="events" className="space-y-8">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-navy mb-4">Events & Networking</h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                <h2 className="text-3xl font-bold mb-4" style={{ color: '#07264e' }}>Events & Networking</h2>
+                <p className="text-lg max-w-2xl mx-auto" style={{ color: '#086075' }}>
                   Join our community events, workshops, and networking opportunities.
                 </p>
               </div>
@@ -616,170 +646,23 @@ const Resources = () => {
               </div>
             </TabsContent>
 
-            {/* Forum */}
-            <TabsContent value="forum" className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-navy mb-4">Community Forum</h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  Connect with the shared wealth community, ask questions, and share experiences.
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge variant="secondary">Implementation</Badge>
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <Users className="w-3 h-3 mr-1" />
-                        24 replies
-                      </div>
-                    </div>
-                    <CardTitle className="text-navy text-lg">Getting Started with Profit Sharing</CardTitle>
-                    <CardDescription>Tips and best practices for implementing profit sharing programs</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="mb-4">
-                      <div className="text-sm text-muted-foreground mb-2">
-                        Started by: Sarah Johnson • 2 days ago
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        <Badge variant="outline" className="text-xs">Profit Sharing</Badge>
-                        <Badge variant="outline" className="text-xs">Implementation</Badge>
-                        <Badge variant="outline" className="text-xs">Best Practices</Badge>
-                      </div>
-                    </div>
-                    <Button asChild className="w-full">
-                      <Link to="/forum">
-                        Join Discussion
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge variant="secondary">Governance</Badge>
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <Users className="w-3 h-3 mr-1" />
-                        18 replies
-                      </div>
-                    </div>
-                    <CardTitle className="text-navy text-lg">Employee Board Representation</CardTitle>
-                    <CardDescription>Experiences with employee representation on company boards</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="mb-4">
-                      <div className="text-sm text-muted-foreground mb-2">
-                        Started by: Michael Chen • 1 week ago
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        <Badge variant="outline" className="text-xs">Governance</Badge>
-                        <Badge variant="outline" className="text-xs">Board</Badge>
-                        <Badge variant="outline" className="text-xs">Experience</Badge>
-                      </div>
-                    </div>
-                    <Button asChild className="w-full">
-                      <Link to="/forum">
-                        Join Discussion
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge variant="secondary">Community</Badge>
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <Users className="w-3 h-3 mr-1" />
-                        32 replies
-                      </div>
-                    </div>
-                    <CardTitle className="text-navy text-lg">Measuring Social Impact</CardTitle>
-                    <CardDescription>How do you measure the social impact of shared wealth initiatives?</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="mb-4">
-                      <div className="text-sm text-muted-foreground mb-2">
-                        Started by: Elena Petrova • 3 days ago
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        <Badge variant="outline" className="text-xs">Impact</Badge>
-                        <Badge variant="outline" className="text-xs">Measurement</Badge>
-                        <Badge variant="outline" className="text-xs">Social</Badge>
-                      </div>
-                    </div>
-                    <Button asChild className="w-full">
-                      <Link to="/forum">
-                        Join Discussion
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge variant="secondary">Resources</Badge>
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <Users className="w-3 h-3 mr-1" />
-                        15 replies
-                      </div>
-                    </div>
-                    <CardTitle className="text-navy text-lg">Recommended Reading List</CardTitle>
-                    <CardDescription>Share your favorite books and resources on shared wealth</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="mb-4">
-                      <div className="text-sm text-muted-foreground mb-2">
-                        Started by: David Kim • 5 days ago
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        <Badge variant="outline" className="text-xs">Resources</Badge>
-                        <Badge variant="outline" className="text-xs">Books</Badge>
-                        <Badge variant="outline" className="text-xs">Learning</Badge>
-                      </div>
-                    </div>
-                    <Button asChild className="w-full">
-                      <Link to="/forum">
-                        Join Discussion
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="text-center">
-                <Button asChild size="lg">
-                  <Link to="/forum">
-                    Join the Forum
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
-                </Button>
-              </div>
-            </TabsContent>
           </Tabs>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-navy text-white">
+      <section className="py-16" style={{ background: 'linear-gradient(135deg, #07264e 0%, #086075 100%)' }}>
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-6">Ready to Get Started?</h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Use our tools and resources to begin your shared wealth journey today.
+          <h2 className="text-3xl font-bold mb-6 text-white">Ready to Get Started?</h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto text-white/80">
+            Use our tools and training courses to begin your shared wealth journey today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" variant="green">
-              <Link to="/dashboard">Start Assessment</Link>
+            <Button asChild size="lg" className="text-white" style={{ background: 'linear-gradient(135deg, #eabc27 0%, #34a63b 100%)' }}>
+              <Link to="/assessment">Start Assessment</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-navy">
+            <Button asChild size="lg" variant="outline" style={{ borderColor: '#eabc27', color: '#eabc27' }}>
               <Link to="/model">Learn Our Model</Link>
             </Button>
           </div>

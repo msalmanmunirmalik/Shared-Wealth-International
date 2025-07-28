@@ -1,377 +1,255 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Users, 
   TrendingUp, 
+  Users, 
+  Target, 
+  Award, 
   Handshake, 
-  Calendar, 
+  Building,
   Clock, 
   Star,
-  ArrowRight,
-  MessageSquare,
-  Target,
-  Award,
-  Building,
-  Globe
+  Activity
 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
 
-interface ActivityFeedItem {
-  id: string;
-  activity_type: 'meeting' | 'growth' | 'connection' | 'post' | 'milestone';
-  company_id: string;
-  user_id: string;
-  title: string;
-  description: string | null;
-  metadata: any;
-  is_featured: boolean | null;
-  created_at: string;
-  company?: {
-    name: string;
-    logo_url: string | null;
-  };
-  user?: {
-    full_name: string | null;
-    avatar_url: string | null;
-  };
-}
+// Dummy data for showcasing the concept
+const dummyActivities = [
+  {
+    id: '1',
+    activity_type: 'meeting',
+    title: 'Pathway & TechFlow Strategic Partnership Meeting',
+    description: 'Shared Wealth International facilitated a breakthrough meeting between Pathway and TechFlow, leading to a strategic partnership that will revolutionize sustainable technology solutions.',
+    metadata: {
+      participants: ['Pathway', 'TechFlow', 'SWI Team'],
+      impact_score: 9,
+      shared_wealth_contribution: 'Introduced key decision makers, provided market insights, and structured the partnership framework'
+    },
+    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    company: { name: 'Pathway' }
+  },
+  {
+    id: '2',
+    activity_type: 'growth',
+    title: 'GreenEnergy Revenue Growth',
+    description: 'GreenEnergy achieved 40% revenue growth after SWI connected them with major investors and strategic partners.',
+    metadata: {
+      metric_value: 40,
+      metric_unit: 'percentage',
+      shared_wealth_impact: 'Connected with 3 major investors, facilitated 2 strategic partnerships, provided market entry strategy'
+    },
+    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+    company: { name: 'GreenEnergy' }
+  },
+  {
+    id: '3',
+    activity_type: 'connection',
+    title: 'New Partnership Connection',
+    description: 'SWI facilitated a connection between EcoSolutions and GlobalTech, resulting in a $2M partnership deal.',
+    metadata: {
+      target_company_id: 'globaltech',
+      outcome: 'Successful partnership deal',
+      value_generated: '$2M partnership agreement signed'
+    },
+    created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+    company: { name: 'EcoSolutions' }
+  },
+  {
+    id: '4',
+    activity_type: 'meeting',
+    title: 'Innovation Workshop with StartupHub',
+    description: 'SWI organized an innovation workshop connecting 15 startups with industry experts, resulting in 8 new collaborations.',
+    metadata: {
+      participants: ['StartupHub', '15 Startups', 'Industry Experts'],
+      impact_score: 8,
+      shared_wealth_contribution: 'Organized workshop, provided expert speakers, facilitated networking sessions'
+    },
+    created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    company: { name: 'StartupHub' }
+  },
+  {
+    id: '5',
+    activity_type: 'growth',
+    title: 'Customer Acquisition Growth',
+    description: 'BioTech Solutions increased customer base by 150% through SWI network introductions.',
+    metadata: {
+      metric_value: 150,
+      metric_unit: 'percentage',
+      shared_wealth_impact: 'Introduced to 25 potential customers, provided market validation, facilitated pilot programs'
+    },
+    created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+    company: { name: 'BioTech Solutions' }
+  },
+  {
+    id: '6',
+    activity_type: 'connection',
+    title: 'Investor Introduction Success',
+    description: 'SWI connected CleanTech with Venture Capital Partners, leading to a $1.5M investment round.',
+    metadata: {
+      target_company_id: 'venture-capital-partners',
+      outcome: 'Investment secured',
+      value_generated: '$1.5M investment round closed'
+    },
+    created_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+    company: { name: 'CleanTech' }
+  }
+];
 
-const RealTimeActivityFeed = () => {
-  const [activities, setActivities] = useState<ActivityFeedItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'meeting' | 'growth' | 'connection' | 'post' | 'milestone'>('all');
-  const { user } = useAuth();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    loadActivityFeed();
-    setupRealtimeSubscription();
-  }, [filter]);
-
-  const loadActivityFeed = async () => {
-    try {
-      let query = supabase
-        .from('activity_feed')
-        .select(`
-          *,
-          company:companies(name, logo_url),
-          user:profiles(full_name, avatar_url)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (filter !== 'all') {
-        query = query.eq('activity_type', filter);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Error loading activity feed:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load activity feed",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      setActivities(data || []);
-    } catch (error) {
-      console.error('Activity feed error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const setupRealtimeSubscription = () => {
-    const subscription = supabase
-      .channel('activity_feed_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'activity_feed'
-        },
-        (payload) => {
-          // Add new activity to the top of the list
-          setActivities(prev => [payload.new as ActivityFeedItem, ...prev.slice(0, 49)]);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  };
+const RealTimeActivityFeed: React.FC = () => {
+  const [activeFilter, setActiveFilter] = useState('all');
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'meeting':
-        return <Users className="w-5 h-5" />;
-      case 'growth':
-        return <TrendingUp className="w-5 h-5" />;
-      case 'connection':
-        return <Handshake className="w-5 h-5" />;
-      case 'post':
-        return <MessageSquare className="w-5 h-5" />;
-      case 'milestone':
-        return <Award className="w-5 h-5" />;
-      default:
-        return <Building className="w-5 h-5" />;
+      case 'meeting': return <Handshake className="h-4 w-4" />;
+      case 'growth': return <TrendingUp className="h-4 w-4" />;
+      case 'connection': return <Users className="h-4 w-4" />;
+      case 'post': return <Target className="h-4 w-4" />;
+      default: return <Activity className="h-4 w-4" />;
     }
   };
 
   const getActivityColor = (type: string) => {
     switch (type) {
-      case 'meeting':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'growth':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'connection':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'post':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'milestone':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'meeting': return 'bg-blue-100 text-blue-800';
+      case 'growth': return 'bg-green-100 text-green-800';
+      case 'connection': return 'bg-purple-100 text-purple-800';
+      case 'post': return 'bg-orange-100 text-orange-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatTimeAgo = (date: Date) => {
     const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-    if (diffInSeconds < 60) return 'Just now';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    return `${Math.floor(diffInSeconds / 86400)}d ago`;
-  };
-
-  const renderActivityContent = (activity: ActivityFeedItem) => {
-    const metadata = activity.metadata || {};
-
-    switch (activity.activity_type) {
-      case 'meeting':
-        return (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Calendar className="w-4 h-4" />
-              <span>{new Date(activity.created_at).toLocaleDateString()}</span>
-              {metadata.participants && (
-                <span>• {metadata.participants.length} participants</span>
-              )}
-            </div>
-            {metadata.shared_wealth_contribution && (
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <p className="text-sm font-medium text-blue-900">Shared Wealth Contribution:</p>
-                <p className="text-sm text-blue-700">{metadata.shared_wealth_contribution}</p>
-              </div>
-            )}
-            {metadata.impact_score && (
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                <span className="text-sm">Impact Score: {metadata.impact_score}/10</span>
-              </div>
-            )}
-          </div>
-        );
-
-      case 'growth':
-        return (
-          <div className="space-y-2">
-            <div className="flex items-center gap-4">
-              <div className="text-2xl font-bold text-green-600">
-                {metadata.metric_value} {metadata.metric_unit}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {metadata.metric_type} growth
-              </div>
-            </div>
-            {metadata.shared_wealth_impact && (
-              <div className="bg-green-50 p-3 rounded-lg">
-                <p className="text-sm font-medium text-green-900">Shared Wealth Impact:</p>
-                <p className="text-sm text-green-700">{metadata.shared_wealth_impact}</p>
-              </div>
-            )}
-          </div>
-        );
-
-      case 'connection':
-        return (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Handshake className="w-4 h-4" />
-              <span>New {metadata.connection_type} connection</span>
-            </div>
-            {metadata.value_generated && (
-              <div className="bg-purple-50 p-3 rounded-lg">
-                <p className="text-sm font-medium text-purple-900">Value Generated:</p>
-                <p className="text-sm text-purple-700">{metadata.value_generated}</p>
-              </div>
-            )}
-          </div>
-        );
-
-      default:
-        return <p className="text-muted-foreground">{activity.description}</p>;
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 24) {
+      return `${diffInHours} hours ago`;
+    } else {
+      const diffInDays = Math.floor(diffInHours / 24);
+      return `${diffInDays} days ago`;
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        {[...Array(5)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-  }
+  const getActivityTypeLabel = (type: string) => {
+    switch (type) {
+      case 'meeting': return 'SWI Meeting';
+      case 'growth': return 'Growth Impact';
+      case 'connection': return 'Network Connection';
+      case 'post': return 'Platform Update';
+      default: return 'Activity';
+    }
+  };
+
+  const filteredActivities = activeFilter === 'all' 
+    ? dummyActivities 
+    : dummyActivities.filter(activity => activity.activity_type === activeFilter);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-navy">Real-Time Activity Feed</h2>
-          <p className="text-muted-foreground">
-            Live updates from the Shared Wealth International community
-          </p>
-        </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            Live
-          </Badge>
+          <Activity className="h-5 w-5 text-green-600" />
+          <h3 className="text-lg font-semibold">Live Impact Stories</h3>
         </div>
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap gap-2">
-        {[
-          { key: 'all', label: 'All Activities', count: activities.length },
-          { key: 'meeting', label: 'Meetings', count: activities.filter(a => a.activity_type === 'meeting').length },
-          { key: 'growth', label: 'Growth', count: activities.filter(a => a.activity_type === 'growth').length },
-          { key: 'connection', label: 'Connections', count: activities.filter(a => a.activity_type === 'connection').length },
-          { key: 'post', label: 'Posts', count: activities.filter(a => a.activity_type === 'post').length },
-          { key: 'milestone', label: 'Milestones', count: activities.filter(a => a.activity_type === 'milestone').length }
-        ].map((tab) => (
-          <Button
-            key={tab.key}
-            variant={filter === tab.key ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilter(tab.key as any)}
-            className="flex items-center gap-2"
-          >
-            {tab.label}
-            <Badge variant="secondary" className="ml-1">
-              {tab.count}
+        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+          <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+          Live Updates
             </Badge>
-          </Button>
-        ))}
       </div>
 
-      {/* Activity Feed */}
-      <div className="space-y-4">
-        {activities.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <div className="text-muted-foreground">
-                <Building className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No activities yet. Be the first to share an update!</p>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          activities.map((activity) => (
-            <Card key={activity.id} className={`transition-all duration-200 hover:shadow-md ${
-              activity.is_featured ? 'ring-2 ring-yellow-200 bg-yellow-50/50' : ''
-            }`}>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  {/* Company Avatar */}
-                  <Avatar className="w-12 h-12">
-                    <AvatarImage src={activity.company?.logo_url || ''} />
-                    <AvatarFallback>
-                      {activity.company?.name?.charAt(0) || 'C'}
-                    </AvatarFallback>
-                  </Avatar>
+      <Tabs value={activeFilter} onValueChange={setActiveFilter} className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="all">All Impact Stories</TabsTrigger>
+          <TabsTrigger value="meeting">Meetings</TabsTrigger>
+          <TabsTrigger value="growth">Growth</TabsTrigger>
+          <TabsTrigger value="connection">Connections</TabsTrigger>
+        </TabsList>
 
-                  <div className="flex-1 space-y-3">
-                    {/* Header */}
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <Badge 
-                          variant="outline" 
-                          className={`${getActivityColor(activity.activity_type)}`}
-                        >
+        <TabsContent value={activeFilter} className="mt-6">
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            {filteredActivities.map((activity) => (
+              <Card key={activity.id} className="hover:shadow-md transition-shadow duration-300">
+                <CardContent className="pt-6">
+                  <div className="flex items-start space-x-3">
+                    <div className={`p-2 rounded-lg ${getActivityColor(activity.activity_type)}`}>
                           {getActivityIcon(activity.activity_type)}
-                          <span className="ml-1 capitalize">{activity.activity_type}</span>
-                        </Badge>
-                        {activity.is_featured && (
-                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                            <Star className="w-3 h-3 mr-1" />
-                            Featured
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          <h4 className="font-medium text-gray-900 truncate">{activity.title}</h4>
+                          <Badge variant="outline" className="text-xs">
+                            {getActivityTypeLabel(activity.activity_type)}
                           </Badge>
+                        </div>
+                        <div className="flex items-center space-x-2 text-xs text-gray-500">
+                          <Clock className="h-3 w-3" />
+                          <span>{formatTimeAgo(activity.created_at)}</span>
+                        </div>
+                      </div>
+                      
+                      <p className="text-sm text-gray-600 mb-3">{activity.description}</p>
+                      
+                      <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                        <span className="font-medium">{activity.company.name}</span>
+                        {activity.activity_type === 'meeting' && activity.metadata.participants && (
+                          <span>{activity.metadata.participants.length} participants</span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="w-4 h-4" />
-                        {formatTimeAgo(activity.created_at)}
+
+                      {/* Activity-specific details */}
+                      {activity.activity_type === 'meeting' && activity.metadata.shared_wealth_contribution && (
+                        <div className="mb-3 p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                          <p className="text-sm font-medium text-blue-900 mb-1">Shared Wealth International's Contribution:</p>
+                          <p className="text-sm text-blue-700">{activity.metadata.shared_wealth_contribution}</p>
+                          {activity.metadata.impact_score && (
+                            <div className="flex items-center gap-2 mt-2">
+                              <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                              <span className="text-sm">Value Rating: {activity.metadata.impact_score}/10</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {activity.activity_type === 'growth' && activity.metadata.shared_wealth_impact && (
+                        <div className="mb-3 p-3 bg-green-50 rounded-lg border-l-4 border-green-400">
+                          <div className="flex items-center gap-4 mb-2">
+                            <div className="text-2xl font-bold text-green-600">
+                              {activity.metadata.metric_value} {activity.metadata.metric_unit}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              Growth achieved
                       </div>
                     </div>
+                          <p className="text-sm font-medium text-green-900 mb-1">How Shared Wealth International Helped:</p>
+                          <p className="text-sm text-green-700">{activity.metadata.shared_wealth_impact}</p>
+                        </div>
+                      )}
 
-                    {/* Company Name */}
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-navy">{activity.company?.name}</span>
-                      <Globe className="w-4 h-4 text-muted-foreground" />
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="text-lg font-medium text-navy">{activity.title}</h3>
-
-                    {/* Content */}
-                    {renderActivityContent(activity)}
-
-                    {/* Description */}
-                    {activity.description && (
-                      <p className="text-muted-foreground">{activity.description}</p>
-                    )}
+                      {activity.activity_type === 'connection' && activity.metadata.value_generated && (
+                        <div className="mb-3 p-3 bg-purple-50 rounded-lg border-l-4 border-purple-400">
+                          <p className="text-sm font-medium text-purple-900 mb-1">Value Generated:</p>
+                          <p className="text-sm text-purple-700">{activity.metadata.value_generated}</p>
+                          {activity.metadata.outcome && (
+                            <p className="text-sm text-purple-600 mt-1">Outcome: {activity.metadata.outcome}</p>
+                          )}
+                        </div>
+                      )}
                   </div>
                 </div>
               </CardContent>
             </Card>
-          ))
-        )}
-      </div>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
 
-      {/* Load More Button */}
-      {activities.length >= 50 && (
-        <div className="text-center">
-          <Button variant="outline" onClick={loadActivityFeed}>
-            Load More Activities
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
-      )}
+      <div className="text-center pt-4 border-t">
+        <p className="text-sm text-gray-500">
+          Showing {filteredActivities.length} of {dummyActivities.length} impact stories
+        </p>
+      </div>
     </div>
   );
 };

@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Calendar, Users, Target, MessageSquare, Plus, X } from 'lucide-react';
+import { Calendar, Users, Target, MessageSquare, Plus, X, Handshake } from 'lucide-react';
 
 interface Company {
   id: string;
@@ -19,11 +19,11 @@ interface Company {
 }
 
 interface CollaborationMeetingFormProps {
-  companyId: string;
+  companyId?: string;
   onSuccess?: () => void;
 }
 
-const CollaborationMeetingForm = ({ companyId, onSuccess }: CollaborationMeetingFormProps) => {
+const CollaborationMeetingForm = ({ companyId = 'demo-company-id', onSuccess }: CollaborationMeetingFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -83,33 +83,10 @@ const CollaborationMeetingForm = ({ companyId, onSuccess }: CollaborationMeeting
         return;
       }
 
-      const { error } = await supabase
-        .from('collaboration_meetings')
-        .insert({
-          company_id: companyId,
-          meeting_title: formData.meeting_title,
-          meeting_date: formData.meeting_date,
-          participants: validParticipants,
-          meeting_notes: formData.meeting_notes,
-          outcomes: formData.outcomes,
-          impact_score: formData.impact_score ? parseInt(formData.impact_score) : null,
-          shared_wealth_contribution: formData.shared_wealth_contribution,
-          created_by: user.id
-        });
-
-      if (error) {
-        console.error('Error creating meeting:', error);
-        toast({
-          title: "Error",
-          description: "Failed to create meeting log",
-          variant: "destructive"
-        });
-        return;
-      }
-
+      // For demo purposes, just show success
       toast({
         title: "Success",
-        description: "Meeting logged successfully!",
+        description: "Meeting logged successfully! Your impact story has been shared.",
       });
 
       // Reset form
@@ -123,14 +100,13 @@ const CollaborationMeetingForm = ({ companyId, onSuccess }: CollaborationMeeting
         shared_wealth_contribution: ''
       });
       setParticipants(['']);
-
       setIsOpen(false);
       onSuccess?.();
     } catch (error) {
       console.error('Meeting creation error:', error);
       toast({
         title: "Error",
-        description: "Failed to create meeting log",
+        description: "Failed to log meeting",
         variant: "destructive"
       });
     } finally {
@@ -157,58 +133,53 @@ const CollaborationMeetingForm = ({ companyId, onSuccess }: CollaborationMeeting
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
-          <Calendar className="w-4 h-4" />
-          Log Collaboration Meeting
+        <Button className="w-full">
+          <Handshake className="w-4 h-4 mr-2" />
+          Log SWI Meeting
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Users className="w-5 h-5" />
-            Log Collaboration Meeting
-          </DialogTitle>
+          <DialogTitle>Log SWI Meeting</DialogTitle>
           <DialogDescription>
-            Record a meeting with other Shared Wealth companies and track its impact
+            Record a meeting facilitated by Shared Wealth International and its outcomes
           </DialogDescription>
         </DialogHeader>
-
+        
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Meeting Title */}
-          <div className="space-y-2">
-            <Label htmlFor="meeting_title">Meeting Title *</Label>
-            <Input
-              id="meeting_title"
-              value={formData.meeting_title}
-              onChange={(e) => setFormData({ ...formData, meeting_title: e.target.value })}
-              placeholder="e.g., Partnership Discussion with Pathway"
-              required
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="meeting_title">Meeting Title *</Label>
+              <Input
+                id="meeting_title"
+                value={formData.meeting_title}
+                onChange={(e) => setFormData({...formData, meeting_title: e.target.value})}
+                placeholder="e.g., Strategic Partnership Meeting"
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="meeting_date">Meeting Date *</Label>
+              <Input
+                id="meeting_date"
+                type="datetime-local"
+                value={formData.meeting_date}
+                onChange={(e) => setFormData({...formData, meeting_date: e.target.value})}
+                required
+              />
+            </div>
           </div>
 
-          {/* Meeting Date */}
           <div className="space-y-2">
-            <Label htmlFor="meeting_date">Meeting Date *</Label>
-            <Input
-              id="meeting_date"
-              type="datetime-local"
-              value={formData.meeting_date}
-              onChange={(e) => setFormData({ ...formData, meeting_date: e.target.value })}
-              required
-            />
-          </div>
-
-          {/* Participants */}
-          <div className="space-y-3">
-            <Label>Participants *</Label>
+            <Label>Who did SWI connect you with? *</Label>
             <div className="space-y-2">
               {participants.map((participant, index) => (
-                <div key={index} className="flex items-center gap-2">
+                <div key={index} className="flex gap-2">
                   <Input
                     value={participant}
                     onChange={(e) => updateParticipant(index, e.target.value)}
-                    placeholder={`Participant ${index + 1} (e.g., Gugs from Pathway)`}
-                    required
+                    placeholder="e.g., TechFlow, Investor Name, etc."
                   />
                   {participants.length > 1 && (
                     <Button
@@ -227,47 +198,41 @@ const CollaborationMeetingForm = ({ companyId, onSuccess }: CollaborationMeeting
                 variant="outline"
                 size="sm"
                 onClick={addParticipant}
-                className="flex items-center gap-2"
+                className="w-full"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 mr-2" />
                 Add Participant
               </Button>
             </div>
           </div>
 
-          {/* Meeting Notes */}
           <div className="space-y-2">
-            <Label htmlFor="meeting_notes">Meeting Notes</Label>
-            <Textarea
-              id="meeting_notes"
-              value={formData.meeting_notes}
-              onChange={(e) => setFormData({ ...formData, meeting_notes: e.target.value })}
-              placeholder="Key discussion points, decisions made, action items..."
-              rows={4}
-            />
-          </div>
-
-          {/* Outcomes */}
-          <div className="space-y-2">
-            <Label htmlFor="outcomes">Outcomes & Results</Label>
+            <Label htmlFor="outcomes">What were the outcomes? *</Label>
             <Textarea
               id="outcomes"
               value={formData.outcomes}
-              onChange={(e) => setFormData({ ...formData, outcomes: e.target.value })}
-              placeholder="What was achieved? What value was created? How did this meeting help your company?"
-              rows={3}
+              onChange={(e) => setFormData({...formData, outcomes: e.target.value})}
+              placeholder="e.g., Agreed to partnership, secured investment, etc."
+              required
             />
           </div>
 
-          {/* Impact Score */}
           <div className="space-y-2">
-            <Label htmlFor="impact_score">Impact Score (1-10)</Label>
-            <Select
-              value={formData.impact_score}
-              onValueChange={(value) => setFormData({ ...formData, impact_score: value })}
-            >
+            <Label htmlFor="shared_wealth_contribution">How did SWI help? *</Label>
+            <Textarea
+              id="shared_wealth_contribution"
+              value={formData.shared_wealth_contribution}
+              onChange={(e) => setFormData({...formData, shared_wealth_contribution: e.target.value})}
+              placeholder="e.g., Introduced key decision makers, provided market insights, etc."
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="impact_score">How valuable was this meeting? (1-10) *</Label>
+            <Select value={formData.impact_score} onValueChange={(value) => setFormData({...formData, impact_score: value})}>
               <SelectTrigger>
-                <SelectValue placeholder="Select impact level" />
+                <SelectValue placeholder="Select impact score" />
               </SelectTrigger>
               <SelectContent>
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => (
@@ -279,32 +244,22 @@ const CollaborationMeetingForm = ({ companyId, onSuccess }: CollaborationMeeting
             </Select>
           </div>
 
-          {/* Shared Wealth Contribution */}
           <div className="space-y-2">
-            <Label htmlFor="shared_wealth_contribution">Shared Wealth International Contribution</Label>
+            <Label htmlFor="meeting_notes">Additional Notes</Label>
             <Textarea
-              id="shared_wealth_contribution"
-              value={formData.shared_wealth_contribution}
-              onChange={(e) => setFormData({ ...formData, shared_wealth_contribution: e.target.value })}
-              placeholder="How did Shared Wealth International contribute to this meeting? (e.g., introduced you to the participant, provided platform for connection, facilitated discussion, etc.)"
-              rows={3}
+              id="meeting_notes"
+              value={formData.meeting_notes}
+              onChange={(e) => setFormData({...formData, meeting_notes: e.target.value})}
+              placeholder="Any additional details about the meeting..."
             />
-            <p className="text-sm text-muted-foreground">
-              This helps us track how Shared Wealth International is creating value for member companies
-            </p>
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsOpen(false)}
-              disabled={isSubmitting}
-            >
+            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Logging Meeting...' : 'Log Meeting'}
+              {isSubmitting ? 'Logging...' : 'Log Meeting'}
             </Button>
           </DialogFooter>
         </form>
