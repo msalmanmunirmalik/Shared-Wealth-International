@@ -23,11 +23,11 @@ const Hero = () => {
 
             {/* Main Headline */}
             <h1 className="heading-1 mb-6 text-white animate-fade-in-up">
-              Empowering{" "}
+              <span className="text-white font-bold">Empowering</span>{" "}
               <span className="text-green-300 font-bold">
                 Shared Wealth
               </span>{" "}
-              Creation
+              <span className="text-white font-bold">Creation</span>
             </h1>
 
             {/* Subheadline */}

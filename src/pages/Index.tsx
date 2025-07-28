@@ -208,13 +208,13 @@ const Index = () => {
             Connect with our network and discover how shared wealth principles can transform your organization
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="btn-primary text-lg px-8">
+            <Button asChild size="lg" className="text-lg px-8 bg-green-500 hover:bg-green-600 text-white border-0">
               <Link to="/network">
                 Explore Network
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
             </Button>
-            <Button asChild size="lg" className="btn-outline text-lg px-8 border-white text-white hover:bg-white hover:text-navy">
+            <Button asChild size="lg" className="text-lg px-8 bg-green-500 hover:bg-green-600 text-white border-0">
               <Link to="/assessment">
                 Take Assessment
               </Link>
