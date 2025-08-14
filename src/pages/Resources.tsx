@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,6 @@ import {
   Globe,
   Lightbulb,
   Shield,
-  Building,
   ClipboardCheck,
   Upload,
   LayoutDashboard,
@@ -43,6 +42,10 @@ const Resources = () => {
       setActiveTab(tab);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const interactiveTools = [
     {
@@ -273,7 +276,7 @@ const Resources = () => {
       instructor: "Elena Petrova",
       category: "Networking",
       modules: ["Company Profiling", "Verification Processes", "Network Building", "Collaboration Opportunities"],
-      icon: Building,
+      icon: Globe,
       color: "from-purple-50 to-violet-100"
     },
     {
@@ -389,15 +392,24 @@ const Resources = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="py-16" style={{ background: 'linear-gradient(135deg, #07264e 0%, #086075 100%)' }}>
-        <div className="container mx-auto px-6 text-center">
-          <h1 className="text-4xl font-bold mb-4 text-white">Tools & Learning</h1>
-          <p className="text-lg mb-8 max-w-2xl mx-auto text-white/80">
-            Access interactive tools and comprehensive training courses to help you 
-            implement shared wealth principles in your organization.
-          </p>
+      <section className="py-20" style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }}>
+        <div className="container mx-auto px-6">
+          <div className="flex justify-start mb-6">
+            <Button asChild className="bg-white text-navy hover:bg-gray-100 font-semibold px-6 py-2">
+              <Link to="/">
+                ← Back to Home
+              </Link>
+            </Button>
+          </div>
+          <div className="text-center">
+            <h1 className="text-5xl font-bold mb-6 text-white">Tools & Learning</h1>
+            <p className="text-xl max-w-3xl mx-auto text-white/90">
+              Access interactive tools and comprehensive training courses to help you 
+              implement shared wealth principles in your organization.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -414,8 +426,8 @@ const Resources = () => {
             {/* Interactive Tools */}
             <TabsContent value="tools" className="space-y-8">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4" style={{ color: '#07264e' }}>Interactive Tools</h2>
-                <p className="text-lg max-w-2xl mx-auto" style={{ color: '#086075' }}>
+                <h2 className="text-3xl font-bold mb-4 text-gray-900">Interactive Tools</h2>
+                <p className="text-lg max-w-2xl mx-auto text-gray-600">
                   Use our interactive tools to assess, calculate, and design your shared wealth implementation.
                 </p>
               </div>
@@ -424,37 +436,37 @@ const Resources = () => {
                 {interactiveTools.map((tool, index) => {
                   const Icon = tool.icon;
                   return (
-                    <Card key={index} className="hover:shadow-lg transition-shadow" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+                    <Card key={index} className="hover:shadow-lg transition-shadow">
                       <CardHeader>
                         <div className="flex items-center justify-between">
                           <div className={`w-16 h-16 bg-gradient-to-br ${tool.color} rounded-lg flex items-center justify-center`}>
-                            <Icon className="w-8 h-8" style={{ color: '#07264e' }} />
+                            <Icon className="w-8 h-8 text-gray-700" />
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Badge variant="secondary" className="text-xs" style={{ backgroundColor: 'rgba(52, 166, 59, 0.1)', color: '#34a63b' }}>
+                            <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
                               {tool.status}
                             </Badge>
-                            <div className="flex items-center text-xs" style={{ color: '#086075' }}>
+                            <div className="flex items-center text-xs text-gray-500">
                               <Clock className="w-3 h-3 mr-1" />
                               {tool.time}
                             </div>
                           </div>
                         </div>
-                        <CardTitle style={{ color: '#07264e' }}>{tool.title}</CardTitle>
-                        <CardDescription style={{ color: '#086075' }}>{tool.description}</CardDescription>
+                        <CardTitle className="text-gray-900">{tool.title}</CardTitle>
+                        <CardDescription className="text-gray-600">{tool.description}</CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="mb-4">
-                          <div className="text-xs font-semibold mb-2" style={{ color: '#07264e' }}>Features:</div>
+                          <div className="text-xs font-semibold mb-2 text-gray-900">Features:</div>
                           <div className="flex flex-wrap gap-1">
                             {tool.features.map((feature, featureIndex) => (
-                              <Badge key={featureIndex} variant="outline" className="text-xs" style={{ borderColor: 'rgba(8, 96, 117, 0.2)', color: '#086075' }}>
+                              <Badge key={featureIndex} variant="outline" className="text-xs border-gray-200 text-gray-600">
                                 {feature}
                               </Badge>
                             ))}
                           </div>
                         </div>
-                        <Button asChild className="w-full" style={{ background: 'linear-gradient(135deg, #eabc27 0%, #34a63b 100%)', color: 'white' }}>
+                        <Button asChild className="w-full">
                           <Link to={tool.path}>
                             Launch Tool
                             <ArrowRight className="w-4 h-4 ml-2" />
@@ -470,8 +482,8 @@ const Resources = () => {
             {/* Training Courses */}
             <TabsContent value="training" className="space-y-8">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4" style={{ color: '#07264e' }}>Training Courses</h2>
-                <p className="text-lg max-w-2xl mx-auto" style={{ color: '#086075' }}>
+                <h2 className="text-3xl font-bold mb-4 text-gray-900">Training Courses</h2>
+                <p className="text-lg max-w-2xl mx-auto text-gray-600">
                   Comprehensive training courses designed to help you master shared wealth implementation.
                 </p>
               </div>
@@ -480,43 +492,43 @@ const Resources = () => {
                 {trainingCourses.map((course, index) => {
                   const Icon = course.icon;
                   return (
-                    <Card key={index} className="hover:shadow-lg transition-shadow" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+                    <Card key={index} className="hover:shadow-lg transition-shadow">
                       <CardHeader>
                         <div className="flex items-center justify-between mb-3">
                           <div className={`w-12 h-12 bg-gradient-to-br ${course.color} rounded-lg flex items-center justify-center`}>
-                            <Icon className="w-6 h-6" style={{ color: '#07264e' }} />
+                            <Icon className="w-6 h-6 text-gray-700" />
                           </div>
                           <div className="flex flex-col items-end">
-                            <Badge variant="secondary" className="text-xs mb-1" style={{ backgroundColor: 'rgba(234, 188, 39, 0.1)', color: '#eabc27' }}>
+                            <Badge variant="secondary" className="text-xs mb-1 bg-yellow-100 text-yellow-700">
                               {course.level}
                             </Badge>
-                            <div className="flex items-center text-xs" style={{ color: '#086075' }}>
+                            <div className="flex items-center text-xs text-gray-500">
                               <Clock className="w-3 h-3 mr-1" />
                               {course.duration}
                             </div>
                           </div>
                         </div>
-                        <CardTitle className="text-lg" style={{ color: '#07264e' }}>{course.title}</CardTitle>
-                        <CardDescription style={{ color: '#086075' }}>{course.description}</CardDescription>
+                        <CardTitle className="text-lg text-gray-900">{course.title}</CardTitle>
+                        <CardDescription className="text-gray-600">{course.description}</CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="mb-4">
-                          <div className="text-sm font-medium mb-2" style={{ color: '#07264e' }}>
+                          <div className="text-sm font-medium mb-2 text-gray-900">
                             Instructor: {course.instructor}
                           </div>
-                          <div className="text-sm mb-3" style={{ color: '#086075' }}>
+                          <div className="text-sm mb-3 text-gray-600">
                             Category: {course.category}
                           </div>
-                          <div className="text-xs font-medium mb-2" style={{ color: '#07264e' }}>Modules:</div>
+                          <div className="text-xs font-medium mb-2 text-gray-900">Modules:</div>
                           <div className="flex flex-wrap gap-1">
                             {course.modules.map((module, moduleIndex) => (
-                              <Badge key={moduleIndex} variant="outline" className="text-xs" style={{ borderColor: 'rgba(8, 96, 117, 0.2)', color: '#086075' }}>
+                              <Badge key={moduleIndex} variant="outline" className="text-xs border-gray-200 text-gray-600">
                                 {module}
                               </Badge>
                             ))}
                           </div>
                         </div>
-                        <Button asChild className="w-full" style={{ background: 'linear-gradient(135deg, #eabc27 0%, #34a63b 100%)', color: 'white' }}>
+                        <Button asChild className="w-full">
                           <Link to={`/training/${course.title.toLowerCase().replace(/\s+/g, '-')}`}>
                             Enroll Now
                             <ArrowRight className="w-4 h-4 ml-2" />
@@ -532,8 +544,8 @@ const Resources = () => {
             {/* Events */}
             <TabsContent value="events" className="space-y-8">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4" style={{ color: '#07264e' }}>Events & Networking</h2>
-                <p className="text-lg max-w-2xl mx-auto" style={{ color: '#086075' }}>
+                <h2 className="text-3xl font-bold mb-4 text-gray-900">Events & Networking</h2>
+                <p className="text-lg max-w-2xl mx-auto text-gray-600">
                   Join our community events, workshops, and networking opportunities.
                 </p>
               </div>
@@ -543,23 +555,23 @@ const Resources = () => {
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
                       <Badge variant="secondary">Workshop</Badge>
-                      <div className="flex items-center text-xs text-muted-foreground">
+                      <div className="flex items-center text-xs text-gray-500">
                         <Clock className="w-3 h-3 mr-1" />
                         Mar 15, 2024
                       </div>
                     </div>
-                    <CardTitle className="text-navy text-lg">Shared Wealth Implementation Workshop</CardTitle>
-                    <CardDescription>Hands-on workshop for implementing shared wealth practices</CardDescription>
+                    <CardTitle className="text-gray-900 text-lg">Shared Wealth Implementation Workshop</CardTitle>
+                    <CardDescription className="text-gray-600">Hands-on workshop for implementing shared wealth practices</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="mb-4">
-                      <div className="text-sm text-muted-foreground mb-2">
+                      <div className="text-sm text-gray-500 mb-2">
                         Location: Virtual / London
                       </div>
                       <div className="flex flex-wrap gap-1">
-                        <Badge variant="outline" className="text-xs">Implementation</Badge>
-                        <Badge variant="outline" className="text-xs">Workshop</Badge>
-                        <Badge variant="outline" className="text-xs">Networking</Badge>
+                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Implementation</Badge>
+                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Workshop</Badge>
+                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Networking</Badge>
                       </div>
                     </div>
                     <Button asChild className="w-full">
@@ -575,23 +587,23 @@ const Resources = () => {
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
                       <Badge variant="secondary">Conference</Badge>
-                      <div className="flex items-center text-xs text-muted-foreground">
+                      <div className="flex items-center text-xs text-gray-500">
                         <Clock className="w-3 h-3 mr-1" />
                         Apr 22, 2024
                       </div>
                     </div>
-                    <CardTitle className="text-navy text-lg">Annual Shared Wealth Summit</CardTitle>
-                    <CardDescription>Join industry leaders and practitioners for our annual conference</CardDescription>
+                    <CardTitle className="text-gray-900 text-lg">Annual Shared Wealth Summit</CardTitle>
+                    <CardDescription className="text-gray-600">Join industry leaders and practitioners for our annual conference</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="mb-4">
-                      <div className="text-sm text-muted-foreground mb-2">
+                      <div className="text-sm text-gray-500 mb-2">
                         Location: Manchester, UK
                       </div>
                       <div className="flex flex-wrap gap-1">
-                        <Badge variant="outline" className="text-xs">Conference</Badge>
-                        <Badge variant="outline" className="text-xs">Networking</Badge>
-                        <Badge variant="outline" className="text-xs">Keynotes</Badge>
+                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Conference</Badge>
+                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Networking</Badge>
+                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Keynotes</Badge>
                       </div>
                     </div>
                     <Button asChild className="w-full">
@@ -607,23 +619,23 @@ const Resources = () => {
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
                       <Badge variant="secondary">Networking</Badge>
-                      <div className="flex items-center text-xs text-muted-foreground">
+                      <div className="flex items-center text-xs text-gray-500">
                         <Clock className="w-3 h-3 mr-1" />
                         May 10, 2024
                       </div>
                     </div>
-                    <CardTitle className="text-navy text-lg">Community Meetup</CardTitle>
-                    <CardDescription>Connect with fellow shared wealth practitioners</CardDescription>
+                    <CardTitle className="text-gray-900 text-lg">Community Meetup</CardTitle>
+                    <CardDescription className="text-gray-600">Connect with fellow shared wealth practitioners</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="mb-4">
-                      <div className="text-sm text-muted-foreground mb-2">
+                      <div className="text-sm text-gray-500 mb-2">
                         Location: Various Cities
                       </div>
                       <div className="flex flex-wrap gap-1">
-                        <Badge variant="outline" className="text-xs">Networking</Badge>
-                        <Badge variant="outline" className="text-xs">Community</Badge>
-                        <Badge variant="outline" className="text-xs">Local</Badge>
+                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Networking</Badge>
+                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Community</Badge>
+                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Local</Badge>
                       </div>
                     </div>
                     <Button asChild className="w-full">
@@ -652,17 +664,17 @@ const Resources = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16" style={{ background: 'linear-gradient(135deg, #07264e 0%, #086075 100%)' }}>
+      <section className="py-16 bg-white border-t border-gray-200">
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-6 text-white">Ready to Get Started?</h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto text-white/80">
+          <h2 className="text-3xl font-bold mb-6 text-gray-900">Ready to Get Started?</h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto text-gray-600">
             Use our tools and training courses to begin your shared wealth journey today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="text-white" style={{ background: 'linear-gradient(135deg, #eabc27 0%, #34a63b 100%)' }}>
+            <Button asChild size="lg">
               <Link to="/assessment">Start Assessment</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" style={{ borderColor: '#eabc27', color: '#eabc27' }}>
+            <Button asChild size="lg" variant="outline">
               <Link to="/model">Learn Our Model</Link>
             </Button>
           </div>

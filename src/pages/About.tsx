@@ -1,3 +1,4 @@
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -5,19 +6,23 @@ import {
   Heart, 
   Users, 
   Target, 
+  Shield, 
   TrendingUp, 
   Globe, 
-  Shield,
-  ArrowRight,
-  Star,
-  Award,
-  Lightbulb,
-  Linkedin,
+  Star, 
+  Award, 
+  Lightbulb, 
+  Linkedin, 
   Mail
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 
 const About = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const values = [
     {
       icon: Heart,
@@ -243,17 +248,26 @@ const About = () => {
   return (
     <div className="min-h-screen bg-gradient-subtle">
       {/* Hero Section */}
-      <section className="section-padding" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #059669 100%)' }}>
-        <div className="container mx-auto container-padding text-center">
-          <h1 className="heading-1 mb-4 text-white">About Shared Wealth International</h1>
-          <p className="body-large mb-8 max-w-2xl mx-auto text-white/90">
-            We're transforming how businesses operate by creating models where wealth is shared 
-            equitably among all stakeholders.
-          </p>
+      <section className="py-20" style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }}>
+        <div className="container mx-auto container-padding">
+          <div className="flex justify-start mb-6">
+            <Button asChild className="bg-white text-navy hover:bg-gray-100 font-semibold px-6 py-2">
+              <Link to="/">
+                ← Back to Home
+              </Link>
+            </Button>
+          </div>
+          <div className="text-center">
+            <h1 className="heading-1 mb-6 text-white">About Shared Wealth International</h1>
+            <p className="body-large max-w-3xl mx-auto text-white/90">
+              We are a global network dedicated to transforming business models through equitable wealth distribution, 
+              inclusive decision-making, and sustainable value creation for all stakeholders.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Mission Section */}
+      {/* Mission & Vision */}
       <section className="section-padding bg-white">
         <div className="container mx-auto container-padding">
           <div className="max-w-4xl mx-auto text-center">

@@ -4,8 +4,9 @@ import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
+import LeftSidebar from "@/components/LeftSidebar";
 import PrivateRoute from "@/components/PrivateRoute";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useState } from "react";
 
 // Lazy load components for better performance
 const Index = lazy(() => import("@/pages/Index"));
@@ -19,12 +20,11 @@ const Calculator = lazy(() => import("@/pages/Calculator"));
 const Assessment = lazy(() => import("@/pages/Assessment"));
 const Simulator = lazy(() => import("@/pages/Simulator"));
 const Configurator = lazy(() => import("@/pages/Configurator"));
-const Admin = lazy(() => import("@/pages/Admin"));
+const AdminDashboard = lazy(() => import("@/components/AdminDashboard"));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
-const ImpactMetrics = lazy(() => import('./pages/CollaborationHub'));
+const CollaborationHub = lazy(() => import('./pages/CollaborationHub'));
 const CompanyDashboard = lazy(() => import('./pages/CompanyDashboard'));
 const TestDashboard = lazy(() => import('./pages/TestDashboard'));
-const MyProfile = lazy(() => import('./pages/MyProfile'));
 const MyCompanies = lazy(() => import('./pages/MyCompanies'));
 const DashboardResources = lazy(() => import('./pages/DashboardResources'));
 const DashboardForum = lazy(() => import('./pages/DashboardForum'));
@@ -36,7 +36,12 @@ const CommunicationOptimizer = lazy(() => import('./pages/CommunicationOptimizer
 const ValuesAssessment = lazy(() => import('./pages/ValuesAssessment'));
 const StakeholderMapping = lazy(() => import('./pages/StakeholderMapping'));
 const DecisionFramework = lazy(() => import('./pages/DecisionFramework'));
+const BusinessCanvas = lazy(() => import('./pages/BusinessCanvas'));
+const FundingPlatform = lazy(() => import('./pages/FundingPlatform'));
+const MessagingSystem = lazy(() => import('./pages/MessagingSystem'));
 const IPSimulator = lazy(() => import('./pages/IPSimulator'));
+const Tools = lazy(() => import('./pages/Tools'));
+const Impact = lazy(() => import('./pages/Impact'));
 
 // Loading component
 const LoadingSpinner = () => (
@@ -48,86 +53,275 @@ const LoadingSpinner = () => (
   </div>
 );
 
-// Error boundary component
-const ErrorFallback = ({ error }: { error: Error }) => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="text-center">
-      <h2 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h2>
-      <p className="text-gray-600 mb-4">{error.message}</p>
-      <button 
-        onClick={() => window.location.reload()} 
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-      >
-        Reload Page
-      </button>
-    </div>
-  </div>
-);
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
       retry: 1,
       refetchOnWindowFocus: false,
     },
   },
 });
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Router>
-          <div className="min-h-screen bg-background">
-            <Header />
-            <main>
-              <Suspense fallback={<LoadingSpinner />}>
-                <Routes>
-                  {/* Public Routes */}
-                  <Route path="/" element={<Index />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/model" element={<Model />} />
-                  <Route path="/network" element={<Network />} />
-                  <Route path="/resources" element={<Resources />} />
-                  <Route path="/onboarding" element={<Onboarding />} />
-                  <Route path="/collaboration-hub" element={<ImpactMetrics />} />
-                  
-                  {/* Interactive Tools */}
-                  <Route path="/calculator" element={<Calculator />} />
-                  <Route path="/assessment" element={<Assessment />} />
-                  <Route path="/simulator" element={<Simulator />} />
-                  <Route path="/configurator" element={<Configurator />} />
-                  
-                  {/* Protected Routes - Require authentication */}
-                  <Route path="/company-dashboard" element={<PrivateRoute><CompanyDashboard /></PrivateRoute>} />
-                  <Route path="/test-dashboard" element={<PrivateRoute><TestDashboard /></PrivateRoute>} />
-                  <Route path="/my-profile" element={<PrivateRoute><MyProfile /></PrivateRoute>} />
-                  <Route path="/my-companies" element={<PrivateRoute><MyCompanies /></PrivateRoute>} />
-                  <Route path="/resources" element={<PrivateRoute><DashboardResources /></PrivateRoute>} />
-                  <Route path="/forum" element={<PrivateRoute><DashboardForum /></PrivateRoute>} />
-                  <Route path="/events" element={<PrivateRoute><DashboardEvents /></PrivateRoute>} />
-                  <Route path="/shared-wealth-model" element={<SharedWealthModel />} />
-                  <Route path="/about-us" element={<AboutUs />} />
-                  <Route path="/wealth-analyzer" element={<WealthAnalyzer />} />
-                  <Route path="/communication-optimizer" element={<CommunicationOptimizer />} />
-                  <Route path="/values-assessment" element={<ValuesAssessment />} />
-                  <Route path="/stakeholder-mapping" element={<StakeholderMapping />} />
-                  <Route path="/decision-framework" element={<DecisionFramework />} />
-                  <Route path="/ip-simulator" element={<IPSimulator />} />
-                  <Route path="/companies" element={<PrivateRoute><Companies /></PrivateRoute>} />
-                  <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
-                </Routes>
-              </Suspense>
-            </main>
-          </div>
-        </Router>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+// Layout component for authenticated users with sidebar ONLY (no header)
+const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState('company-dashboard');
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'company-dashboard':
+        return <CompanyDashboard />;
+      case 'network':
+        return <Network />;
+      case 'funding-platform':
+        return <FundingPlatform />;
+      case 'business-canvas':
+        return <BusinessCanvas />;
+      case 'tools-learning':
+        return <Resources />; // Maps to Tools & Learning
+      default:
+        return <CompanyDashboard />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="flex h-screen bg-gray-50">
+        <LeftSidebar
+          isCollapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <main className="flex-1 overflow-y-auto">
+            {renderTabContent()}
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Layout component for public pages (with header)
+const PublicLayout = ({ children }: { children: React.ReactNode }) => (
+  <div className="min-h-screen bg-background">
+    <Header />
+    <main>{children}</main>
+  </div>
 );
+
+// Layout component for landing page (no header)
+const LandingLayout = ({ children }: { children: React.ReactNode }) => (
+  <div className="min-h-screen bg-background">
+    <main>{children}</main>
+  </div>
+);
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <Toaster />
+          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
+                {/* Public Routes - Always show Header */}
+                <Route path="/" element={
+                  <LandingLayout>
+                    <Index />
+                  </LandingLayout>
+                } />
+                <Route path="/auth" element={
+                  <LandingLayout>
+                    <Auth />
+                  </LandingLayout>
+                } />
+                <Route path="/about" element={
+                  <LandingLayout>
+                    <About />
+                  </LandingLayout>
+                } />
+                <Route path="/model" element={
+                  <LandingLayout>
+                    <Model />
+                  </LandingLayout>
+                } />
+                <Route path="/resources" element={
+                  <LandingLayout>
+                    <Resources />
+                  </LandingLayout>
+                } />
+                <Route path="/onboarding" element={
+                  <PublicLayout>
+                    <Onboarding />
+                  </PublicLayout>
+                } />
+                <Route path="/collaboration-hub" element={
+                  <LandingLayout>
+                    <CollaborationHub />
+                  </LandingLayout>
+                } />
+
+                {/* Interactive Tools & Learning - Always show Header */}
+                <Route path="/calculator" element={
+                  <PublicLayout>
+                    <Calculator />
+                  </PublicLayout>
+                } />
+                <Route path="/assessment" element={
+                  <PublicLayout>
+                    <Assessment />
+                  </PublicLayout>
+                } />
+                <Route path="/simulator" element={
+                  <PublicLayout>
+                    <Simulator />
+                  </PublicLayout>
+                } />
+                <Route path="/configurator" element={
+                  <PublicLayout>
+                    <Configurator />
+                  </PublicLayout>
+                } />
+                <Route path="/wealth-analyzer" element={
+                  <PublicLayout>
+                    <WealthAnalyzer />
+                  </PublicLayout>
+                } />
+                <Route path="/communication-optimizer" element={
+                  <PublicLayout>
+                    <CommunicationOptimizer />
+                  </PublicLayout>
+                } />
+                <Route path="/values-assessment" element={
+                  <PublicLayout>
+                    <ValuesAssessment />
+                  </PublicLayout>
+                } />
+                <Route path="/stakeholder-mapping" element={
+                  <PublicLayout>
+                    <StakeholderMapping />
+                  </PublicLayout>
+                } />
+                <Route path="/decision-framework" element={
+                  <PublicLayout>
+                    <DecisionFramework />
+                  </PublicLayout>
+                } />
+                <Route path="/ip-simulator" element={
+                  <PublicLayout>
+                    <IPSimulator />
+                  </PublicLayout>
+                } />
+                <Route path="/tools" element={
+                  <PublicLayout>
+                    <Tools />
+                  </PublicLayout>
+                } />
+                <Route path="/impact" element={
+                  <PublicLayout>
+                    <Impact />
+                  </PublicLayout>
+                } />
+
+                {/* NEW ENHANCEMENT FEATURES - Always show Header */}
+                <Route path="/business-canvas" element={
+                  <PublicLayout>
+                    <BusinessCanvas />
+                  </PublicLayout>
+                } />
+                <Route path="/funding-platform" element={
+                  <PublicLayout>
+                    <FundingPlatform />
+                  </PublicLayout>
+                } />
+                <Route path="/messaging" element={
+                  <PublicLayout>
+                    <MessagingSystem />
+                  </PublicLayout>
+                } />
+                <Route path="/network" element={
+                  <PublicLayout>
+                    <Network />
+                  </PublicLayout>
+                } />
+
+                {/* Protected Routes - Require authentication with sidebar layout AND Header */}
+                <Route path="/company-dashboard" element={
+                  <PrivateRoute>
+                    <AuthenticatedLayout>
+                      <CompanyDashboard />
+                    </AuthenticatedLayout>
+                  </PrivateRoute>
+                } />
+                <Route path="/test-dashboard" element={
+                  <PrivateRoute>
+                    <AuthenticatedLayout>
+                      <TestDashboard />
+                    </AuthenticatedLayout>
+                  </PrivateRoute>
+                } />
+                <Route path="/my-companies" element={
+                  <PrivateRoute>
+                    <AuthenticatedLayout>
+                      <MyCompanies />
+                    </AuthenticatedLayout>
+                  </PrivateRoute>
+                } />
+                <Route path="/dashboard-resources" element={
+                  <PrivateRoute>
+                    <AuthenticatedLayout>
+                      <DashboardResources />
+                    </AuthenticatedLayout>
+                  </PrivateRoute>
+                } />
+                <Route path="/forum" element={
+                  <PrivateRoute>
+                    <AuthenticatedLayout>
+                      <DashboardForum />
+                    </AuthenticatedLayout>
+                  </PrivateRoute>
+                } />
+                <Route path="/events" element={
+                  <PrivateRoute>
+                    <AuthenticatedLayout>
+                      <DashboardEvents />
+                    </AuthenticatedLayout>
+                  </PrivateRoute>
+                } />
+                <Route path="/shared-wealth-model" element={
+                  <PublicLayout>
+                    <SharedWealthModel />
+                  </PublicLayout>
+                } />
+                <Route path="/about-us" element={
+                  <PublicLayout>
+                    <AboutUs />
+                  </PublicLayout>
+                } />
+                <Route path="/companies" element={
+                  <PrivateRoute>
+                    <AuthenticatedLayout>
+                      <Companies />
+                    </AuthenticatedLayout>
+                  </PrivateRoute>
+                } />
+                <Route path="/admin" element={
+                  <PrivateRoute>
+                    <AdminDashboard />
+                  </PrivateRoute>
+                } />
+              </Routes>
+            </Suspense>
+          </Router>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;

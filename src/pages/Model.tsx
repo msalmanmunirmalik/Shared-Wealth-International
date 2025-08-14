@@ -1,25 +1,30 @@
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
+  CheckCircle, 
   Users, 
   Target, 
   TrendingUp, 
-  Shield, 
-  ArrowRight,
-  Heart,
-  Building,
-  Calculator,
-  Settings,
-  BarChart3,
-  CheckCircle,
-  Lightbulb,
-  Globe,
-  Award
+  Globe, 
+  Star, 
+  Award, 
+  Lightbulb, 
+  Building, 
+  Handshake, 
+  DollarSign, 
+  Shield,
+  ArrowRight
 } from "lucide-react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const Model = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const principles = [
     {
       icon: Users,
@@ -40,7 +45,7 @@ const Model = () => {
       color: "from-purple-50 to-violet-100"
     },
     {
-      icon: Heart,
+      icon: Lightbulb,
       title: "Community Impact",
       description: "Business success directly benefits the communities where we operate",
       color: "from-orange-50 to-amber-100"
@@ -52,7 +57,7 @@ const Model = () => {
       title: "Phantom Shares",
       description: "Virtual ownership that provides financial benefits without legal ownership",
       benefits: ["No dilution of existing shares", "Immediate implementation", "Flexible structure"],
-      icon: BarChart3
+      icon: TrendingUp
     },
     {
       title: "Profit Sharing",
@@ -79,13 +84,13 @@ const Model = () => {
       step: "1",
       title: "Assessment",
       description: "Evaluate current business model and stakeholder relationships",
-      icon: Calculator
+      icon: DollarSign
     },
     {
       step: "2",
       title: "Design",
       description: "Create customized shared wealth model for your organization",
-      icon: Settings
+      icon: Handshake
     },
     {
       step: "3",
@@ -120,7 +125,7 @@ const Model = () => {
         "Improved social infrastructure",
         "Sustainable community partnerships"
       ],
-      icon: Heart
+      icon: Lightbulb
     },
     {
       category: "For Businesses",
@@ -135,28 +140,29 @@ const Model = () => {
   ];
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
+    <div className="min-h-screen bg-gradient-subtle">
       {/* Hero Section */}
-      <section className="py-20" style={{ background: 'linear-gradient(135deg, #07264e 0%, #086075 100%)' }}>
-        <div className="container mx-auto px-6 text-center">
-          <h1 className="text-5xl font-bold mb-6 text-white">Shared Wealth Model</h1>
-          <p className="text-xl mb-8 max-w-3xl mx-auto text-white/80">
-            A revolutionary approach to business that ensures wealth is shared equitably 
-            among all stakeholders while maintaining profitability and sustainability.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="text-white" style={{ background: 'linear-gradient(135deg, #eabc27 0%, #34a63b 100%)' }}>
-              <Link to="/dashboard">Get Started</Link>
+      <section className="py-20" style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }}>
+        <div className="container mx-auto px-6">
+          <div className="flex justify-start mb-6">
+            <Button asChild className="bg-white text-navy hover:bg-gray-100 font-semibold px-6 py-2">
+              <Link to="/">
+                ← Back to Home
+              </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" style={{ borderColor: '#eabc27', color: '#eabc27' }}>
-              <Link to="/network">See Examples</Link>
-            </Button>
+          </div>
+          <div className="text-center">
+            <h1 className="text-5xl font-bold mb-6 text-white">Shared Wealth Model</h1>
+            <p className="text-xl max-w-3xl mx-auto text-white/90">
+              Discover our proven framework for creating sustainable businesses that share wealth equitably 
+              among all stakeholders while driving innovation and growth.
+            </p>
           </div>
         </div>
       </section>
 
       {/* Core Principles */}
-      <section className="py-20">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4" style={{ color: '#07264e' }}>Core Principles</h2>
@@ -169,13 +175,13 @@ const Model = () => {
               const Icon = principle.icon;
               return (
                 <Card key={index} className="text-center hover:shadow-lg transition-shadow" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
-                <CardHeader>
+                  <CardHeader>
                     <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'linear-gradient(135deg, #eabc27 0%, #34a63b 100%)' }}>
                       <Icon className="w-8 h-8 text-white" />
                     </div>
                     <CardTitle style={{ color: '#07264e' }}>{principle.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
+                  </CardHeader>
+                  <CardContent>
                     <CardDescription style={{ color: '#086075' }}>{principle.description}</CardDescription>
                   </CardContent>
                 </Card>
@@ -204,7 +210,7 @@ const Model = () => {
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex items-center justify-center">
                         <Icon className="w-6 h-6 text-navy" />
                       </div>
-                    <div>
+                      <div>
                         <CardTitle className="text-navy">{component.title}</CardTitle>
                         <CardDescription>{component.description}</CardDescription>
                       </div>
@@ -217,7 +223,7 @@ const Model = () => {
                           <CheckCircle className="w-4 h-4 text-green-600" />
                           <span className="text-sm">{benefit}</span>
                         </div>
-                        ))}
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -341,7 +347,7 @@ const Model = () => {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-navy">GreenEnergy Co</CardTitle>
                   <Badge variant="secondary">Renewable Energy</Badge>
-            </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">
@@ -352,12 +358,12 @@ const Model = () => {
                   <div>
                     <div className="font-bold text-green-600">15%</div>
                     <div className="text-muted-foreground">Profit Sharing</div>
-            </div>
+                  </div>
                   <div>
                     <div className="font-bold text-green-600">95%</div>
                     <div className="text-muted-foreground">Satisfaction Rate</div>
-            </div>
-            </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>

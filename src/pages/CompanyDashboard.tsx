@@ -1,812 +1,1165 @@
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import SocialLicenseAgreement from "@/components/SocialLicenseAgreement";
 import { 
-  ChevronLeft, 
-  ChevronRight, 
-  ChevronDown,
   Users, 
   TrendingUp, 
   Calendar, 
   Target, 
   BarChart3, 
-  Brain, 
-  BookOpen, 
-  Shield,
-  Settings,
-  Bell,
-  Plus,
-  Copy,
-  Check,
-  Mail,
-  User,
   Building,
-  Home,
-  FileText,
-  MessageSquare,
+  Plus,
+  Mail,
   Star,
   Award,
   Activity,
   Clock,
   DollarSign,
   ArrowUpRight,
-  ArrowDownRight
+  Globe,
+  MessageSquare,
+  FileText,
+  Settings,
+  Bell,
+  Edit,
+  Trash2,
+  Eye,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  MapPin,
+  Phone,
+  ExternalLink,
+  Download,
+  Share2,
+  Filter,
+  Search,
+  RefreshCw,
+  ChevronRight,
+  ChevronLeft,
+  MoreHorizontal,
+  CheckCircle2,
+  Clock4,
+  AlertTriangle
 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
-import ImpactAnalytics from "@/components/ImpactAnalytics";
-import CommunityHub from "@/components/CommunityHub";
-import LearningPath from "@/components/LearningPath";
-import SecurityManager from "@/components/SecurityManager";
-import AIInsights from "@/components/AIInsights";
+
+interface CompanyApplication {
+  id: string;
+  company_name: string;
+  sector: string;
+  country: string;
+  description: string | null;
+  website: string | null;
+  employees: number | null;
+  location: string | null;
+  is_shared_wealth_licensed: boolean;
+  license_number: string | null;
+  license_date: string | null;
+  applicant_role: string;
+  applicant_position: string;
+  status: 'pending' | 'approved' | 'rejected' | 'under_review';
+  admin_notes: string | null;
+  admin_id: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface NetworkCompany {
+  id: string;
+  name: string;
+  sector: string;
+  country: string;
+  description: string | null;
+  employees: number | null;
+  impact_score: number | null;
+  shared_value: string | null;
+  joined_date: string;
+  website: string | null;
+  logo: string | null;
+  highlights: string[] | null;
+  location: string | null;
+  status: string;
+  is_shared_wealth_licensed: boolean;
+  license_number: string | null;
+  license_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface UserCompany {
+  id: string;
+  user_id: string;
+  company_id: string;
+  role: string;
+  position: string;
+  is_primary_contact: boolean;
+  permissions: string[];
+  joined_date: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  companies: NetworkCompany;
+}
+
+interface DashboardStats {
+  totalCompanies: number;
+  totalImpact: number;
+  avgImpactScore: number;
+  recentActivities: number;
+  totalEmployees: number;
+  licensedCompanies: number;
+  pendingApplications: number;
+  networkConnections: number;
+}
+
+interface Activity {
+  id: string;
+  type: 'company_added' | 'meeting_scheduled' | 'impact_updated' | 'connection_made' | 'license_approved';
+  title: string;
+  description: string;
+  company_id?: string;
+  company_name?: string;
+  timestamp: string;
+  status: 'completed' | 'pending' | 'failed';
+}
 
 const CompanyDashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
-  const [expandedCompany, setExpandedCompany] = useState<string | null>(null);
-  const [invitationDialogOpen, setInvitationDialogOpen] = useState(false);
-  const [invitationEmail, setInvitationEmail] = useState("");
-  const [invitationRole, setInvitationRole] = useState("");
-  const [invitationMessage, setInvitationMessage] = useState("");
-  const [isSendingInvitation, setIsSendingInvitation] = useState(false);
+  const [companies, setCompanies] = useState<NetworkCompany[]>([]);
+  const [applications, setApplications] = useState<CompanyApplication[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [stats, setStats] = useState<DashboardStats>({
+    totalCompanies: 0,
+    totalImpact: 0,
+    avgImpactScore: 0,
+    recentActivities: 0,
+    totalEmployees: 0,
+    licensedCompanies: 0,
+    pendingApplications: 0,
+    networkConnections: 0
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [showAddCompany, setShowAddCompany] = useState(false);
+  const [showCompanyDetails, setShowCompanyDetails] = useState(false);
+  const [showSocialLicense, setShowSocialLicense] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<NetworkCompany | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterSector, setFilterSector] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
 
-  // Dummy data
-  const userCompanies = [
-    {
-      id: "pathway",
-      name: "Pathway Technologies",
-      role: "Director",
-      status: "active",
-      employees: 150,
-      impactScore: 9.2
-    },
-    {
-      id: "techcorp",
-      name: "TechCorp Innovations",
-      role: "Owner",
-      status: "active",
-      employees: 75,
-      impactScore: 8.3
-    },
-    {
-      id: "greenharvest",
-      name: "Green Harvest Co.",
-      role: "Partner",
-      status: "pending",
-      employees: 85,
-      impactScore: 8.7
+  // Add Company Form State
+  const [newCompany, setNewCompany] = useState({
+    name: "",
+    sector: "",
+    country: "",
+    description: "",
+    employees: "",
+    website: "",
+    location: "",
+    is_shared_wealth_licensed: false,
+    license_number: "",
+    license_date: "",
+    applicant_role: "",
+    applicant_position: ""
+  });
+
+  // Social License Agreement State
+  const [agreementData, setAgreementData] = useState<any>(null);
+
+  useEffect(() => {
+    if (user) {
+      loadUserData();
+      loadActivities();
     }
-  ];
+  }, [user]);
 
-  const personalMetrics = {
-    totalCompanies: 3,
-    totalMeetings: 24,
-    totalImpact: "€4.2M",
-    avgImpactScore: 8.7
-  };
-
-  const dummyRecentMeetings = [
-    {
-      id: "1",
-      title: "SWI Strategy Meeting",
-      date: "2024-01-15",
-      outcome: "Strategic partnership established",
-      impact: "High",
-      company: "Pathway Technologies"
-    },
-    {
-      id: "2",
-      title: "Growth Planning Session",
-      date: "2024-01-12",
-      outcome: "Expansion roadmap finalized",
-      impact: "Medium",
-      company: "TechCorp Innovations"
-    },
-    {
-      id: "3",
-      title: "Community Impact Review",
-      date: "2024-01-10",
-      outcome: "Local initiatives launched",
-      impact: "High",
-      company: "Green Harvest Co."
-    }
-  ];
-
-  const dummyActivity = [
-    {
-      id: "1",
-      type: "meeting",
-      title: "New SWI meeting scheduled",
-      description: "Strategy session with Pathway team",
-      time: "2 hours ago",
-      company: "Pathway Technologies"
-    },
-    {
-      id: "2",
-      type: "impact",
-      title: "Impact milestone reached",
-      description: "€500K shared value created",
-      time: "1 day ago",
-      company: "TechCorp Innovations"
-    },
-    {
-      id: "3",
-      type: "team",
-      title: "New team member joined",
-      description: "Sarah Johnson joined as Developer",
-      time: "2 days ago",
-      company: "Pathway Technologies"
-    }
-  ];
-
-  const dummyMembers = [
-    {
-      id: "1",
-      name: "John Smith",
-      role: "CEO",
-      email: "john@pathway.com",
-      avatar: "",
-      status: "active"
-    },
-    {
-      id: "2",
-      name: "Sarah Johnson",
-      role: "CTO",
-      email: "sarah@pathway.com",
-      avatar: "",
-      status: "active"
-    },
-    {
-      id: "3",
-      name: "Mike Davis",
-      role: "CFO",
-      email: "mike@pathway.com",
-      avatar: "",
-      status: "active"
-    }
-  ];
-
-  const invitationCode = "PATHWAY-2024-001";
-
-  const toggleCompanyExpansion = (companyId: string) => {
-    setExpandedCompany(expandedCompany === companyId ? null : companyId);
-  };
-
-  const handleSendInvitation = async () => {
-    if (!invitationEmail || !invitationRole) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsSendingInvitation(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    toast({
-      title: "Invitation Sent!",
-      description: `Invitation sent to ${invitationEmail}`,
-    });
-    
-    setInvitationDialogOpen(false);
-    setInvitationEmail("");
-    setInvitationRole("");
-    setInvitationMessage("");
-    setIsSendingInvitation(false);
-  };
-
-  const copyInvitationCode = async () => {
+  const loadUserData = async () => {
     try {
-      await navigator.clipboard.writeText(invitationCode);
-      toast({
-        title: "Code Copied!",
-        description: "Invitation code copied to clipboard",
+      setIsLoading(true);
+      
+      // Load user's company applications (simulated for now since tables don't exist)
+      try {
+        const { data: applicationsData, error: applicationsError } = await supabase
+          .from('company_applications')
+          .select('*')
+          .eq('user_id', user?.id)
+          .order('created_at', { ascending: false });
+
+        if (applicationsError) {
+          console.error('Error loading applications:', applicationsError);
+          setApplications([]);
+        } else {
+          setApplications(applicationsData || []);
+        }
+      } catch (error) {
+        console.log('Company applications table not found, using empty state');
+        setApplications([]);
+      }
+
+      // Load user's approved companies (simulated for now since tables don't exist)
+      try {
+        const { data: userCompaniesData, error: userCompaniesError } = await supabase
+          .from('user_companies')
+          .select(`
+            *,
+            companies:company_id(*)
+          `)
+          .eq('user_id', user?.id)
+          .eq('status', 'active');
+
+        if (userCompaniesError) {
+          console.error('Error loading user companies:', userCompaniesError);
+          setCompanies([]);
+        } else {
+          const userCompanies = userCompaniesData || [];
+          setCompanies(userCompanies.map(uc => uc.companies).filter(Boolean));
+        }
+      } catch (error) {
+        console.log('User companies table not found, using empty state');
+        setCompanies([]);
+      }
+
+      // Calculate comprehensive stats
+      const totalCompanies = companies.length;
+      const totalImpact = companies.reduce((sum, company) => sum + (company.impact_score || 0), 0);
+      const avgImpactScore = totalCompanies > 0 ? totalImpact / totalCompanies : 0;
+      const totalEmployees = companies.reduce((sum, company) => sum + (company.employees || 0), 0);
+      const licensedCompanies = companies.filter(c => c.is_shared_wealth_licensed).length;
+      const pendingApplications = applications.filter(app => app.status === 'pending').length;
+
+      setStats({
+        totalCompanies,
+        totalImpact,
+        avgImpactScore: Math.round(avgImpactScore * 10) / 10,
+        recentActivities: activities.length,
+        totalEmployees,
+        licensedCompanies,
+        pendingApplications,
+        networkConnections: Math.floor(Math.random() * 50) + 10 // Placeholder for now
       });
-    } catch (err) {
+
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
       toast({
-        title: "Copy Failed",
-        description: "Please copy the code manually",
+        title: "Error",
+        description: "Failed to load dashboard data",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadActivities = async () => {
+    // Generate sample activities for now - in production this would come from a real activities table
+    const sampleActivities: Activity[] = [
+      {
+        id: '1',
+        type: 'company_added',
+        title: 'Company Added',
+        description: 'Successfully added "GreenTech Solutions" to your portfolio',
+        company_name: 'GreenTech Solutions',
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        status: 'completed'
+      },
+      {
+        id: '2',
+        type: 'meeting_scheduled',
+        title: 'Meeting Scheduled',
+        description: 'Scheduled impact assessment meeting with "EcoInnovate Ltd"',
+        company_name: 'EcoInnovate Ltd',
+        timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+        status: 'pending'
+      },
+      {
+        id: '3',
+        type: 'impact_updated',
+        title: 'Impact Score Updated',
+        description: 'Updated impact score for "Sustainable Futures" to 8.5',
+        company_name: 'Sustainable Futures',
+        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        status: 'completed'
+      }
+    ];
+
+    setActivities(sampleActivities);
+  };
+
+  const handleAddCompany = async () => {
+    try {
+      if (!newCompany.name || !newCompany.sector || !newCompany.country || !newCompany.applicant_role || !newCompany.applicant_position) {
+        toast({
+          title: "Validation Error",
+          description: "Please fill in all required fields",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Show social license agreement
+      setShowSocialLicense(true);
+
+    } catch (error) {
+      console.error('Error preparing company application:', error);
+      toast({
+        title: "Error",
+        description: "Failed to prepare company application",
         variant: "destructive"
       });
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
+  const handleAgreementSigned = async (agreementData: any) => {
+    try {
+      // For now, simulate the database operations since tables don't exist yet
+      // In production, this would insert into the actual database tables
+      
+      // Simulate creating company application
+      const mockApplicationId = Date.now().toString();
+      
+      // Simulate creating social license agreement record
+      console.log('Social License Agreement signed:', {
+        user_id: user?.id,
+        company_application_id: mockApplicationId,
+        agreement_version: agreementData.agreementVersion,
+        agreement_text: 'Shared Wealth International Social Licence Agreement v1.0',
+        user_signature: agreementData.userSignature,
+        signed_at: agreementData.signedAt,
+        ip_address: agreementData.ipAddress,
+        user_agent: agreementData.userAgent,
+        company_name: agreementData.companyName,
+        representative_name: agreementData.representativeName
+      });
 
-  const getMetricIcon = (metric: string) => {
-    switch (metric) {
-      case "Employee Retention":
-        return Users;
-      default:
-        return BarChart3;
+      toast({
+        title: "Success",
+        description: "Company application submitted successfully. Pending admin approval.",
+      });
+
+      setShowSocialLicense(false);
+      setShowAddCompany(false);
+      setNewCompany({
+        name: "",
+        sector: "",
+        country: "",
+        description: "",
+        employees: "",
+        website: "",
+        location: "",
+        is_shared_wealth_licensed: false,
+        license_number: "",
+        license_date: "",
+        applicant_role: "",
+        applicant_position: ""
+      });
+
+      // Add to local state for demonstration
+      const newApplication: CompanyApplication = {
+        id: mockApplicationId,
+        company_name: newCompany.name,
+        sector: newCompany.sector,
+        country: newCompany.country,
+        description: newCompany.description,
+        website: newCompany.website,
+        employees: newCompany.employees ? parseInt(newCompany.employees) : null,
+        location: newCompany.location,
+        is_shared_wealth_licensed: newCompany.is_shared_wealth_licensed,
+        license_number: newCompany.license_number || null,
+        license_date: newCompany.license_date || null,
+        applicant_role: newCompany.applicant_role,
+        applicant_position: newCompany.applicant_position,
+        status: 'pending',
+        admin_notes: null,
+        admin_id: null,
+        reviewed_at: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      setApplications(prev => [newApplication, ...prev]);
+
+    } catch (error) {
+      console.error('Error adding company:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add company",
+        variant: "destructive"
+      });
     }
   };
 
-  const sidebarItems = [
-    { id: "profile", label: "My Profile", icon: User, href: "/my-profile" },
-    { id: "companies", label: "My Companies", icon: Building, children: userCompanies },
-    { id: "resources", label: "Resources", icon: FileText, href: "/resources" },
-    { id: "forum", label: "Forum", icon: MessageSquare, href: "/forum" },
-    { id: "events", label: "Events", icon: Calendar, href: "/events" }
-  ];
+  const handleCompanyClick = (company: NetworkCompany) => {
+    setSelectedCompany(company);
+    setShowCompanyDetails(true);
+  };
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case "meeting":
-        return Calendar;
-      case "impact":
-        return TrendingUp;
-      case "team":
-        return Users;
+  const filteredCompanies = companies.filter(company => {
+    const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         company.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSector = filterSector === "all" || company.sector === filterSector;
+    const matchesStatus = filterStatus === "all" || company.status === filterStatus;
+    
+    return matchesSearch && matchesSector && matchesStatus;
+  });
+
+  const sectors = [...new Set(companies.map(c => c.sector))];
+  const statuses = [...new Set(companies.map(c => c.status))];
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return <CheckCircle2 className="w-4 h-4 text-green-500" />;
+      case 'pending':
+        return <Clock4 className="w-4 h-4 text-yellow-500" />;
+      case 'rejected':
+        return <XCircle className="w-4 h-4 text-red-500" />;
+      case 'under_review':
+        return <AlertTriangle className="w-4 h-4 text-blue-500" />;
       default:
-        return Activity;
+        return <Clock className="w-4 h-4 text-gray-500" />;
     }
   };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return 'bg-green-100 text-green-800';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
+      case 'under_review':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-600">Loading Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex h-screen" style={{ backgroundColor: 'rgb(224, 230, 235)' }}>
-      {/* Left Sidebar */}
-      <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-white shadow-lg transition-all duration-300 flex flex-col`} style={{ borderRight: '1px solid rgb(224, 230, 235)' }}>
-        {/* User Profile */}
-        <div className="p-4 border-b" style={{ borderColor: 'rgb(224, 230, 235)' }}>
-          <div className="flex items-center space-x-3">
-            <Avatar className="w-10 h-10">
-              <AvatarImage src="" />
-              <AvatarFallback style={{ backgroundColor: 'rgb(245, 158, 11)', color: 'white' }}>
-                {user?.email?.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            {!sidebarCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium" style={{ color: 'rgb(30, 58, 138)' }}>
-                  {user?.email?.split('@')[0]}
-                </p>
-                <p className="text-xs" style={{ color: 'rgb(107, 114, 128)' }}>
-                  Active Member
-                </p>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Company Dashboard</h1>
+              <p className="text-lg text-gray-600">Manage your companies and track your impact</p>
+            </div>
+            <Button onClick={() => setShowAddCompany(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Company
+            </Button>
+          </div>
+        </div>
+
+        {/* Dashboard Content */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="companies">My Companies</TabsTrigger>
+            <TabsTrigger value="applications">Applications</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="activities">Activities</TabsTrigger>
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            {/* Enhanced Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Building className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Total Companies</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats.totalCompanies}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <TrendingUp className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Total Impact</p>
+                      <p className="text-2xl font-bold text-gray-900">€{stats.totalImpact.toLocaleString()}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-purple-100 rounded-lg">
+                      <Star className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Avg Impact Score</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats.avgImpactScore}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-orange-100 rounded-lg">
+                      <Users className="w-6 h-6 text-orange-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Total Employees</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats.totalEmployees.toLocaleString()}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Additional Stats Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-emerald-100 rounded-lg">
+                      <Award className="w-6 h-6 text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Licensed Companies</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats.licensedCompanies}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-indigo-100 rounded-lg">
+                      <Globe className="w-6 h-6 text-indigo-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Network Connections</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats.networkConnections}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-rose-100 rounded-lg">
+                      <Activity className="w-6 h-6 text-rose-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Pending Applications</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats.pendingApplications}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Recent Activities Preview */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activities</CardTitle>
+                <CardDescription>Your latest network activities</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {activities.slice(0, 3).map((activity) => (
+                    <div key={activity.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                      <div className={`w-2 h-2 rounded-full ${
+                        activity.status === 'completed' ? 'bg-green-500' : 
+                        activity.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
+                      }`} />
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">{activity.title}</p>
+                        <p className="text-sm text-gray-600">{activity.description}</p>
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {new Date(activity.timestamp).toLocaleDateString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4">
+                  <Button variant="outline" onClick={() => setActiveTab("activities")}>
+                    View All Activities
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Companies Tab */}
+          <TabsContent value="companies" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900">My Companies</h2>
+              <Button onClick={() => setShowAddCompany(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Company
+              </Button>
+            </div>
+
+            {/* Search and Filters */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Search companies..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={filterSector} onValueChange={setFilterSector}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filter by sector" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sectors</SelectItem>
+                  {sectors.map(sector => (
+                    <SelectItem key={sector} value={sector}>{sector}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  {statuses.map(status => (
+                    <SelectItem key={status} value={status}>{status}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {filteredCompanies.length === 0 ? (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <Building className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {companies.length === 0 ? "No Companies Yet" : "No Companies Found"}
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    {companies.length === 0 
+                      ? "Start by adding your first company to the network"
+                      : "Try adjusting your search or filters"
+                    }
+                  </p>
+                  {companies.length === 0 && (
+                    <Button onClick={() => setShowAddCompany(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Your First Company
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredCompanies.map((company) => (
+                  <Card 
+                    key={company.id} 
+                    className="hover:shadow-lg transition-shadow cursor-pointer group"
+                    onClick={() => handleCompanyClick(company)}
+                  >
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
+                          {company.name}
+                        </CardTitle>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="secondary">Owner</Badge>
+                          <Badge variant={company.status === 'active' ? 'default' : 'secondary'}>
+                            {company.status}
+                          </Badge>
+                        </div>
+                      </div>
+                      <CardDescription className="flex items-center space-x-2">
+                        <span>{company.sector}</span>
+                        <span>•</span>
+                        <span>{company.country}</span>
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {company.description || 'No description available'}
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">Employees</span>
+                          <span className="font-medium">{company.employees || 'N/A'}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">Impact Score</span>
+                          <div className="flex items-center space-x-1">
+                            <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                            <span className="font-medium">{company.impact_score || 'N/A'}</span>
+                          </div>
+                        </div>
+                        {company.is_shared_wealth_licensed && (
+                          <div className="flex items-center space-x-2 text-sm">
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-green-600">Licensed</span>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Applications Tab */}
+          <TabsContent value="applications" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900">Company Applications</h2>
+              <Badge variant="secondary" className="text-sm">
+                {applications.length} Applications
+              </Badge>
+            </div>
+
+            {applications.length === 0 ? (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <FileText className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Applications Yet</h3>
+                  <p className="text-gray-600 mb-6">
+                    Start by submitting your first company application
+                  </p>
+                  <Button onClick={() => setShowAddCompany(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Submit Application
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {applications.map((application) => (
+                  <Card key={application.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-3">
+                            {getStatusIcon(application.status)}
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {application.company_name}
+                            </h3>
+                            <Badge className={getStatusColor(application.status)}>
+                              {application.status.charAt(0).toUpperCase() + application.status.slice(1).replace('_', ' ')}
+                            </Badge>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div>
+                              <Label className="text-sm font-medium text-gray-700">Sector</Label>
+                              <p className="text-sm text-gray-600 mt-1">{application.sector}</p>
+                            </div>
+                            
+                            <div>
+                              <Label className="text-sm font-medium text-gray-700">Country</Label>
+                              <p className="text-sm text-gray-600 mt-1">{application.country}</p>
+                            </div>
+                            
+                            <div>
+                              <Label className="text-sm font-medium text-gray-700">Your Role</Label>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {application.applicant_role} • {application.applicant_position}
+                              </p>
+                            </div>
+                          </div>
+
+                          {application.description && (
+                            <div className="mb-4">
+                              <Label className="text-sm font-medium text-gray-700">Description</Label>
+                              <p className="text-sm text-gray-600 mt-1">{application.description}</p>
+                            </div>
+                          )}
+
+                          {application.admin_notes && (
+                            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                              <Label className="text-sm font-medium text-yellow-800">Admin Notes</Label>
+                              <p className="text-sm text-yellow-700 mt-1">{application.admin_notes}</p>
+                            </div>
+                          )}
+
+                          <div className="flex space-x-2">
+                            <Button variant="outline" size="sm">
+                              <Eye className="w-4 h-4 mr-2" />
+                              View Details
+                            </Button>
+                            {application.status === 'pending' && (
+                              <Button variant="outline" size="sm">
+                                <Edit className="w-4 h-4 mr-2" />
+                                Edit Application
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Impact Analytics</CardTitle>
+                <CardDescription>Track your companies' impact over time</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 flex items-center justify-center text-gray-500">
+                  <div className="text-center">
+                    <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <p>Impact charts and analytics will be displayed here</p>
+                    <p className="text-sm">Coming soon with real-time data visualization</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Activities Tab */}
+          <TabsContent value="activities" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activities</CardTitle>
+                <CardDescription>Your latest network activities and updates</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {activities.map((activity) => (
+                    <div key={activity.id} className="flex items-center space-x-3 p-4 rounded-lg border hover:bg-gray-50">
+                      <div className={`w-3 h-3 rounded-full ${
+                        activity.status === 'completed' ? 'bg-green-500' : 
+                        activity.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
+                      }`} />
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">{activity.title}</p>
+                        <p className="text-sm text-gray-600">{activity.description}</p>
+                        {activity.company_name && (
+                          <p className="text-xs text-blue-600 mt-1">{activity.company_name}</p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500">
+                          {new Date(activity.timestamp).toLocaleDateString()}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {new Date(activity.timestamp).toLocaleTimeString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* Add Company Dialog */}
+      <Dialog open={showAddCompany} onOpenChange={setShowAddCompany}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Add New Company</DialogTitle>
+            <DialogDescription>
+              Submit a new company application to join the Shared Wealth International network.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="company-name">Company Name *</Label>
+              <Input
+                id="company-name"
+                value={newCompany.name}
+                onChange={(e) => setNewCompany({...newCompany, name: e.target.value})}
+                placeholder="Enter company name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sector">Sector *</Label>
+              <Select value={newCompany.sector} onValueChange={(value) => setNewCompany({...newCompany, sector: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select sector" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Technology">Technology</SelectItem>
+                  <SelectItem value="Manufacturing">Manufacturing</SelectItem>
+                  <SelectItem value="Healthcare">Healthcare</SelectItem>
+                  <SelectItem value="Finance">Finance</SelectItem>
+                  <SelectItem value="Education">Education</SelectItem>
+                  <SelectItem value="Energy">Energy</SelectItem>
+                  <SelectItem value="Retail">Retail</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="country">Country *</Label>
+              <Input
+                id="country"
+                value={newCompany.country}
+                onChange={(e) => setNewCompany({...newCompany, country: e.target.value})}
+                placeholder="Enter country"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="employees">Number of Employees</Label>
+              <Input
+                id="employees"
+                type="number"
+                value={newCompany.employees}
+                onChange={(e) => setNewCompany({...newCompany, employees: e.target.value})}
+                placeholder="Enter number of employees"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="website">Website</Label>
+              <Input
+                id="website"
+                value={newCompany.website}
+                onChange={(e) => setNewCompany({...newCompany, website: e.target.value})}
+                placeholder="https://example.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                value={newCompany.location}
+                onChange={(e) => setNewCompany({...newCompany, location: e.target.value})}
+                placeholder="City, Country"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="applicant-role">Your Role *</Label>
+              <Select value={newCompany.applicant_role} onValueChange={(value) => setNewCompany({...newCompany, applicant_role: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="owner">Owner</SelectItem>
+                  <SelectItem value="executive">Executive</SelectItem>
+                  <SelectItem value="manager">Manager</SelectItem>
+                  <SelectItem value="employee">Employee</SelectItem>
+                  <SelectItem value="consultant">Consultant</SelectItem>
+                  <SelectItem value="advisor">Advisor</SelectItem>
+                  <SelectItem value="investor">Investor</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="applicant-position">Your Position *</Label>
+              <Input
+                id="applicant-position"
+                value={newCompany.applicant_position}
+                onChange={(e) => setNewCompany({...newCompany, applicant_position: e.target.value})}
+                placeholder="e.g., CEO, Director, Manager"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">Company Description</Label>
+            <Textarea
+              id="description"
+              value={newCompany.description}
+              onChange={(e) => setNewCompany({...newCompany, description: e.target.value})}
+              placeholder="Describe your company's mission, values, and shared wealth approach..."
+              rows={4}
+            />
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="shared-wealth-licensed"
+                checked={newCompany.is_shared_wealth_licensed}
+                onCheckedChange={(checked) => setNewCompany({...newCompany, is_shared_wealth_licensed: checked as boolean})}
+              />
+              <Label htmlFor="shared-wealth-licensed">
+                My company is already Shared Wealth licensed
+              </Label>
+            </div>
+            {newCompany.is_shared_wealth_licensed && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="license-number">License Number</Label>
+                  <Input
+                    id="license-number"
+                    value={newCompany.license_number}
+                    onChange={(e) => setNewCompany({...newCompany, license_number: e.target.value})}
+                    placeholder="Enter license number"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="license-date">License Date</Label>
+                  <Input
+                    id="license-date"
+                    type="date"
+                    value={newCompany.license_date}
+                    onChange={(e) => setNewCompany({...newCompany, license_date: e.target.value})}
+                  />
+                </div>
               </div>
             )}
           </div>
-        </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddCompany(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddCompany}>
+              Continue to Agreement
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2">
-          {sidebarItems.map((item) => (
-            <div key={item.id}>
-              {item.children ? (
+      {/* Social License Agreement Dialog */}
+      <Dialog open={showSocialLicense} onOpenChange={setShowSocialLicense}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <SocialLicenseAgreement
+            companyName={newCompany.name}
+            companyData={{
+              name: newCompany.name,
+              sector: newCompany.sector,
+              country: newCompany.country,
+              description: newCompany.description,
+              applicant_role: newCompany.applicant_role,
+              applicant_position: newCompany.applicant_position
+            }}
+            onAgreementSigned={handleAgreementSigned}
+            onCancel={() => setShowSocialLicense(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Company Details Dialog */}
+      <Dialog open={showCompanyDetails} onOpenChange={setShowCompanyDetails}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{selectedCompany?.name}</DialogTitle>
+            <DialogDescription>
+              Company details and management options
+            </DialogDescription>
+          </DialogHeader>
+          {selectedCompany && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <button
-                    onClick={() => toggleCompanyExpansion(item.id)}
-                    className="w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    style={{ color: 'rgb(30, 58, 138)' }}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    {!sidebarCollapsed && (
-                      <>
-                        <span className="flex-1 text-left">{item.label}</span>
-                        {expandedCompany === item.id ? (
-                          <ChevronDown className="w-4 h-4" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4" />
-                        )}
-                      </>
-                    )}
-                  </button>
-                  {expandedCompany === item.id && !sidebarCollapsed && (
-                    <div className="ml-8 mt-2 space-y-1">
-                      {item.children.map((company) => (
-                        <button
-                          key={company.id}
-                          onClick={() => setActiveTab(`company-${company.id}`)}
-                          className="w-full flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
-                          style={{ color: 'rgb(75, 85, 99)' }}
-                        >
-                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: company.status === 'active' ? 'rgb(34, 197, 94)' : 'rgb(245, 158, 11)' }} />
-                          <span className="text-sm truncate">{company.name}</span>
-                        </button>
-                      ))}
+                  <h3 className="font-semibold mb-2">Company Information</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Sector:</span>
+                      <span>{selectedCompany.sector}</span>
                     </div>
-                  )}
-                </div>
-              ) : (
-                <button
-                  onClick={() => {
-                    if (item.href) {
-                      window.location.href = item.href;
-                    } else {
-                      setActiveTab(item.id);
-                    }
-                  }}
-                  className="w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                  style={{ color: 'rgb(30, 58, 138)' }}
-                >
-                  <item.icon className="w-5 h-5" />
-                  {!sidebarCollapsed && <span>{item.label}</span>}
-                </button>
-              )}
-            </div>
-          ))}
-        </nav>
-
-        {/* Collapse Button */}
-        <div className="p-4 border-t" style={{ borderColor: 'rgb(224, 230, 235)' }}>
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-gray-50 transition-colors"
-            style={{ color: 'rgb(107, 114, 128)' }}
-          >
-            {sidebarCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="bg-white shadow-sm px-6 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid rgb(224, 230, 235)' }}>
-          <div>
-            <h1 className="text-2xl font-bold" style={{ color: 'rgb(30, 58, 138)' }}>
-              {activeTab === 'overview' && 'Dashboard Overview'}
-              {activeTab.startsWith('company-') && `${userCompanies.find(c => c.id === activeTab.replace('company-', ''))?.name} Dashboard`}
-              {activeTab === 'analytics' && 'Impact Analytics'}
-              {activeTab === 'community' && 'Community Hub'}
-              {activeTab === 'learning' && 'Learning Paths'}
-              {activeTab === 'security' && 'Security & Governance'}
-              {activeTab === 'ai-insights' && 'AI Insights'}
-            </h1>
-            <p className="text-sm" style={{ color: 'rgb(107, 114, 128)' }}>
-              Welcome back! Here's what's happening with your companies.
-            </p>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Button variant="outline" size="sm" style={{ borderColor: 'rgb(224, 230, 235)', color: 'rgb(30, 58, 138)' }}>
-              <Bell className="w-4 h-4 mr-2" />
-              Notifications
-            </Button>
-            <Button variant="outline" size="sm" style={{ borderColor: 'rgb(224, 230, 235)', color: 'rgb(30, 58, 138)' }}>
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </Button>
-          </div>
-        </header>
-
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-auto p-6">
-          {activeTab === 'overview' && (
-            <div className="space-y-6">
-              {/* Personal Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <Card style={{ backgroundColor: 'white', borderColor: 'rgb(224, 230, 235)' }}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgb(245, 158, 11)' }}>
-                        <Building className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium" style={{ color: 'rgb(107, 114, 128)' }}>Total Companies</p>
-                        <p className="text-2xl font-bold" style={{ color: 'rgb(30, 58, 138)' }}>{personalMetrics.totalCompanies}</p>
-                      </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Country:</span>
+                      <span>{selectedCompany.country}</span>
                     </div>
-                  </CardContent>
-                </Card>
-
-                <Card style={{ backgroundColor: 'white', borderColor: 'rgb(224, 230, 235)' }}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgb(13, 148, 136)' }}>
-                        <Calendar className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium" style={{ color: 'rgb(107, 114, 128)' }}>Total Meetings</p>
-                        <p className="text-2xl font-bold" style={{ color: 'rgb(30, 58, 138)' }}>{personalMetrics.totalMeetings}</p>
-                      </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Employees:</span>
+                      <span>{selectedCompany.employees || 'N/A'}</span>
                     </div>
-                  </CardContent>
-                </Card>
-
-                <Card style={{ backgroundColor: 'white', borderColor: 'rgb(224, 230, 235)' }}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgb(34, 197, 94)' }}>
-                        <TrendingUp className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium" style={{ color: 'rgb(107, 114, 128)' }}>Total Impact</p>
-                        <p className="text-2xl font-bold" style={{ color: 'rgb(30, 58, 138)' }}>{personalMetrics.totalImpact}</p>
-                      </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Status:</span>
+                      <Badge variant={selectedCompany.status === 'active' ? 'default' : 'secondary'}>
+                        {selectedCompany.status}
+                      </Badge>
                     </div>
-                  </CardContent>
-                </Card>
-
-                <Card style={{ backgroundColor: 'white', borderColor: 'rgb(224, 230, 235)' }}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgb(168, 85, 247)' }}>
-                        <Star className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium" style={{ color: 'rgb(107, 114, 128)' }}>Avg. Impact Score</p>
-                        <p className="text-2xl font-bold" style={{ color: 'rgb(30, 58, 138)' }}>{personalMetrics.avgImpactScore}/10</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Recent Activity and Meetings */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Recent Activity */}
-                <Card style={{ backgroundColor: 'white', borderColor: 'rgb(224, 230, 235)' }}>
-                  <CardHeader>
-                    <CardTitle style={{ color: 'rgb(30, 58, 138)' }}>Recent Activity</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {dummyActivity.map((activity) => {
-                        const Icon = getActivityIcon(activity.type);
-                        return (
-                          <div key={activity.id} className="flex items-start space-x-3">
-                            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgb(245, 158, 11)' }}>
-                              <Icon className="w-4 h-4 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium" style={{ color: 'rgb(30, 58, 138)' }}>{activity.title}</p>
-                              <p className="text-xs" style={{ color: 'rgb(107, 114, 128)' }}>{activity.description}</p>
-                              <p className="text-xs" style={{ color: 'rgb(156, 163, 175)' }}>{activity.time} • {activity.company}</p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Recent Meetings */}
-                <Card style={{ backgroundColor: 'white', borderColor: 'rgb(224, 230, 235)' }}>
-                  <CardHeader>
-                    <CardTitle style={{ color: 'rgb(30, 58, 138)' }}>Recent Meetings</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {dummyRecentMeetings.map((meeting) => (
-                        <div key={meeting.id} className="flex items-start space-x-3">
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgb(13, 148, 136)' }}>
-                            <Calendar className="w-4 h-4 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium" style={{ color: 'rgb(30, 58, 138)' }}>{meeting.title}</p>
-                            <p className="text-xs" style={{ color: 'rgb(107, 114, 128)' }}>{meeting.outcome}</p>
-                            <div className="flex items-center space-x-2 mt-1">
-                              <Badge 
-                                className="text-xs" 
-                                style={{ 
-                                  backgroundColor: meeting.impact === 'High' ? 'rgb(34, 197, 94)' : 'rgb(245, 158, 11)',
-                                  color: 'white'
-                                }}
-                              >
-                                {meeting.impact} Impact
-                              </Badge>
-                              <span className="text-xs" style={{ color: 'rgb(156, 163, 175)' }}>
-                                {formatDate(meeting.date)} • {meeting.company}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          )}
-
-          {/* Company-specific tabs */}
-          {activeTab.startsWith('company-') && (
-            <div className="space-y-6">
-              <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-6" style={{ backgroundColor: 'rgb(248, 250, 252)' }}>
-                  <TabsTrigger value="overview" style={{ color: 'rgb(30, 58, 138)' }}>Overview</TabsTrigger>
-                  <TabsTrigger value="analytics" style={{ color: 'rgb(30, 58, 138)' }}>Analytics</TabsTrigger>
-                  <TabsTrigger value="community" style={{ color: 'rgb(30, 58, 138)' }}>Community</TabsTrigger>
-                  <TabsTrigger value="learning" style={{ color: 'rgb(30, 58, 138)' }}>Learning</TabsTrigger>
-                  <TabsTrigger value="security" style={{ color: 'rgb(30, 58, 138)' }}>Security</TabsTrigger>
-                  <TabsTrigger value="ai-insights" style={{ color: 'rgb(30, 58, 138)' }}>AI Insights</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="overview" className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Card style={{ backgroundColor: 'white', borderColor: 'rgb(224, 230, 235)' }}>
-                      <CardHeader>
-                        <CardTitle style={{ color: 'rgb(30, 58, 138)' }}>Team Members</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          {dummyMembers.map((member) => (
-                            <div key={member.id} className="flex items-center space-x-3">
-                              <Avatar className="w-8 h-8">
-                                <AvatarImage src={member.avatar} />
-                                <AvatarFallback style={{ backgroundColor: 'rgb(245, 158, 11)', color: 'white', fontSize: '12px' }}>
-                                  {member.name.split(' ').map(n => n[0]).join('')}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1">
-                                <p className="text-sm font-medium" style={{ color: 'rgb(30, 58, 138)' }}>{member.name}</p>
-                                <p className="text-xs" style={{ color: 'rgb(107, 114, 128)' }}>{member.role}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        <Dialog open={invitationDialogOpen} onOpenChange={setInvitationDialogOpen}>
-                          <DialogTrigger asChild>
-                            <Button className="w-full mt-4" style={{ backgroundColor: 'rgb(245, 158, 11)', borderColor: 'rgb(245, 158, 11)' }}>
-                              <Plus className="w-4 h-4 mr-2" />
-                              Add Team Member
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Invite Team Member</DialogTitle>
-                              <DialogDescription>
-                                Send an invitation to join your team on the Shared Wealth platform.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4">
-                              <div>
-                                <Label htmlFor="email">Email Address</Label>
-                                <Input
-                                  id="email"
-                                  type="email"
-                                  value={invitationEmail}
-                                  onChange={(e) => setInvitationEmail(e.target.value)}
-                                  placeholder="colleague@company.com"
-                                  style={{ borderColor: 'rgb(224, 230, 235)' }}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="role">Role</Label>
-                                <Select value={invitationRole} onValueChange={setInvitationRole}>
-                                  <SelectTrigger style={{ borderColor: 'rgb(224, 230, 235)' }}>
-                                    <SelectValue placeholder="Select a role" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="developer">Developer</SelectItem>
-                                    <SelectItem value="manager">Manager</SelectItem>
-                                    <SelectItem value="analyst">Analyst</SelectItem>
-                                    <SelectItem value="consultant">Consultant</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div>
-                                <Label htmlFor="message">Personal Message (Optional)</Label>
-                                <Textarea
-                                  id="message"
-                                  value={invitationMessage}
-                                  onChange={(e) => setInvitationMessage(e.target.value)}
-                                  placeholder="Add a personal message..."
-                                  style={{ borderColor: 'rgb(224, 230, 235)' }}
-                                />
-                              </div>
-                            </div>
-                            <DialogFooter>
-                              <Button
-                                onClick={handleSendInvitation}
-                                disabled={isSendingInvitation}
-                                style={{ backgroundColor: 'rgb(245, 158, 11)', borderColor: 'rgb(245, 158, 11)' }}
-                              >
-                                {isSendingInvitation ? 'Sending...' : 'Send Invitation'}
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                      </CardContent>
-                    </Card>
-
-                    <Card style={{ backgroundColor: 'white', borderColor: 'rgb(224, 230, 235)' }}>
-                      <CardHeader>
-                        <CardTitle style={{ color: 'rgb(30, 58, 138)' }}>Invitation Code</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgb(248, 250, 252)' }}>
-                            <p className="text-sm font-mono text-center" style={{ color: 'rgb(30, 58, 138)' }}>
-                              {invitationCode}
-                            </p>
-                          </div>
-                          <Button
-                            onClick={copyInvitationCode}
-                            variant="outline"
-                            className="w-full"
-                            style={{ borderColor: 'rgb(224, 230, 235)', color: 'rgb(30, 58, 138)' }}
-                          >
-                            <Copy className="w-4 h-4 mr-2" />
-                            Copy Code
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card style={{ backgroundColor: 'white', borderColor: 'rgb(224, 230, 235)' }}>
-                      <CardHeader>
-                        <CardTitle style={{ color: 'rgb(30, 58, 138)' }}>Quick Actions</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          <Button variant="outline" className="w-full justify-start" style={{ borderColor: 'rgb(224, 230, 235)', color: 'rgb(30, 58, 138)' }}>
-                            <Calendar className="w-4 h-4 mr-2" />
-                            Schedule Meeting
-                          </Button>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" className="w-full justify-start" style={{ borderColor: 'rgb(224, 230, 235)', color: 'rgb(30, 58, 138)' }}>
-                                <TrendingUp className="w-4 h-4 mr-2" />
-                                Log Impact
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
-                              <DialogHeader>
-                                <DialogTitle>Log SWI Impact</DialogTitle>
-                                <DialogDescription>
-                                  Record the impact of your interactions with Shared Wealth International
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <Label htmlFor="impact-type">Impact Type</Label>
-                                    <Select>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select impact type" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="meeting">SWI Meeting</SelectItem>
-                                        <SelectItem value="growth">Growth Metric</SelectItem>
-                                        <SelectItem value="partnership">Partnership</SelectItem>
-                                        <SelectItem value="investment">Investment</SelectItem>
-                                        <SelectItem value="community">Community Impact</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                  <div>
-                                    <Label htmlFor="impact-date">Date</Label>
-                                    <Input type="date" id="impact-date" />
-                                  </div>
-                                </div>
-                                
-                                <div>
-                                  <Label htmlFor="impact-title">Title</Label>
-                                  <Input id="impact-title" placeholder="e.g., Strategic Partnership Meeting with TechFlow" />
-                                </div>
-                                
-                                <div>
-                                  <Label htmlFor="impact-description">Description</Label>
-                                  <Textarea 
-                                    id="impact-description" 
-                                    placeholder="Describe the impact and outcomes..."
-                                    rows={3}
-                                  />
-                                </div>
-                                
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <Label htmlFor="participants">Participants</Label>
-                                    <Textarea 
-                                      id="participants" 
-                                      placeholder="List participants (e.g., Gugs from Pathway, Ike from SWI, Amjid)"
-                                      rows={2}
-                                    />
-                                  </div>
-                                  <div>
-                                    <Label htmlFor="outcomes">Key Outcomes</Label>
-                                    <Textarea 
-                                      id="outcomes" 
-                                      placeholder="List key outcomes and agreements..."
-                                      rows={2}
-                                    />
-                                  </div>
-                                </div>
-                                
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                  <div>
-                                    <Label htmlFor="investments">Investments Secured</Label>
-                                    <Input id="investments" placeholder="e.g., $2.5M investment" />
-                                  </div>
-                                  <div>
-                                    <Label htmlFor="partnerships">Partnerships Formed</Label>
-                                    <Input id="partnerships" placeholder="e.g., TechFlow Partnership" />
-                                  </div>
-                                  <div>
-                                    <Label htmlFor="impact-score">Impact Score (1-10)</Label>
-                                    <Input id="impact-score" type="number" min="1" max="10" placeholder="9" />
-                                  </div>
-                                </div>
-                                
-                                <div>
-                                  <Label htmlFor="swi-contribution">SWI Contribution</Label>
-                                  <Textarea 
-                                    id="swi-contribution" 
-                                    placeholder="How did Shared Wealth International contribute to this impact?"
-                                    rows={2}
-                                  />
-                                </div>
-                                
-                                <div>
-                                  <Label htmlFor="follow-up">Follow-up Actions</Label>
-                                  <Textarea 
-                                    id="follow-up" 
-                                    placeholder="List any follow-up actions or next steps..."
-                                    rows={2}
-                                  />
-                                </div>
-                              </div>
-                              <DialogFooter>
-                                <Button variant="outline">Cancel</Button>
-                                <Button style={{ backgroundColor: 'rgb(30, 58, 138)' }}>
-                                  Log Impact
-                                </Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                          <Button variant="outline" className="w-full justify-start" style={{ borderColor: 'rgb(224, 230, 235)', color: 'rgb(30, 58, 138)' }}>
-                            <Users className="w-4 h-4 mr-2" />
-                            Manage Team
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
                   </div>
-                </TabsContent>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Impact Metrics</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Impact Score:</span>
+                      <div className="flex items-center space-x-1">
+                        <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                        <span>{selectedCompany.impact_score || 'N/A'}</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Shared Value:</span>
+                      <span>{selectedCompany.shared_value || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Licensed:</span>
+                      <span>{selectedCompany.is_shared_wealth_licensed ? 'Yes' : 'No'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {selectedCompany.description && (
+                <div>
+                  <h3 className="font-semibold mb-2">Description</h3>
+                  <p className="text-gray-600">{selectedCompany.description}</p>
+                </div>
+              )}
 
-                <TabsContent value="analytics">
-                  <ImpactAnalytics />
-                </TabsContent>
-
-                <TabsContent value="community">
-                  <CommunityHub />
-                </TabsContent>
-
-                <TabsContent value="learning">
-                  <LearningPath />
-                </TabsContent>
-
-                <TabsContent value="security">
-                  <SecurityManager />
-                </TabsContent>
-
-                <TabsContent value="ai-insights">
-                  <AIInsights />
-                </TabsContent>
-              </Tabs>
+              <div className="flex space-x-2">
+                <Button variant="outline">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Company
+                </Button>
+                <Button variant="outline">
+                  <FileText className="w-4 h-4 mr-2" />
+                  View Reports
+                </Button>
+                <Button variant="outline">
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share
+                </Button>
+              </div>
             </div>
           )}
-
-          {/* Other tabs */}
-          {activeTab === 'analytics' && <ImpactAnalytics />}
-          {activeTab === 'community' && <CommunityHub />}
-          {activeTab === 'learning' && <LearningPath />}
-          {activeTab === 'security' && <SecurityManager />}
-          {activeTab === 'ai-insights' && <AIInsights />}
-        </main>
-      </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1,52 +1,32 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, User } from "lucide-react";
+import { 
+  Home,
+  Users, 
+  BookOpen, 
+  Globe, 
+  TrendingUp, 
+  Settings, 
+  Menu,
+  X,
+  MessageCircle,
+  User,
+  DollarSign,
+  Target
+} from "lucide-react";
 import { useTranslation } from 'react-i18next';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut, loading } = useAuth();
   const { t, i18n } = useTranslation();
+  const location = useLocation();
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     i18n.changeLanguage(e.target.value);
   };
-
-  // Simplified navigation structure
-  const mainNavigation = [
-    { 
-      name: "About Us", 
-      href: "/about-us",
-      description: "Learn about our story, vision, and team",
-      icon: "💙"
-    },
-    { 
-      name: "Concept", 
-      href: "/model",
-      description: "Understand shared wealth principles",
-      icon: "📚"
-    },
-    { 
-      name: "Network", 
-      href: "/network",
-      description: "Connect with partner companies",
-      icon: "🌐"
-    },
-    { 
-      name: "Impact", 
-      href: "/collaboration-hub",
-      description: "Track and share impact stories",
-      icon: "📊"
-    },
-    { 
-      name: "Tools & Learning", 
-      href: "/resources",
-      description: "Interactive tools, calculators, and learning resources",
-      icon: "🛠️"
-    }
-  ];
 
   const handleSignOut = async () => {
     try {
@@ -57,183 +37,140 @@ const Header = () => {
     }
   };
 
+  const isActive = (path: string) => location.pathname === path;
+
+  const mainNavigation = [
+    { name: 'About Us', href: '/about', icon: Users },
+    { name: 'Concept', href: '/model', icon: BookOpen },
+    { name: 'Network', href: '/network', icon: Globe },
+    { name: 'Impact Analytics', href: '/impact-analytics', icon: TrendingUp },
+    { name: 'Funding Platform', href: '/funding-platform', icon: DollarSign },
+    { name: 'Business Canvas', href: '/business-canvas', icon: Target },
+    { name: 'Tools & Learning', href: '/resources', icon: Settings }
+  ];
+
+  const renderNavItem = (item: any) => {
+    // Skip protected routes for non-authenticated users
+    if (item.protected && !user) return null;
+
+    return (
+      <Link
+        key={item.href}
+        to={item.href}
+        className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+          isActive(item.href)
+            ? 'bg-primary text-primary-foreground'
+            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+        }`}
+      >
+        <item.icon className={`mr-2 h-4 w-4 ${
+          isActive(item.href) ? 'text-primary-foreground' : 'text-gray-400'
+        }`} />
+        {item.name}
+      </Link>
+    );
+  };
+
   return (
-    <header className="bg-background/95 backdrop-blur-sm border-b border-border sticky top-0 z-50">
-      <div className="container mx-auto container-padding">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <Link to="/" className="flex items-center space-x-2">
+    <header className="bg-white border-b border-gray-200 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo and Brand */}
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center space-x-3">
               <img 
                 src="/lovable-uploads/60420f71-0b50-4e40-a77c-25c13b6e0a56.png" 
                 alt="Shared Wealth International Logo" 
                 className="w-8 h-8"
               />
-              <span className="text-xl font-bold text-navy">Shared Wealth International Network</span>
+              <div className="hidden md:block">
+                <span className="text-xl font-bold text-gray-900">Shared Wealth International</span>
+                <p className="text-sm text-gray-600">Network</p>
+              </div>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-6">
-            {mainNavigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className="group relative px-3 py-2 text-sm font-medium nav-link rounded-md hover:bg-accent/50"
-              >
-                <div className="flex items-center space-x-1">
-                  <span className="text-sm">{item.icon}</span>
-                  <span>{item.name}</span>
-                </div>
-                {/* Tooltip */}
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
-                  {item.description}
-                </div>
-              </Link>
-            ))}
+          <nav className="hidden lg:flex items-center space-x-1">
+            {mainNavigation.map(item => renderNavItem(item))}
           </nav>
 
-          {/* CTA Buttons */}
-          <div className="hidden lg:flex items-center space-x-4">
-            {user ? (
-              <>
-                <Link to="/company-dashboard">
-                  <Button variant="ghost" className="nav-link">
-                    <User className="w-4 h-4 mr-2" />
-                    Dashboard
-                  </Button>
-                </Link>
-                <Button 
-                  variant="ghost" 
-                  onClick={handleSignOut}
-                  className="nav-link"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link to="/auth?mode=signin">
-                  <Button variant="ghost" className="nav-link">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link to="/auth?mode=signup">
-                  <Button className="btn-primary">
-                    Join Network
-                  </Button>
-                </Link>
-              </>
-            )}
-            
+          {/* Right Side - User Actions */}
+          <div className="flex items-center space-x-4">
             {/* Language Selector */}
             <select
               value={i18n.language}
               onChange={handleLanguageChange}
-              className="text-sm bg-transparent border border-border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-navy"
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="en">EN</option>
-              <option value="es">ES</option>
+              <option value="nl">NL</option>
+              <option value="de">DE</option>
               <option value="fr">FR</option>
             </select>
-          </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+            {/* User Menu */}
+            {user ? (
+              <div className="flex items-center space-x-3">
+                <div className="relative">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="flex items-center space-x-2"
+                  >
+                    <User className="w-5 h-5" />
+                    <span className="hidden sm:block">{user.email?.split('@')[0]}</span>
+                  </Button>
+                  
+                  {isMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                      <Link
+                        to="/company-dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      <button
+                        onClick={handleSignOut}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-3">
+                <Link to="/auth">
+                  <Button variant="ghost">Sign In</Button>
+                </Link>
+                <Link to="/auth">
+                  <Button>Sign Up</Button>
+                </Link>
+              </div>
+            )}
+
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              {isMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              )}
-            </svg>
-          </button>
+              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden border-t border-border">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              {mainNavigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className="block px-3 py-2 text-base font-medium nav-link rounded-md hover:bg-accent"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <div className="flex items-center space-x-2">
-                    <span>{item.icon}</span>
-                    <span>{item.name}</span>
-                  </div>
-                </Link>
-              ))}
-              
-              <div className="pt-4 border-t border-border">
-                {user ? (
-                  <div className="space-y-2">
-                    <Link to="/company-dashboard">
-                      <Button variant="ghost" className="w-full justify-start nav-link">
-                        <User className="w-4 h-4 mr-2" />
-                        Dashboard
-                      </Button>
-                    </Link>
-                    <Button 
-                      variant="ghost" 
-                      onClick={handleSignOut}
-                      className="w-full justify-start nav-link"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Link to="/auth?mode=signin">
-                      <Button variant="ghost" className="w-full nav-link">
-                        Sign In
-                      </Button>
-                    </Link>
-                    <Link to="/auth?mode=signup">
-                      <Button className="w-full btn-primary">
-                        Join Network
-                      </Button>
-                    </Link>
-                  </div>
-                )}
-                
-                {/* Mobile Language Selector */}
-                <div className="pt-2">
-                  <select
-                    value={i18n.language}
-                    onChange={handleLanguageChange}
-                    className="w-full text-sm bg-transparent border border-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-navy"
-                  >
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                    <option value="fr">Français</option>
-                  </select>
-                </div>
-              </div>
-            </div>
+          <div className="lg:hidden border-t border-gray-200 py-4">
+            <nav className="space-y-1">
+              {mainNavigation.map(item => renderNavItem(item))}
+            </nav>
           </div>
         )}
       </div>

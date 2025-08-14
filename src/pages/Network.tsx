@@ -1,300 +1,533 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Building, 
   Users, 
-  MapPin, 
   Globe, 
-  TrendingUp, 
-  Star,
-  ArrowRight,
+  MapPin, 
+  Star, 
   Search,
   Filter,
+  MessageCircle,
+  Share2,
   ExternalLink,
   Calendar,
-  DollarSign,
-  Target,
+  TrendingUp,
+  Plus,
+  CheckCircle,
   Heart,
-  Briefcase,
-  Award
+  Handshake,
+  Award,
+  Target,
+  Users2,
+  Network,
+  ArrowRight,
+  RefreshCw
 } from "lucide-react";
-import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 
-interface Company {
+interface NetworkCompany {
   id: string;
   name: string;
   sector: string;
   country: string;
-  description: string;
-  employees: number;
-  sharedValue: string;
-  impactScore: number;
-  joinedDate: string;
-  website: string;
-  logo: string;
-  highlights: string[];
-  location: string;
+  description: string | null;
+  employees: number | null;
+  impact_score: number | null;
+  shared_value: string | null;
+  joined_date: string;
+  website: string | null;
+  location: string | null;
+  highlights: string[] | null;
   status: string;
+  is_shared_wealth_licensed: boolean;
+  license_number: string | null;
+  license_date: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
-const Network = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSector, setSelectedSector] = useState("all");
-  const [selectedCountry, setSelectedCountry] = useState("all");
+interface UserCompany {
+  id: string;
+  user_id: string;
+  company_id: string | null;
+  company_name: string;
+  role: string;
+  position: string;
+  is_shared_wealth_licensed: boolean;
+  license_number: string | null;
+  license_date: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
 
-  const [companies, setCompanies] = useState<Company[]>([]);
+const NetworkPage = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("my-network");
+  const [myNetworkCompanies, setMyNetworkCompanies] = useState<NetworkCompany[]>([]);
+  const [allNetworkCompanies, setAllNetworkCompanies] = useState<NetworkCompany[]>([]);
+  const [filteredCompanies, setFilteredCompanies] = useState<NetworkCompany[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSector, setSelectedSector] = useState('all');
+  const [selectedCountry, setSelectedCountry] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
 
   useEffect(() => {
-    loadCompanies();
-  }, []);
+    if (user) {
+      loadNetworkData();
+    }
+  }, [user]);
 
-  const loadCompanies = async () => {
+  useEffect(() => {
+    if (activeTab === "my-network") {
+      filterCompanies(myNetworkCompanies);
+    } else {
+      filterCompanies(allNetworkCompanies);
+    }
+  }, [searchTerm, selectedSector, selectedCountry, selectedStatus, myNetworkCompanies, allNetworkCompanies, activeTab]);
+
+  const loadNetworkData = async () => {
     try {
-      const { data, error } = await supabase
+      setIsLoading(true);
+      
+      // Load user's personal network companies
+      if (user) {
+        const { data: userCompaniesData, error: userCompaniesError } = await supabase
+          .from('user_companies')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('status', 'approved');
+
+        if (userCompaniesError) {
+          console.error('Error loading user companies:', userCompaniesError);
+        } else {
+          // Convert user companies to network company format
+          const userNetworkCompanies = userCompaniesData?.map(item => ({
+            id: item.id,
+            name: item.company_name,
+            sector: 'Unknown', // Will be updated when we have sector data
+            country: 'Unknown', // Will be updated when we have country data
+            description: null,
+            employees: null,
+            impact_score: null,
+            shared_value: null,
+            joined_date: item.created_at,
+            website: null,
+            location: null,
+            highlights: null,
+            status: item.status,
+            is_shared_wealth_licensed: item.is_shared_wealth_licensed,
+            license_number: item.license_number,
+            license_date: item.license_date,
+            created_at: item.created_at,
+            updated_at: item.updated_at
+          })) || [];
+
+          setMyNetworkCompanies(userNetworkCompanies);
+        }
+      }
+
+      // Load all public network companies
+      const { data: networkCompaniesData, error: networkCompaniesError } = await supabase
         .from('network_companies')
         .select('*')
         .eq('status', 'active')
-        .order('name');
+        .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Database error:', error);
-        // Fallback to hardcoded data if database is not available
-        setCompanies(fallbackCompanies);
-        setIsLoading(false);
+      if (networkCompaniesError) {
+        console.error('Error loading network companies:', networkCompaniesError);
+        toast({
+          title: "Error",
+          description: "Failed to load network companies",
+          variant: "destructive"
+        });
         return;
       }
 
-      // If database is empty, use fallback data
-      if (!data || data.length === 0) {
-        console.log('Database is empty, using fallback data');
-        setCompanies(fallbackCompanies);
-        setIsLoading(false);
-        return;
-      }
+      // Keep only one test company for demonstration
+      const testCompany = networkCompaniesData?.find(company => company.name === 'Test Company') || null;
+      const filteredNetworkCompanies = testCompany ? [testCompany] : [];
 
-      // Transform the data to match our Company interface
-      const companiesData: Company[] = data.map(company => ({
-        id: company.id,
-        name: company.name,
-        sector: company.sector,
-        country: company.country,
-        description: company.description || '',
-        employees: company.employees || 0,
-        sharedValue: company.shared_value || '€0',
-        impactScore: company.impact_score || 0,
-        joinedDate: company.joined_date || new Date().getFullYear().toString(),
-        website: company.website || '',
-        logo: company.logo || '',
-        highlights: company.highlights || [],
-        location: company.location || company.country,
-        status: company.status
-      }));
+      setAllNetworkCompanies(filteredNetworkCompanies);
 
-      setCompanies(companiesData);
     } catch (error) {
-      console.error('Error loading companies:', error);
-      setCompanies(fallbackCompanies);
+      console.error('Error loading network data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load network data",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const filteredCompanies = companies.filter(company => {
-    const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         company.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         company.sector.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSector = selectedSector === "all" || company.sector === selectedSector;
-    const matchesCountry = selectedCountry === "all" || company.country === selectedCountry;
-    
-    return matchesSearch && matchesSector && matchesCountry;
-  });
+  const filterCompanies = (companies: NetworkCompany[]) => {
+    let filtered = companies;
 
-  const sectors = [...new Set(companies.map(company => company.sector))];
-  const countries = [...new Set(companies.map(company => company.country))];
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(company =>
+        company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        company.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        company.sector.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'inactive':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+    // Sector filter
+    if (selectedSector !== 'all') {
+      filtered = filtered.filter(company => company.sector === selectedSector);
+    }
+
+    // Country filter
+    if (selectedCountry !== 'all') {
+      filtered = filtered.filter(company => company.country === selectedCountry);
+    }
+
+    // Status filter
+    if (selectedStatus !== 'all') {
+      filtered = filtered.filter(company => company.status === selectedStatus);
+    }
+
+    setFilteredCompanies(filtered);
+  };
+
+  const getSectors = (companies: NetworkCompany[]) => {
+    const sectors = [...new Set(companies.map(company => company.sector))];
+    return sectors.sort();
+  };
+
+  const getCountries = (companies: NetworkCompany[]) => {
+    const countries = [...new Set(companies.map(company => company.country))];
+    return countries.sort();
+  };
+
+  const getStatuses = (companies: NetworkCompany[]) => {
+    const statuses = [...new Set(companies.map(company => company.status))];
+    return statuses.sort();
+  };
+
+  const handleContactCompany = (company: NetworkCompany) => {
+    toast({
+      title: "Contact Request",
+      description: `Contact request sent to ${company.name}`,
+    });
+  };
+
+  const handleShareCompany = (company: NetworkCompany) => {
+    if (navigator.share) {
+      navigator.share({
+        title: company.name,
+        text: `Check out ${company.name} on Shared Wealth International Network`,
+        url: window.location.href
+      });
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      navigator.clipboard.writeText(`${company.name} - ${window.location.href}`);
+      toast({
+        title: "Link Copied",
+        description: "Company link copied to clipboard",
+      });
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-600">Loading Network...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
-      {/* Hero Section */}
-      <section className="py-16 lg:py-24" style={{ background: 'linear-gradient(135deg, #07264e 0%, #086075 100%)' }}>
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-white">
-              Our Network
-            </h1>
-            <p className="text-xl lg:text-2xl mb-8 text-white/80">
-              Discover companies committed to shared wealth creation and sustainable business practices
-            </p>
-            <div className="flex flex-wrap justify-center gap-4 mb-8">
-              <div className="flex items-center space-x-2">
-                <Users className="w-5 h-5" style={{ color: '#eabc27' }} />
-                <span className="text-white/90">{companies.length} Companies</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Globe className="w-5 h-5" style={{ color: '#eabc27' }} />
-                <span className="text-white/90">{countries.length} Countries</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Building className="w-5 h-5" style={{ color: '#eabc27' }} />
-                <span className="text-white/90">{sectors.length} Sectors</span>
-              </div>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Shared Wealth Network</h1>
+              <p className="text-lg text-gray-600">Connect with Shared Wealth companies worldwide</p>
             </div>
+            <Button onClick={loadNetworkData} variant="outline">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
           </div>
         </div>
-      </section>
 
-      {/* Filters Section */}
-      <section className="py-8" style={{ backgroundColor: 'white' }}>
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-            <div className="flex flex-col sm:flex-row gap-4 flex-1 max-w-2xl">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: 'rgb(156, 163, 175)' }} />
-                <Input
-                  placeholder="Search companies..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                  style={{ borderColor: 'rgb(224, 230, 235)' }}
-                />
+        {/* Network Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="my-network" className="flex items-center space-x-2">
+              <Users2 className="w-4 h-4" />
+              <span>My Shared Wealth Network</span>
+            </TabsTrigger>
+            <TabsTrigger value="directory" className="flex items-center space-x-2">
+              <Globe className="w-4 h-4" />
+              <span>Shared Wealth Companies Directory</span>
+            </TabsTrigger>
+          </TabsList>
+
+          {/* My Shared Wealth Network Tab */}
+          <TabsContent value="my-network" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">My Network</h2>
+                <p className="text-gray-600">Companies in your personal Shared Wealth network</p>
               </div>
-              <Select value={selectedSector} onValueChange={setSelectedSector}>
-                <SelectTrigger className="w-full sm:w-48" style={{ borderColor: 'rgb(224, 230, 235)' }}>
-                  <SelectValue placeholder="All Sectors" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Sectors</SelectItem>
-                  {sectors.map(sector => (
-                    <SelectItem key={sector} value={sector}>{sector}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                <SelectTrigger className="w-full sm:w-48" style={{ borderColor: 'rgb(224, 230, 235)' }}>
-                  <SelectValue placeholder="All Countries" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Countries</SelectItem>
-                  {countries.map(country => (
-                    <SelectItem key={country} value={country}>{country}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Badge variant="secondary" className="text-sm">
+                {myNetworkCompanies.length} Companies
+              </Badge>
             </div>
-            <div className="text-sm" style={{ color: 'rgb(107, 114, 128)' }}>
-              {filteredCompanies.length} of {companies.length} companies
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Companies Grid */}
-      <section className="py-12">
-        <div className="container mx-auto px-4 lg:px-6">
-          {isLoading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto" style={{ borderColor: 'rgb(245, 158, 11)' }}></div>
-              <p className="mt-4" style={{ color: 'rgb(107, 114, 128)' }}>Loading companies...</p>
+            {myNetworkCompanies.length === 0 ? (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <Users2 className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Companies in Your Network</h3>
+                  <p className="text-gray-600 mb-6">
+                    Start building your network by adding companies or connecting with existing ones
+                  </p>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Company to Network
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {myNetworkCompanies.map((company) => (
+                  <Card key={company.id} className="hover:shadow-lg transition-shadow border-2 border-blue-200">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-3">
+                          <Avatar className="h-12 w-12">
+                            <AvatarFallback className="bg-blue-100 text-blue-600">
+                              {company.name.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <CardTitle className="text-lg">{company.name}</CardTitle>
+                            <CardDescription className="flex items-center space-x-2">
+                              <span>{company.sector}</span>
+                              <span>•</span>
+                              <span>{company.country}</span>
+                            </CardDescription>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end space-y-1">
+                          <Badge variant="default" className="text-xs">
+                            {company.role || 'Owner'}
+                          </Badge>
+                          {company.is_shared_wealth_licensed && (
+                            <Badge variant="secondary" className="text-xs">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Licensed
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {company.description && (
+                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{company.description}</p>
+                      )}
+                      
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">Status:</span>
+                          <Badge variant={company.status === 'approved' ? 'default' : 'secondary'}>
+                            {company.status}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">Joined:</span>
+                          <span>{new Date(company.joined_date).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm" onClick={() => handleContactCompany(company)}>
+                            <MessageCircle className="w-4 h-4 mr-2" />
+                            Contact
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleShareCompany(company)}>
+                            <Share2 className="w-4 h-4 mr-2" />
+                            Share
+                          </Button>
+                        </div>
+                        <Button variant="ghost" size="sm">
+                          <ArrowRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Shared Wealth Companies Directory Tab */}
+          <TabsContent value="directory" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Companies Directory</h2>
+                <p className="text-gray-600">Discover and connect with Shared Wealth companies worldwide</p>
+              </div>
+              <Badge variant="secondary" className="text-sm">
+                {allNetworkCompanies.length} Companies
+              </Badge>
             </div>
-          ) : filteredCompanies.length === 0 ? (
-            <div className="text-center py-12">
-              <Building className="w-16 h-16 mx-auto mb-4" style={{ color: 'rgb(156, 163, 175)' }} />
-              <h3 className="text-xl font-semibold mb-2" style={{ color: 'rgb(30, 58, 138)' }}>No companies found</h3>
-              <p style={{ color: 'rgb(107, 114, 128)' }}>Try adjusting your search criteria or filters.</p>
-            </div>
-          ) : (
+
+            {/* Filters and Search */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                  {/* Search */}
+                  <div className="md:col-span-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Input
+                        placeholder="Search companies..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Sector Filter */}
+                  <div>
+                    <Select value={selectedSector} onValueChange={setSelectedSector}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Sectors" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Sectors</SelectItem>
+                        {getSectors(allNetworkCompanies).map(sector => (
+                          <SelectItem key={sector} value={sector}>{sector}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Country Filter */}
+                  <div>
+                    <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Countries" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Countries</SelectItem>
+                        {getCountries(allNetworkCompanies).map(country => (
+                          <SelectItem key={country} value={country}>{country}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Status Filter */}
+                  <div>
+                    <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Statuses" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Statuses</SelectItem>
+                        {getStatuses(allNetworkCompanies).map(status => (
+                          <SelectItem key={status} value={status}>{status}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Companies Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCompanies.map((company) => (
-                <Card key={company.id} className="hover:shadow-lg transition-all duration-300" style={{ backgroundColor: 'white', borderColor: 'rgb(224, 230, 235)' }}>
-                  <CardHeader className="pb-4">
+                <Card key={company.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
                     <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-xl mb-2" style={{ color: 'rgb(30, 58, 138)' }}>{company.name}</CardTitle>
-                        <div className="flex items-center space-x-2 mb-2">
-                          <MapPin className="w-4 h-4" style={{ color: 'rgb(156, 163, 175)' }} />
-                          <span className="text-sm" style={{ color: 'rgb(107, 114, 128)' }}>{company.location}</span>
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-12 w-12">
+                          <AvatarFallback className="bg-green-100 text-green-600">
+                            {company.name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <CardTitle className="text-lg">{company.name}</CardTitle>
+                          <CardDescription className="flex items-center space-x-2">
+                            <span>{company.sector}</span>
+                            <span>•</span>
+                            <span>{company.country}</span>
+                          </CardDescription>
                         </div>
-                        <Badge className="text-xs" style={{ backgroundColor: 'rgb(245, 158, 11)', color: 'white' }}>
-                          {company.sector}
-                        </Badge>
                       </div>
-                      {company.logo && (
-                        <img 
-                          src={company.logo} 
-                          alt={`${company.name} logo`} 
-                          className="w-12 h-12 rounded-lg object-cover"
-                        />
-                      )}
+                      <div className="flex flex-col items-end space-y-1">
+                        <div className="flex items-center space-x-1">
+                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                          <span className="text-sm font-medium">{company.impact_score || 'N/A'}</span>
+                        </div>
+                        {company.is_shared_wealth_licensed && (
+                          <Badge variant="secondary" className="text-xs">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Licensed
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm mb-4" style={{ color: 'rgb(75, 85, 99)' }}>
-                      {company.description}
-                    </p>
-                    
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'rgb(248, 250, 252)' }}>
-                        <div className="text-lg font-semibold" style={{ color: 'rgb(30, 58, 138)' }}>{company.employees}</div>
-                        <div className="text-xs" style={{ color: 'rgb(107, 114, 128)' }}>Employees</div>
-                      </div>
-                      <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'rgb(248, 250, 252)' }}>
-                        <div className="text-lg font-semibold" style={{ color: 'rgb(30, 58, 138)' }}>{company.sharedValue}</div>
-                        <div className="text-xs" style={{ color: 'rgb(107, 114, 128)' }}>Shared Value</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4" style={{ color: 'rgb(245, 158, 11)' }} />
-                        <span className="text-sm font-medium" style={{ color: 'rgb(30, 58, 138)' }}>
-                          {company.impactScore}/10
-                        </span>
-                      </div>
-                      <Badge className={getStatusColor(company.status)}>
-                        {company.status}
-                      </Badge>
-                    </div>
-
-                    {company.highlights && company.highlights.length > 0 && (
-                      <div className="mb-4">
-                        <h4 className="text-sm font-semibold mb-2" style={{ color: 'rgb(30, 58, 138)' }}>Highlights:</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {company.highlights.slice(0, 3).map((highlight, index) => (
-                            <Badge key={index} variant="outline" className="text-xs" style={{ borderColor: 'rgb(224, 230, 235)', color: 'rgb(107, 114, 128)' }}>
-                              {highlight}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
+                    {company.description && (
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">{company.description}</p>
                     )}
+                    
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Employees:</span>
+                        <span>{company.employees || 'N/A'}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Location:</span>
+                        <span>{company.location || 'N/A'}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Joined:</span>
+                        <span>{new Date(company.joined_date).toLocaleDateString()}</span>
+                      </div>
+                    </div>
 
-                    <div className="flex space-x-2">
-                      <Button asChild size="sm" className="flex-1" style={{ backgroundColor: 'rgb(245, 158, 11)', borderColor: 'rgb(245, 158, 11)' }}>
-                        <Link to={`/companies/${company.id}`}>
-                          View Details
-                          <ArrowRight className="w-4 h-4 ml-1" />
-                        </Link>
-                      </Button>
+                    <div className="flex items-center justify-between">
+                      <div className="flex space-x-2">
+                        <Button variant="outline" size="sm" onClick={() => handleContactCompany(company)}>
+                          <MessageCircle className="w-4 h-4 mr-2" />
+                          Contact
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleShareCompany(company)}>
+                          <Share2 className="w-4 h-4 mr-2" />
+                          Share
+                        </Button>
+                      </div>
                       {company.website && (
-                        <Button asChild size="sm" variant="outline" style={{ borderColor: 'rgb(224, 230, 235)', color: 'rgb(30, 58, 138)' }}>
+                        <Button variant="ghost" size="sm" asChild>
                           <a href={company.website} target="_blank" rel="noopener noreferrer">
                             <ExternalLink className="w-4 h-4" />
                           </a>
@@ -305,111 +538,30 @@ const Network = () => {
                 </Card>
               ))}
             </div>
-          )}
-        </div>
-      </section>
+
+            {/* Empty State */}
+            {filteredCompanies.length === 0 && (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <Globe className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Companies Found</h3>
+                  <p className="text-gray-600 mb-6">
+                    {searchTerm || selectedSector !== 'all' || selectedCountry !== 'all' || selectedStatus !== 'all'
+                      ? 'Try adjusting your search criteria'
+                      : 'Be the first to join the network!'}
+                  </p>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Join the Network
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };
 
-// Fallback data for when database is not available
-const fallbackCompanies: Company[] = [
-  {
-    id: "1",
-    name: "Pathway Technologies",
-    sector: "Technology",
-    country: "Netherlands",
-    description: "Leading software company implementing shared wealth principles through employee ownership and profit sharing.",
-    employees: 150,
-    sharedValue: "€2.4M",
-    impactScore: 9.2,
-    joinedDate: "2023",
-    website: "https://pathway-tech.com",
-    logo: "",
-    highlights: ["Employee Ownership", "Profit Sharing", "Sustainable Growth"],
-    location: "Amsterdam, Netherlands",
-    status: "active"
-  },
-  {
-    id: "2",
-    name: "Green Harvest Co.",
-    sector: "Agriculture",
-    country: "Germany",
-    description: "Organic farming cooperative that shares profits with farmers and invests in sustainable practices.",
-    employees: 85,
-    sharedValue: "€1.8M",
-    impactScore: 8.7,
-    joinedDate: "2023",
-    website: "https://greenharvest.de",
-    logo: "",
-    highlights: ["Cooperative Model", "Organic Farming", "Community Impact"],
-    location: "Berlin, Germany",
-    status: "active"
-  },
-  {
-    id: "3",
-    name: "Community Bank",
-    sector: "Finance",
-    country: "Belgium",
-    description: "Ethical banking institution focused on community development and shared financial success.",
-    employees: 200,
-    sharedValue: "€3.2M",
-    impactScore: 8.9,
-    joinedDate: "2023",
-    website: "https://communitybank.be",
-    logo: "",
-    highlights: ["Ethical Banking", "Community Development", "Financial Inclusion"],
-    location: "Brussels, Belgium",
-    status: "active"
-  },
-  {
-    id: "4",
-    name: "EcoBuild Solutions",
-    sector: "Construction",
-    country: "France",
-    description: "Sustainable construction company with worker cooperatives and environmental focus.",
-    employees: 120,
-    sharedValue: "€1.9M",
-    impactScore: 8.5,
-    joinedDate: "2023",
-    website: "https://ecobuild.fr",
-    logo: "",
-    highlights: ["Worker Cooperatives", "Sustainable Building", "Green Materials"],
-    location: "Paris, France",
-    status: "active"
-  },
-  {
-    id: "5",
-    name: "HealthFirst Clinic",
-    sector: "Healthcare",
-    country: "Switzerland",
-    description: "Healthcare provider implementing shared wealth through staff ownership and community health programs.",
-    employees: 95,
-    sharedValue: "€2.1M",
-    impactScore: 9.0,
-    joinedDate: "2023",
-    website: "https://healthfirst.ch",
-    logo: "",
-    highlights: ["Staff Ownership", "Community Health", "Preventive Care"],
-    location: "Zurich, Switzerland",
-    status: "active"
-  },
-  {
-    id: "6",
-    name: "TechCorp Innovations",
-    sector: "Technology",
-    country: "Netherlands",
-    description: "Innovative tech startup with equity sharing and collaborative decision-making.",
-    employees: 75,
-    sharedValue: "€1.5M",
-    impactScore: 8.3,
-    joinedDate: "2023",
-    website: "https://techcorp.nl",
-    logo: "",
-    highlights: ["Equity Sharing", "Innovation", "Collaborative Culture"],
-    location: "Rotterdam, Netherlands",
-    status: "active"
-  }
-];
-
-export default Network;
+export default NetworkPage;

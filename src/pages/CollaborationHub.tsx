@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +20,7 @@ import {
   Clock,
   MapPin
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 
 // Enhanced dummy data with detailed meeting information
@@ -196,21 +197,37 @@ const dummyRecentActivity = [
   }
 ];
 
-const ImpactMetrics: React.FC = () => {
+const CollaborationHub: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Impact Metrics
-        </h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Comprehensive tracking of how Shared Wealth International creates value for companies. 
-          Detailed meeting logs, participant tracking, and measurable outcomes.
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <section className="py-20" style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }}>
+        <div className="container mx-auto px-6">
+          <div className="flex justify-start mb-6">
+            <Button asChild className="bg-white text-navy hover:bg-gray-100 font-semibold px-6 py-2">
+              <Link to="/">
+                ← Back to Home
+              </Link>
+            </Button>
+          </div>
+          <div className="text-center">
+            <h1 className="text-5xl font-bold mb-6 text-white">Impact Analytics</h1>
+            <p className="text-xl max-w-3xl mx-auto text-white/90">
+              Track and measure your social and economic impact through our comprehensive 
+              collaboration and analytics platform.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-8">
 
       {/* Enhanced Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -272,6 +289,7 @@ const ImpactMetrics: React.FC = () => {
             <CardDescription>Average Meeting Rating</CardDescription>
           </CardHeader>
         </Card>
+      </div>
       </div>
 
       {/* Main Content Tabs */}
@@ -589,4 +607,4 @@ const ImpactMetrics: React.FC = () => {
   );
 };
 
-export default ImpactMetrics; 
+export default CollaborationHub; 

@@ -1,248 +1,195 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Users, DollarSign, Heart, Filter } from "lucide-react";
-import { useState } from "react";
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { 
+  TrendingUp, 
+  Users, 
+  DollarSign, 
+  Globe, 
+  Heart, 
+  Target,
+  Award,
+  BarChart3
+} from 'lucide-react';
 
 const Impact = () => {
-  const [selectedFilter, setSelectedFilter] = useState("all");
-
-  const impactStories = [
+  const impactMetrics = [
     {
-      company: "Terratai Ltd",
-      sector: "Technology",
-      region: "UK",
-      story: "Through implementing a comprehensive phantom share program, Terratai transformed its workplace culture and financial performance.",
-      metrics: [
-        { label: "Employee Engagement", value: "+40%", type: "increase" },
-        { label: "Value Shared Annually", value: "£120K", type: "financial" },
-        { label: "Employee Retention", value: "+25%", type: "increase" },
-        { label: "Democratic Decisions", value: "85%", type: "percentage" }
-      ],
-      keyPerson: "Matt Legget, CEO",
-      quote: "The shared wealth model didn't just change our financials – it transformed how we work together as a team.",
-      timeline: "Implemented over 18 months",
-      mechanisms: ["Phantom Shares", "Democratic Governance", "Social Audit"]
+      title: 'Social Impact',
+      value: '2.3M+',
+      description: 'People positively impacted',
+      icon: Users,
+      color: 'text-blue-600',
+      progress: 85,
+      details: ['Education access', 'Healthcare improvement', 'Community development']
     },
     {
-      company: "Pathway Points Ltd",
-      sector: "Housing & Finance",
-      region: "UK",
-      story: "Revolutionizing community housing through innovative financing models that give residents genuine ownership stakes.",
-      metrics: [
-        { label: "Community Ownership", value: "35%", type: "percentage" },
-        { label: "Housing Units Developed", value: "150", type: "number" },
-        { label: "Community Satisfaction", value: "+60%", type: "increase" },
-        { label: "Local Investment", value: "£2.1M", type: "financial" }
-      ],
-      keyPerson: "Partnership Team",
-      quote: "We're not just building houses – we're building communities where everyone has a stake in the future.",
-      timeline: "3-year initiative",
-      mechanisms: ["Community Stakeholding", "IT-Powered Governance", "Two-Way Value Agreements"]
+      title: 'Economic Value',
+      value: '$156M+',
+      description: 'Economic value created',
+      icon: DollarSign,
+      color: 'text-green-600',
+      progress: 78,
+      details: ['Job creation', 'Income generation', 'Business growth']
     },
     {
-      company: "Green Tech Solutions",
-      sector: "Environmental",
-      region: "Europe",
-      story: "A renewable energy startup that embedded environmental and social impact into every business decision from day one.",
-      metrics: [
-        { label: "CO2 Emissions Reduced", value: "500 tons", type: "environmental" },
-        { label: "Employee Ownership", value: "45%", type: "percentage" },
-        { label: "Community Energy Projects", value: "12", type: "number" },
-        { label: "Revenue Growth", value: "+180%", type: "increase" }
-      ],
-      keyPerson: "Dr. Sarah Weber, Founder",
-      quote: "Shared wealth principles allowed us to align profit with purpose from the very beginning.",
-      timeline: "Since founding in 2022",
-      mechanisms: ["Employee Ownership", "Environmental Impact Sharing", "Community Governance"]
+      title: 'Environmental Impact',
+      value: '45K+',
+      description: 'Tons of CO2 reduced',
+      icon: Globe,
+      color: 'text-emerald-600',
+      progress: 92,
+      details: ['Renewable energy', 'Sustainable practices', 'Carbon reduction']
     },
     {
-      company: "Community Care Co-op",
-      sector: "Healthcare",
-      region: "North America",
-      story: "Healthcare cooperative demonstrating how shared ownership can improve both patient outcomes and worker satisfaction.",
-      metrics: [
-        { label: "Patient Satisfaction", value: "+45%", type: "increase" },
-        { label: "Worker-Owners", value: "85%", type: "percentage" },
-        { label: "Community Health Programs", value: "25", type: "number" },
-        { label: "Cost Savings to Patients", value: "$1.2M", type: "financial" }
-      ],
-      keyPerson: "Dr. Maria Rodriguez, Medical Director",
-      quote: "When healthcare workers own their workplace, everyone benefits – patients, workers, and the community.",
-      timeline: "Cooperative structure since 2020",
-      mechanisms: ["Worker Cooperative", "Patient Representation", "Community Health Focus"]
+      title: 'Partnerships',
+      value: '1,200+',
+      description: 'Active partnerships',
+      icon: Heart,
+      color: 'text-red-600',
+      progress: 88,
+      details: ['Cross-sector collaboration', 'International cooperation', 'Community engagement']
     }
   ];
 
-  const overallImpact = [
-    { metric: "Total Value Shared", value: "£8.2M", description: "Across all partner companies annually" },
-    { metric: "Employees Benefiting", value: "1,200+", description: "Direct beneficiaries of shared wealth programs" },
-    { metric: "Communities Served", value: "45", description: "Local communities with active stakeholder representation" },
-    { metric: "Democratic Decisions", value: "2,500+", description: "Decisions made through inclusive processes" }
+  const impactStories = [
+    {
+      title: 'Rural Education Initiative',
+      company: 'EduTech Solutions',
+      location: 'Kenya',
+      impact: 'Improved education access for 50,000+ students',
+      metrics: ['Literacy rate increased by 40%', 'School attendance up 60%', 'Teacher training for 200+ educators'],
+      category: 'Education',
+      year: '2023'
+    },
+    {
+      title: 'Sustainable Agriculture Program',
+      company: 'GreenFarm Co.',
+      location: 'India',
+      impact: 'Enhanced farming practices for 25,000+ farmers',
+      metrics: ['Crop yield increased by 35%', 'Water usage reduced by 30%', 'Income growth of 45%'],
+      category: 'Agriculture',
+      year: '2023'
+    },
+    {
+      title: 'Clean Energy Access',
+      company: 'SolarPower Initiative',
+      location: 'Bangladesh',
+      impact: 'Provided clean energy to 100,000+ households',
+      metrics: ['CO2 reduction of 15,000 tons', 'Energy cost savings of 60%', 'Job creation for 500+ people'],
+      category: 'Energy',
+      year: '2023'
+    },
+    {
+      title: 'Healthcare Innovation',
+      company: 'MedTech Solutions',
+      location: 'Ghana',
+      impact: 'Improved healthcare access for 75,000+ people',
+      metrics: ['Patient outcomes improved by 50%', 'Healthcare costs reduced by 40%', 'Medical staff trained: 150+'],
+      category: 'Healthcare',
+      year: '2023'
+    }
   ];
 
-  const filteredStories = selectedFilter === "all" 
-    ? impactStories 
-    : impactStories.filter(story => story.sector === selectedFilter);
-
-  const sectors = ["all", ...new Set(impactStories.map(story => story.sector))];
+  const globalReach = [
+    { region: 'Africa', countries: 15, projects: 45, impact: 'High' },
+    { region: 'Asia', countries: 12, projects: 38, impact: 'High' },
+    { region: 'Latin America', countries: 8, projects: 22, impact: 'Medium' },
+    { region: 'Europe', countries: 6, projects: 18, impact: 'Medium' },
+    { region: 'North America', countries: 3, projects: 12, impact: 'Medium' }
+  ];
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
-      <Header />
-      
-      {/* Hero Section */}
-      <section className="py-16 lg:py-24" style={{ background: 'linear-gradient(135deg, #07264e 0%, #086075 100%)' }}>
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-white">
-              Impact Stories
-            </h1>
-            <p className="text-xl lg:text-2xl text-white/80 mb-8">
-              Real stories of transformation, showcasing the tangible impact 
-              of shared wealth principles in action across diverse organizations.
-            </p>
-            <div className="flex items-center justify-center gap-8 text-white/90">
-              <div className="flex items-center">
-                <TrendingUp className="w-5 h-5 mr-2" style={{ color: '#eabc27' }} />
-                <span>Measurable Results</span>
-              </div>
-              <div className="flex items-center">
-                <Users className="w-5 h-5 mr-2" style={{ color: '#eabc27' }} />
-                <span>Real Organizations</span>
-              </div>
-              <div className="flex items-center">
-                <Heart className="w-5 h-5 mr-2" style={{ color: '#eabc27' }} />
-                <span>Authentic Stories</span>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Hero Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+            Track and Share Impact Stories
+          </h1>
+          <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+            Discover how Shared Wealth International and our partner companies are creating 
+            measurable positive change across the globe. From social impact to environmental 
+            sustainability, see the real-world results of shared wealth principles in action.
+          </p>
         </div>
-      </section>
 
-      {/* Overall Impact */}
-      <section className="py-16 lg:py-24" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: '#07264e' }}>
-              Collective Impact
-            </h2>
-            <p className="text-xl max-w-3xl mx-auto" style={{ color: '#086075' }}>
-              The cumulative effect of shared wealth implementation across 
-              our global network of companies.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {overallImpact.map((impact, index) => (
-              <Card key={impact.metric} className="text-center animate-fade-in" style={{ animationDelay: `${index * 0.1}s`, backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+        {/* Impact Metrics Overview */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
+            Global Impact Overview
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {impactMetrics.map((metric, index) => (
+              <Card key={index} className="text-center hover:shadow-lg transition-shadow duration-200">
                 <CardHeader>
-                  <CardTitle className="text-3xl font-bold" style={{ color: '#34a63b' }}>{impact.value}</CardTitle>
-                  <CardDescription className="font-semibold" style={{ color: '#07264e' }}>{impact.metric}</CardDescription>
+                  <div className="flex justify-center mb-4">
+                    <div className={`p-3 rounded-full bg-gray-100 ${metric.color}`}>
+                      <metric.icon className="h-8 w-8" />
+                    </div>
+                  </div>
+                  <CardTitle className="text-3xl font-bold text-gray-900">
+                    {metric.value}
+                  </CardTitle>
+                  <CardDescription className="text-gray-600">
+                    {metric.description}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm" style={{ color: '#086075' }}>{impact.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Impact Stories */}
-      <section className="py-16 lg:py-24" style={{ background: 'linear-gradient(135deg, #086075 0%, #34a63b 100%)' }}>
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-              Transformation Stories
-            </h2>
-            <p className="text-xl text-white/80 max-w-3xl mx-auto">
-              Deep dives into how specific organizations have implemented 
-              shared wealth principles and the results they've achieved.
-            </p>
-          </div>
-
-          {/* Filter */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4" style={{ color: '#eabc27' }} />
-              <span className="font-medium text-white">Filter by sector:</span>
-            </div>
-            <select 
-              value={selectedFilter}
-              onChange={(e) => setSelectedFilter(e.target.value)}
-              className="px-3 py-2 border rounded-md" style={{ borderColor: 'rgba(234, 188, 39, 0.3)', backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
-            >
-              {sectors.map(sector => (
-                <option key={sector} value={sector}>
-                  {sector === "all" ? "All Sectors" : sector}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Stories */}
-          <div className="space-y-12">
-            {filteredStories.map((story, index) => (
-              <Card key={story.company} className="animate-fade-in overflow-hidden" style={{ animationDelay: `${index * 0.2}s`, backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
-                <CardHeader style={{ background: 'linear-gradient(135deg, rgba(8, 96, 117, 0.1) 0%, rgba(52, 166, 59, 0.1) 100%)' }}>
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    <div>
-                      <CardTitle className="text-2xl" style={{ color: '#07264e' }}>{story.company}</CardTitle>
-                      <CardDescription className="text-lg font-medium" style={{ color: '#086075' }}>
-                        {story.sector} • {story.region}
-                      </CardDescription>
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>Progress</span>
+                      <span>{metric.progress}%</span>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {story.mechanisms.map(mechanism => (
-                        <Badge key={mechanism} variant="secondary" style={{ backgroundColor: 'rgba(234, 188, 39, 0.1)', color: '#eabc27' }}>{mechanism}</Badge>
+                    <Progress value={metric.progress} className="h-2" />
+                    <div className="space-y-1">
+                      {metric.details.map((detail, idx) => (
+                        <div key={idx} className="text-xs text-gray-500">
+                          • {detail}
+                        </div>
                       ))}
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <div className="grid lg:grid-cols-2 gap-8">
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Impact Stories */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
+            Featured Impact Stories
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {impactStories.map((story, index) => (
+              <Card key={index} className="hover:shadow-lg transition-shadow duration-200">
+                <CardHeader>
+                  <div className="flex justify-between items-start mb-3">
                     <div>
-                      {/* Video Section */}
-                      <div className="aspect-video rounded-lg flex items-center justify-center mb-4" style={{ background: 'linear-gradient(135deg, #07264e 0%, #086075 100%)' }}>
-                        <div className="text-white text-center">
-                          <div className="text-lg font-semibold mb-1">{story.company}</div>
-                          <div className="text-sm opacity-90">Impact Story Video</div>
-                        </div>
-                      </div>
-                      
-                      <h4 className="font-semibold mb-3" style={{ color: '#07264e' }}>The Story</h4>
-                      <p className="mb-4" style={{ color: '#086075' }}>{story.story}</p>
-                      
-                      <blockquote className="border-l-4 pl-4 italic mb-4" style={{ borderColor: '#34a63b', color: '#086075' }}>
-                        "{story.quote}"
-                        <footer className="text-sm font-medium mt-2" style={{ color: '#07264e' }}>— {story.keyPerson}</footer>
-                      </blockquote>
-                      
-                      <div className="text-sm" style={{ color: '#086075' }}>
-                        <strong>Timeline:</strong> {story.timeline}
-                      </div>
+                      <CardTitle className="text-xl">{story.title}</CardTitle>
+                      <CardDescription className="text-gray-600">
+                        {story.company} • {story.location}
+                      </CardDescription>
                     </div>
-                    
-                    <div>
-                      <h4 className="font-semibold mb-3" style={{ color: '#07264e' }}>Impact Metrics</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        {story.metrics.map((metric, idx) => (
-                          <div key={idx} className="text-center p-3 rounded-lg border" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: 'rgba(8, 96, 117, 0.2)' }}>
-                            <div className={`text-2xl font-bold mb-1 ${
-                              metric.type === 'increase' ? 'text-green' :
-                              metric.type === 'financial' ? 'text-teal' :
-                              metric.type === 'percentage' ? 'text-orange' :
-                              'text-navy'
-                            }`} style={{ color: metric.type === 'increase' ? '#34a63b' : metric.type === 'financial' ? '#086075' : metric.type === 'percentage' ? '#eabc27' : '#07264e' }}>
-                              {metric.value}
-                            </div>
-                            <div className="text-xs" style={{ color: '#086075' }}>{metric.label}</div>
-                          </div>
-                        ))}
-                      </div>
+                    <Badge variant="outline">{story.category}</Badge>
+                  </div>
+                  <p className="text-gray-700 font-medium">{story.impact}</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-gray-700">Key Metrics:</h4>
+                    <div className="space-y-2">
+                      {story.metrics.map((metric, idx) => (
+                        <div key={idx} className="flex items-center space-x-2">
+                          <Target className="h-4 w-4 text-green-500" />
+                          <span className="text-gray-700 text-sm">{metric}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="text-right text-sm text-gray-500">
+                      Year: {story.year}
                     </div>
                   </div>
                 </CardContent>
@@ -250,84 +197,56 @@ const Impact = () => {
             ))}
           </div>
         </div>
-      </section>
 
-      {/* Methodology */}
-      <section className="py-16 lg:py-24" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: '#07264e' }}>
-                Our Impact Measurement Approach
-              </h2>
-              <p className="text-xl" style={{ color: '#086075' }}>
-                Transparency and rigor in how we measure and validate impact
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              <Card className="text-center animate-fade-in" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
-                <CardHeader>
-                  <div className="mx-auto w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(52, 166, 59, 0.1)' }}>
-                    <TrendingUp className="w-6 h-6" style={{ color: '#34a63b' }} />
+        {/* Global Reach */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
+            Global Reach & Distribution
+          </h2>
+          <div className="bg-white rounded-2xl p-8 shadow-lg">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+              {globalReach.map((region, index) => (
+                <div key={index} className="text-center">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{region.region}</h3>
+                  <div className="space-y-2">
+                    <div className="text-2xl font-bold text-blue-600">{region.countries}</div>
+                    <div className="text-sm text-gray-600">Countries</div>
                   </div>
-                  <CardTitle className="text-xl" style={{ color: '#07264e' }}>Quantitative Metrics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p style={{ color: '#086075' }}>Financial indicators, engagement scores, and measurable business outcomes tracked over time.</p>
-                </CardContent>
-              </Card>
-
-              <Card className="text-center animate-fade-in" style={{ animationDelay: '0.1s', backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
-                <CardHeader>
-                  <div className="mx-auto w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(8, 96, 117, 0.1)' }}>
-                    <Users className="w-6 h-6" style={{ color: '#086075' }} />
+                  <div className="space-y-2 mt-4">
+                    <div className="text-xl font-semibold text-green-600">{region.projects}</div>
+                    <div className="text-sm text-gray-600">Projects</div>
                   </div>
-                  <CardTitle className="text-xl" style={{ color: '#07264e' }}>Stakeholder Feedback</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p style={{ color: '#086075' }}>Regular surveys and interviews with employees, customers, and community members.</p>
-                </CardContent>
-              </Card>
-
-              <Card className="text-center animate-fade-in" style={{ animationDelay: '0.2s', backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
-                <CardHeader>
-                  <div className="mx-auto w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(234, 188, 39, 0.1)' }}>
-                    <Heart className="w-6 h-6" style={{ color: '#eabc27' }} />
-                  </div>
-                  <CardTitle className="text-xl" style={{ color: '#07264e' }}>Third-Party Validation</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p style={{ color: '#086075' }}>Independent social audits and external verification of reported impact metrics.</p>
-                </CardContent>
-              </Card>
+                  <Badge 
+                    variant={region.impact === 'High' ? 'default' : 'secondary'}
+                    className="mt-3"
+                  >
+                    {region.impact} Impact
+                  </Badge>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="py-16 lg:py-24" style={{ background: 'linear-gradient(135deg, #07264e 0%, #086075 100%)' }}>
-        <div className="container mx-auto px-4 lg:px-6 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-6 text-white">
-            Create Your Own Impact Story
+        {/* Call to Action */}
+        <div className="text-center bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-12 text-white">
+          <h2 className="text-3xl font-bold mb-6">
+            Share Your Impact Story
           </h2>
-          <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-            Ready to transform your organization and join the growing community 
-            of companies creating measurable social and economic impact?
+          <p className="text-lg mb-8 max-w-2xl mx-auto opacity-90">
+            Are you creating positive change? Share your impact story and inspire others 
+            to join the shared wealth movement.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="text-white" style={{ background: 'linear-gradient(135deg, #eabc27 0%, #34a63b 100%)' }}>
-              Start Your Transformation
-            </Button>
-            <Button variant="outline" size="lg" style={{ borderColor: '#eabc27', color: '#eabc27' }}>
-              Download Impact Framework
-            </Button>
+            <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+              Submit Story
+            </button>
+            <button className="border border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+              Learn More
+            </button>
           </div>
         </div>
-      </section>
-
-      <Footer />
+      </div>
     </div>
   );
 };
