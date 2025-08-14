@@ -165,7 +165,7 @@ CREATE POLICY "Superadmins can manage admin users" ON public.admin_users
 
 -- RLS Policies for Admin Permissions
 CREATE POLICY "All authenticated users can view permissions" ON public.admin_permissions
-  FOR SELECT USING (auth.role() = 'authenticated');
+  FOR SELECT USING (auth.uid() IS NOT NULL);
 
 -- RLS Policies for Admin Activity Log
 CREATE POLICY "Admins can view their own activity" ON public.admin_activity_log
