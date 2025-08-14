@@ -74,8 +74,9 @@ ALTER TABLE public.admin_permissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.admin_activity_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.admin_dashboard_settings ENABLE ROW LEVEL SECURITY;
 
--- Step 9: Create one simple RLS policy
-CREATE POLICY IF NOT EXISTS "Basic admin access" ON public.admin_users
+-- Step 9: Create RLS policies (drop existing ones first to avoid conflicts)
+DROP POLICY IF EXISTS "Basic admin access" ON public.admin_users;
+CREATE POLICY "Basic admin access" ON public.admin_users
   FOR SELECT USING (auth.uid() IS NOT NULL);
 
 -- Step 10: Create basic function
