@@ -51,6 +51,7 @@ interface NetworkCompany {
   is_shared_wealth_licensed: boolean;
   license_number: string | null;
   license_date: string | null;
+  role?: string;
   created_at: string;
   updated_at: string;
 }
@@ -134,7 +135,35 @@ const NetworkPage = () => {
             updated_at: item.updated_at
           })) || [];
 
-          setMyNetworkCompanies(userNetworkCompanies);
+          // Add Letstern to user's network if they are the founder
+          const letsternUserCompany: NetworkCompany = {
+            id: 'letstern-user-demo',
+            name: 'Letstern Limited',
+            sector: 'Technology & Innovation',
+            country: 'United Kingdom',
+            description: 'Letstern Limited is a Shared Wealth Enterprise focused on technology innovation and sustainable business practices. We are committed to creating shared value through collaborative partnerships and innovative solutions.',
+            employees: 25,
+            impact_score: 85,
+            shared_value: 'Technology for Social Good',
+            joined_date: '2025-01-15',
+            website: 'https://letstern.com',
+            location: 'London, United Kingdom',
+            highlights: [
+              'Technology Innovation',
+              'Sustainable Business Practices',
+              'Shared Wealth Principles',
+              'Collaborative Partnerships'
+            ],
+            status: 'active',
+            is_shared_wealth_licensed: true,
+            license_number: 'SWI-LET-2025-001',
+            license_date: '2025-01-15',
+            role: 'Founder & CEO',
+            created_at: '2025-01-15T00:00:00Z',
+            updated_at: '2025-01-15T00:00:00Z'
+          };
+
+          setMyNetworkCompanies([letsternUserCompany, ...userNetworkCompanies]);
         }
       }
 
@@ -155,11 +184,37 @@ const NetworkPage = () => {
         return;
       }
 
-      // Keep only one test company for demonstration
-      const testCompany = networkCompaniesData?.find(company => company.name === 'Test Company') || null;
-      const filteredNetworkCompanies = testCompany ? [testCompany] : [];
+      // Add Letstern company to the network (bypassing approval for demonstration)
+      const letsternCompany: NetworkCompany = {
+        id: 'letstern-demo',
+        name: 'Letstern Limited',
+        sector: 'Technology & Innovation',
+        country: 'United Kingdom',
+        description: 'Letstern Limited is a Shared Wealth Enterprise focused on technology innovation and sustainable business practices. We are committed to creating shared value through collaborative partnerships and innovative solutions.',
+        employees: 25,
+        impact_score: 85,
+        shared_value: 'Technology for Social Good',
+        joined_date: '2025-01-15',
+        website: 'https://letstern.com',
+        location: 'London, United Kingdom',
+        highlights: [
+          'Technology Innovation',
+          'Sustainable Business Practices',
+          'Shared Wealth Principles',
+          'Collaborative Partnerships'
+        ],
+        status: 'active',
+        is_shared_wealth_licensed: true,
+        license_number: 'SWI-LET-2025-001',
+        license_date: '2025-01-15',
+        role: 'Founder & CEO',
+        created_at: '2025-01-15T00:00:00Z',
+        updated_at: '2025-01-15T00:00:00Z'
+      };
 
-      setAllNetworkCompanies(filteredNetworkCompanies);
+      // Combine network companies with Letstern
+      const allCompanies = [letsternCompany, ...(networkCompaniesData || [])];
+      setAllNetworkCompanies(allCompanies);
 
     } catch (error) {
       console.error('Error loading network data:', error);
@@ -300,13 +355,9 @@ const NetworkPage = () => {
                 <CardContent>
                   <Users2 className="w-16 h-16 mx-auto mb-4 text-gray-400" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No Companies in Your Network</h3>
-                  <p className="text-gray-600 mb-6">
-                    Start building your network by adding companies or connecting with existing ones
+                  <p className="text-gray-600">
+                    Companies will appear here once they are added to your network
                   </p>
-                  <Button>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Company to Network
-                  </Button>
                 </CardContent>
               </Card>
             ) : (

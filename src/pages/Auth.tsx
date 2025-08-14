@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Building, Users, Plus, Shield, Heart, Globe } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Building, Users, Plus, Shield, Heart, Globe, AlertCircle, CheckCircle } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -120,8 +121,13 @@ const Auth = () => {
     setError('');
 
     try {
-      await signIn(email, password);
-      setSuccess('Sign in successful!');
+      const { error } = await signIn(email, password);
+      if (error) {
+        setError(error.message || 'Failed to sign in');
+      } else {
+        setSuccess('Sign in successful!');
+        // The navigation will happen automatically via useEffect when user state changes
+      }
     } catch (error: any) {
       setError(error.message || 'Failed to sign in');
     } finally {
@@ -137,16 +143,13 @@ const Auth = () => {
     setError('');
 
     try {
-      await signUp(email, password, {
-        full_name: fullName,
-        company_name: companyName,
-        company_description: companyDescription,
-        role: role,
-        invitation_code: invitationCode,
-        signup_type: signupType
-      });
-      setSuccess('Account created successfully! Please check your email to verify your account.');
-      resetForm();
+      const { error } = await signUp(email, password);
+      if (error) {
+        setError(error.message || 'Failed to create account');
+      } else {
+        setSuccess('Account created successfully! Please check your email to verify your account.');
+        resetForm();
+      }
     } catch (error: any) {
       setError(error.message || 'Failed to create account');
     } finally {
@@ -165,9 +168,13 @@ const Auth = () => {
     setError('');
 
     try {
-      await resetPassword(resetEmail);
-      setSuccess('Password reset link sent to your email!');
-      setShowReset(false);
+      const { error } = await resetPassword(resetEmail);
+      if (error) {
+        setError(error.message || 'Failed to send reset link');
+      } else {
+        setSuccess('Password reset link sent to your email!');
+        setShowReset(false);
+      }
     } catch (error: any) {
       setError(error.message || 'Failed to send reset link');
     } finally {
@@ -213,185 +220,218 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white py-8">
-        <div className="container mx-auto px-6 text-center">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <Shield className="w-12 h-12" />
-            <h1 className="text-4xl font-bold">Shared Wealth International</h1>
+      <div className="relative overflow-hidden py-16" style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }}>
+        <div className="container mx-auto px-6 text-center relative z-10">
+          <div className="flex items-center justify-center space-x-4 mb-8">
+            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-full">
+              <Shield className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="text-4xl font-bold text-white">Shared Wealth International</h1>
           </div>
-          <p className="text-xl text-blue-100 max-w-2xl mx-auto">
+          <p className="text-lg text-white/90 max-w-3xl mx-auto leading-relaxed">
             Join the global network of enterprises committed to creating shared wealth and sustainable business practices
           </p>
         </div>
       </div>
 
-      {/* Back to Home Button */}
-      <div className="container mx-auto px-6 py-4">
-        <Link to="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Home
-        </Link>
-      </div>
-
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-8">
-        <div className="max-w-md mx-auto">
-          <Card className="shadow-xl border-0">
-            <CardHeader className="text-center pb-6">
-              <div className="flex items-center justify-center space-x-2 mb-4">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  {mode === "signin" ? <Lock className="w-6 h-6 text-blue-600" /> : <User className="w-6 h-6 text-blue-600" />}
+      <div className="container mx-auto px-6 py-12">
+        <div className="max-w-2xl mx-auto">
+          {/* Back to Home Button */}
+          <div className="mb-8">
+            <Link to="/" className="inline-flex items-center text-slate-600 hover:text-slate-800 transition-colors font-medium">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Link>
+          </div>
+
+          {/* Auth Card */}
+          <Card className="shadow-2xl border-0 bg-white overflow-hidden rounded-2xl">
+            {/* Card Header */}
+            <div className="px-8 py-8" style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }}>
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl mb-4">
+                  {mode === "signin" ? <Lock className="w-8 h-8 text-white" /> : <User className="w-8 h-8 text-white" />}
                 </div>
-                <CardTitle className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-white mb-2">
                   {mode === "signin" ? "Welcome Back" : "Join the Network"}
-                </CardTitle>
+                </h2>
+                <p className="text-white/80">
+                  {mode === "signin"
+                    ? "Sign in to access your Shared Wealth dashboard"
+                    : "Create your account and start building shared wealth"}
+                </p>
               </div>
-              <CardDescription className="text-gray-600">
-                {mode === "signin"
-                  ? "Sign in to access your Shared Wealth dashboard"
-                  : "Create your account and start building shared wealth"}
-              </CardDescription>
-            </CardHeader>
-            
-            <CardContent className="space-y-6">
-              {error && (
-                <Alert variant="destructive" className="border-red-200 bg-red-50">
-                  <AlertDescription className="text-red-800">{error}</AlertDescription>
-                </Alert>
-              )}
-              
-              {success && (
-                <Alert className="border-green-200 bg-green-50">
-                  <AlertDescription className="text-green-800">{success}</AlertDescription>
-                </Alert>
-              )}
+            </div>
 
-              {/* Tabs for Sign In/Sign Up */}
-              <Tabs value={mode} onValueChange={(value) => setMode(value as 'signin' | 'signup')} className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="signin">Sign In</TabsTrigger>
-                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                </TabsList>
+            {/* Card Body */}
+            <div className="px-8 py-8">
+              {/* Tabs */}
+              <div className="mb-8">
+                <div className="flex bg-slate-100 rounded-xl p-1.5">
+                  <button
+                    onClick={() => setMode("signin")}
+                    className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      mode === "signin"
+                        ? "bg-white text-slate-900 shadow-sm"
+                        : "text-slate-600 hover:text-slate-800"
+                    }`}
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => setMode("signup")}
+                    className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      mode === "signup"
+                        ? "bg-white text-slate-900 shadow-sm"
+                        : "text-slate-600 hover:text-slate-800"
+                    }`}
+                  >
+                    Sign Up
+                  </button>
+                </div>
+              </div>
 
-                {/* Sign In Tab */}
-                <TabsContent value="signin" className="space-y-4 mt-6">
-                  {showReset ? (
-                    <form onSubmit={handleResetPassword} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="resetEmail" className="text-sm font-medium text-gray-700">
-                          Email Address
-                        </Label>
-                        <Input
-                          id="resetEmail"
-                          type="email"
-                          value={resetEmail}
-                          onChange={e => setResetEmail(e.target.value)}
-                          required
-                          autoFocus
-                          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                          placeholder="Enter your email"
-                        />
-                      </div>
-                      
-                      <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
+              {/* Password Reset Form */}
+              {showReset && (
+                <div className="space-y-6">
+                  <div className="text-center mb-6">
+                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Reset Your Password</h3>
+                    <p className="text-slate-600">Enter your email address and we'll send you a reset link</p>
+                  </div>
+                  
+                  <form onSubmit={handleResetPassword} className="space-y-6">
+                    <div>
+                      <Label htmlFor="resetEmail" className="block text-sm font-semibold text-slate-700 mb-2">
+                        Email Address
+                      </Label>
+                      <Input
+                        id="resetEmail"
+                        type="email"
+                        value={resetEmail}
+                        onChange={e => setResetEmail(e.target.value)}
+                        required
+                        autoFocus
+                        className="w-full h-12 border-slate-200 focus:border-slate-400 focus:ring-slate-400 text-base rounded-xl"
+                        placeholder="Enter your email address"
+                      />
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <Button 
+                        type="submit" 
+                        className="w-full h-12 text-base font-semibold rounded-xl" 
+                        style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }} 
+                        disabled={isLoading}
+                      >
                         {isLoading ? "Sending..." : "Send Reset Link"}
                       </Button>
                       
                       <Button 
                         type="button" 
                         variant="outline" 
-                        className="w-full border-gray-300 text-gray-700 hover:bg-gray-50" 
+                        className="w-full h-12 border-slate-300 text-slate-700 hover:bg-slate-50 text-base font-medium rounded-xl" 
                         onClick={() => setShowReset(false)}
                       >
                         Back to Sign In
                       </Button>
-                    </form>
-                  ) : (
-                    <form onSubmit={handleSignIn} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                          Email Address
-                        </Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={email}
-                          onChange={e => setEmail(e.target.value)}
-                          required
-                          autoFocus
-                          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                          placeholder="Enter your email"
-                        />
-                      </div>
+                    </div>
+                  </form>
+                </div>
+              )}
 
-                      <div className="space-y-2">
-                        <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                          Password
-                        </Label>
-                        <div className="relative">
-                          <Input
-                            id="password"
-                            type={showPassword ? "text" : "password"}
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            required
-                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
-                            placeholder="Enter your password"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="absolute right-2 top-2 h-6 w-6 text-gray-500 hover:text-gray-700"
-                            onClick={() => setShowPassword(v => !v)}
-                            tabIndex={-1}
-                          >
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </Button>
-                        </div>
-                      </div>
+              {/* Sign In Form */}
+              {!showReset && mode === "signin" && (
+                <form onSubmit={handleSignIn} className="space-y-6">
+                  <div>
+                    <Label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Email Address
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      required
+                      autoFocus
+                      className="w-full h-12 border-slate-200 focus:border-slate-400 focus:ring-slate-400 text-base rounded-xl"
+                      placeholder="Enter your email address"
+                    />
+                  </div>
 
-                      <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
-                        {isLoading ? "Signing In..." : "Sign In"}
+                  <div>
+                    <Label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Password
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                        className="w-full h-12 border-slate-200 focus:border-slate-400 focus:ring-slate-400 pr-12 text-base rounded-xl"
+                        placeholder="Enter your password"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg"
+                        onClick={() => setShowPassword(v => !v)}
+                        tabIndex={-1}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </Button>
+                    </div>
+                  </div>
 
-                      <div className="text-center">
-                        <button
-                          type="button"
-                          className="text-sm text-blue-600 hover:text-blue-800 underline"
-                          onClick={() => setShowReset(true)}
-                        >
-                          Forgot your password?
-                        </button>
-                      </div>
-                    </form>
-                  )}
-                </TabsContent>
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      className="text-sm text-slate-600 hover:text-slate-800 underline hover:no-underline transition-colors font-medium"
+                      onClick={() => setShowReset(true)}
+                    >
+                      Forgot your password?
+                    </button>
+                  </div>
 
-                {/* Sign Up Tab */}
-                <TabsContent value="signup" className="space-y-4 mt-6">
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 text-base font-semibold rounded-xl" 
+                    style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }} 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Signing In..." : "Sign In"}
+                  </Button>
+                </form>
+              )}
+
+              {/* Sign Up Form */}
+              {!showReset && mode === "signup" && (
+                <div>
                   {!signupType ? (
-                    <div className="space-y-4">
-                      <div className="text-center mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">How would you like to join?</h3>
-                        <p className="text-sm text-gray-600">Choose the option that best fits your situation</p>
+                    <div className="space-y-6">
+                      <div className="text-center">
+                        <h3 className="text-xl font-semibold text-slate-900 mb-3">How would you like to join?</h3>
+                        <p className="text-slate-600">Choose the option that best fits your situation</p>
                       </div>
 
-                      <div className="grid grid-cols-1 gap-4">
+                      <div className="grid gap-4">
                         <button
                           type="button"
                           onClick={() => handleSignupTypeSelect('new-company')}
-                          className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left group"
+                          className="w-full p-6 border-2 border-slate-200 rounded-2xl hover:border-slate-300 hover:bg-slate-50 transition-all duration-200 text-left group"
                         >
-                          <div className="flex items-center space-x-3">
-                            <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                              <Building className="w-5 h-5 text-blue-600" />
+                          <div className="flex items-center space-x-4">
+                            <div className="p-3 rounded-xl bg-slate-100 group-hover:bg-slate-200 transition-colors">
+                              <Building className="w-6 h-6 text-slate-600" />
                             </div>
                             <div>
-                              <h4 className="font-semibold text-gray-900">Create New Company</h4>
-                              <p className="text-sm text-gray-600">Start a new enterprise in the Shared Wealth network</p>
+                              <h4 className="font-semibold text-slate-900 text-lg">Create New Company</h4>
+                              <p className="text-slate-600">Start a new enterprise in the Shared Wealth network</p>
                             </div>
                           </div>
                         </button>
@@ -399,24 +439,24 @@ const Auth = () => {
                         <button
                           type="button"
                           onClick={() => handleSignupTypeSelect('join-company')}
-                          className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left group"
+                          className="w-full p-6 border-2 border-slate-200 rounded-2xl hover:border-slate-300 hover:bg-slate-50 transition-all duration-200 text-left group"
                         >
-                          <div className="flex items-center space-x-3">
-                            <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                              <Users className="w-5 h-5 text-green-600" />
+                          <div className="flex items-center space-x-4">
+                            <div className="p-3 rounded-xl bg-slate-100 group-hover:bg-slate-200 transition-colors">
+                              <Users className="w-6 h-6 text-slate-600" />
                             </div>
                             <div>
-                              <h4 className="font-semibold text-gray-900">Join Existing Company</h4>
-                              <p className="text-sm text-gray-600">Join a company that's already part of the network</p>
+                              <h4 className="font-semibold text-slate-900 text-lg">Join Existing Company</h4>
+                              <p className="text-slate-600">Join a company that's already part of the network</p>
                             </div>
                           </div>
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <form onSubmit={handleSignUp} className="space-y-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                    <form onSubmit={handleSignUp} className="space-y-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-semibold text-slate-900">
                           {signupType === 'new-company' ? 'Create New Company' : 'Join Existing Company'}
                         </h3>
                         <Button
@@ -424,101 +464,93 @@ const Auth = () => {
                           variant="ghost"
                           size="sm"
                           onClick={goBackToSignupType}
-                          className="text-gray-500 hover:text-gray-700"
+                          className="text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg"
                         >
                           <ArrowLeft className="w-4 h-4 mr-1" />
                           Back
                         </Button>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="fullName" className="text-sm font-medium text-gray-700">
-                          Full Name *
-                        </Label>
-                        <Input
-                          id="fullName"
-                          type="text"
-                          value={fullName}
-                          onChange={e => setFullName(e.target.value)}
-                          required
-                          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                          placeholder="Enter your full name"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                          Email Address *
-                        </Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={email}
-                          onChange={e => setEmail(e.target.value)}
-                          required
-                          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                          placeholder="Enter your email"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                          Password *
-                        </Label>
-                        <div className="relative">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="fullName" className="block text-sm font-semibold text-slate-700 mb-2">
+                            Full Name *
+                          </Label>
                           <Input
-                            id="password"
-                            type={showPassword ? "text" : "password"}
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
+                            id="fullName"
+                            type="text"
+                            value={fullName}
+                            onChange={e => setFullName(e.target.value)}
                             required
-                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
-                            placeholder="Create a password (min 6 characters)"
+                            className="w-full h-12 border-slate-200 focus:border-slate-400 focus:ring-slate-400 text-base rounded-xl"
+                            placeholder="Enter your full name"
                           />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="absolute right-2 top-2 h-6 w-6 text-gray-500 hover:text-gray-700"
-                            onClick={() => setShowPassword(v => !v)}
-                            tabIndex={-1}
-                          >
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </Button>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
+                            Email Address *
+                          </Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            required
+                            className="w-full h-12 border-slate-200 focus:border-slate-400 focus:ring-slate-400 text-base rounded-xl"
+                            placeholder="Enter your email address"
+                          />
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
-                          Confirm Password *
-                        </Label>
-                        <div className="relative">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-2">
+                            Password *
+                          </Label>
+                          <div className="relative">
+                            <Input
+                              id="password"
+                              type={showPassword ? "text" : "password"}
+                              value={password}
+                              onChange={e => setPassword(e.target.value)}
+                              required
+                              className="w-full h-12 border-slate-200 focus:border-slate-400 focus:ring-slate-400 pr-12 text-base rounded-xl"
+                              placeholder="Create a password"
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg"
+                              onClick={() => setShowPassword(v => !v)}
+                              tabIndex={-1}
+                            >
+                              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="confirmPassword" className="block text-sm font-semibold text-slate-700 mb-2">
+                            Confirm Password *
+                          </Label>
                           <Input
                             id="confirmPassword"
-                            type={showConfirmPassword ? "text" : "password"}
+                            type={showPassword ? "text" : "password"}
                             value={confirmPassword}
                             onChange={e => setConfirmPassword(e.target.value)}
                             required
-                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
+                            className="w-full h-12 border-slate-200 focus:border-slate-400 focus:ring-slate-400 text-base rounded-xl"
                             placeholder="Confirm your password"
                           />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="absolute right-2 top-2 h-6 w-6 text-gray-500 hover:text-gray-700"
-                            onClick={() => setShowConfirmPassword(v => !v)}
-                            tabIndex={-1}
-                          >
-                            {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </Button>
                         </div>
                       </div>
 
                       {signupType === 'new-company' && (
-                        <>
-                          <div className="space-y-2">
-                            <Label htmlFor="companyName" className="text-sm font-medium text-gray-700">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="companyName" className="block text-sm font-semibold text-slate-700 mb-2">
                               Company Name *
                             </Label>
                             <Input
@@ -527,27 +559,13 @@ const Auth = () => {
                               value={companyName}
                               onChange={e => setCompanyName(e.target.value)}
                               required
-                              className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                              className="w-full h-12 border-slate-200 focus:border-slate-400 focus:ring-slate-400 text-base rounded-xl"
                               placeholder="Enter your company name"
                             />
                           </div>
 
-                          <div className="space-y-2">
-                            <Label htmlFor="companyDescription" className="text-sm font-medium text-gray-700">
-                              Company Description
-                            </Label>
-                            <Input
-                              id="companyDescription"
-                              type="text"
-                              value={companyDescription}
-                              onChange={e => setCompanyDescription(e.target.value)}
-                              className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                              placeholder="Brief description of your company (optional)"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="role" className="text-sm font-medium text-gray-700">
+                          <div>
+                            <Label htmlFor="role" className="block text-sm font-semibold text-slate-700 mb-2">
                               Your Role *
                             </Label>
                             <Input
@@ -556,16 +574,31 @@ const Auth = () => {
                               value={role}
                               onChange={e => setRole(e.target.value)}
                               required
-                              className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                              className="w-full h-12 border-slate-200 focus:border-slate-400 focus:ring-slate-400 text-base rounded-xl"
                               placeholder="e.g., CEO, Founder, Director"
                             />
                           </div>
-                        </>
+                        </div>
+                      )}
+
+                      {signupType === 'new-company' && (
+                        <div>
+                          <Label htmlFor="companyDescription" className="block text-sm font-semibold text-slate-700 mb-2">
+                            Company Description
+                          </Label>
+                          <Textarea
+                            id="companyDescription"
+                            value={companyDescription}
+                            onChange={e => setCompanyDescription(e.target.value)}
+                            className="w-full border-slate-200 focus:border-slate-400 focus:ring-slate-400 text-base min-h-[100px] rounded-xl"
+                            placeholder="Brief description of your company (optional)"
+                          />
+                        </div>
                       )}
 
                       {signupType === 'join-company' && (
-                        <div className="space-y-2">
-                          <Label htmlFor="invitationCode" className="text-sm font-medium text-gray-700">
+                        <div>
+                          <Label htmlFor="invitationCode" className="block text-sm font-semibold text-slate-700 mb-2">
                             Invitation Code *
                           </Label>
                           <Input
@@ -574,70 +607,137 @@ const Auth = () => {
                             value={invitationCode}
                             onChange={e => setInvitationCode(e.target.value)}
                             required
-                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                            className="w-full h-12 border-slate-200 focus:border-slate-400 focus:ring-slate-400 text-base rounded-xl"
                             placeholder="Enter the invitation code from your team"
                           />
                         </div>
                       )}
 
-                      <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
+                      <Button 
+                        type="submit" 
+                        className="w-full h-12 text-base font-semibold rounded-xl" 
+                        style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }} 
+                        disabled={isLoading}
+                      >
                         {isLoading ? "Creating Account..." : "Create Account"}
                       </Button>
                     </form>
                   )}
-                </TabsContent>
-              </Tabs>
-
-              {/* Footer Links */}
-              <div className="pt-6 border-t border-gray-200">
-                <div className="text-center text-sm text-gray-600">
-                  {mode === "signin" ? (
-                    <>
-                      Don&apos;t have an account?{' '}
-                      <button
-                        type="button"
-                        className="text-blue-600 hover:text-blue-800 underline font-medium"
-                        onClick={() => { setMode("signup"); setError(""); setSuccess(""); }}
-                      >
-                        Create one
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      Already have an account?{' '}
-                      <button
-                        type="button"
-                        className="text-blue-600 hover:text-blue-800 underline font-medium"
-                        onClick={() => { setMode("signin"); setError(""); setSuccess(""); }}
-                      >
-                        Sign in
-                      </button>
-                    </>
-                  )}
                 </div>
-              </div>
-            </CardContent>
+              )}
+
+              {/* Error/Success Messages */}
+              {error && (
+                <Alert variant="destructive" className="mt-6 border-red-200 bg-red-50 rounded-xl">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-red-800">{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {success && (
+                <Alert className="mt-6 border-green-200 bg-green-50 text-green-800 rounded-xl">
+                  <CheckCircle className="h-4 h-4" />
+                  <AlertDescription>{success}</AlertDescription>
+                </Alert>
+              )}
+            </div>
           </Card>
 
           {/* Trust Indicators */}
-          <div className="mt-8 text-center">
-            <div className="flex items-center justify-center space-x-6 text-gray-500">
-              <div className="flex items-center space-x-2">
-                <Shield className="w-4 h-4" />
-                <span className="text-sm">Secure & Private</span>
+          <div className="mt-12 text-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="flex flex-col items-center space-y-3">
+                <div className="p-3 rounded-xl bg-slate-100">
+                  <Shield className="w-6 h-6 text-slate-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-slate-900 text-sm">Secure & Private</h4>
+                  <p className="text-slate-600 text-xs">Enterprise-grade security</p>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Heart className="w-4 h-4" />
-                <span className="text-sm">Social Impact</span>
+              <div className="flex flex-col items-center space-y-3">
+                <div className="p-3 rounded-xl bg-slate-100">
+                  <Heart className="w-6 h-6 text-slate-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-slate-900 text-sm">Social Impact</h4>
+                  <p className="text-slate-600 text-xs">Creating shared wealth</p>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Globe className="w-4 h-4" />
-                <span className="text-sm">Global Network</span>
+              <div className="flex flex-col items-center space-y-3">
+                <div className="p-3 rounded-xl bg-slate-100">
+                  <Globe className="w-6 h-6 text-slate-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-slate-900 text-sm">Global Network</h4>
+                  <p className="text-slate-600 text-xs">Worldwide connections</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="mt-20 py-12" style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }}>
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              {/* Company Info */}
+              <div className="col-span-1 md:col-span-2">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+                    <Shield className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">Shared Wealth International</h3>
+                </div>
+                <p className="text-white/80 mb-4 max-w-md">
+                  Building a world of shared prosperity through equitable wealth distribution, inclusive decision-making, and sustainable business practices.
+                </p>
+                <div className="flex space-x-4">
+                  <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+                    <Globe className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+                    <Heart className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+                    <Users className="w-4 h-4 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Links */}
+              <div>
+                <h4 className="text-white font-semibold mb-4">Quick Links</h4>
+                <ul className="space-y-2">
+                  <li><Link to="/" className="text-white/80 hover:text-white transition-colors">Home</Link></li>
+                  <li><Link to="/about" className="text-white/80 hover:text-white transition-colors">About Us</Link></li>
+                  <li><Link to="/model" className="text-white/80 hover:text-white transition-colors">Concept</Link></li>
+                  <li><Link to="/network" className="text-white/80 hover:text-white transition-colors">Network</Link></li>
+                </ul>
+              </div>
+
+              {/* Contact */}
+              <div>
+                <h4 className="text-white font-semibold mb-4">Contact</h4>
+                <ul className="space-y-2">
+                  <li className="text-white/80">info@sharedwealth.international</li>
+                  <li className="text-white/80">+44 (0) 123 456 7890</li>
+                  <li className="text-white/80">Falconhurst, Robin Hoods Bay</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Bottom Bar */}
+            <div className="border-t border-white/20 mt-8 pt-8 text-center">
+              <p className="text-white/60 text-sm">
+                © 2024 Shared Wealth International. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

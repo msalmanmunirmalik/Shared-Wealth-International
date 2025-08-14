@@ -12,8 +12,8 @@
  * 3. You have the Supabase URL and anon key
  */
 
-const { createClient } = require('@supabase/supabase-js');
-const readline = require('readline');
+import { createClient } from '@supabase/supabase-js';
+import readline from 'readline';
 
 // Configuration - Update these with your Supabase details
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ewqwjduvjkddknpqpmfr.supabase.co';
@@ -44,11 +44,6 @@ async function setupAdmin() {
     if (checkError) {
       console.error('❌ Database not ready. Please run the admin migration first.');
       console.error('Error:', checkError.message);
-      console.log('\n💡 To apply the migration to your cloud database:');
-      console.log('   1. Go to your Supabase dashboard');
-      console.log('   2. Navigate to SQL Editor');
-      console.log('   3. Copy the content from: supabase/migrations/20250717_admin_system.sql');
-      console.log('   4. Run the SQL commands');
       return;
     }
 
@@ -62,23 +57,28 @@ async function setupAdmin() {
       return;
     }
 
-    // Check if user exists
-    console.log('\n🔍 Checking if user exists...');
-    const { data: user, error: userError } = await supabase.auth.admin.getUserByEmail(superadminEmail);
-
-    if (userError || !user.user) {
-      console.log('❌ User not found. Please create the user account first through the platform.');
-      console.log('   Then run this script again.');
+    // Get user ID manually (since we can't use admin methods)
+    const userId = await question('Enter the user ID (UUID) for this email: ');
+    
+    if (!userId) {
+      console.log('❌ User ID is required');
       return;
     }
 
-    console.log(`✅ User found: ${user.user.email}`);
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+      console.log('❌ Invalid UUID format');
+      return;
+    }
+
+    console.log(`✅ User ID accepted: ${userId}`);
 
     // Check if user is already an admin
     const { data: existingAdmin, error: adminCheckError } = await supabase
       .from('admin_users')
       .select('*')
-      .eq('user_id', user.user.id)
+      .eq('user_id', userId)
       .single();
 
     if (existingAdmin) {
@@ -95,7 +95,7 @@ async function setupAdmin() {
               role: newRole.toLowerCase(),
               updated_at: new Date().toISOString()
             })
-            .eq('user_id', user.user.id);
+            .eq('user_id', userId);
 
           if (updateError) {
             console.error('❌ Failed to update admin role:', updateError.message);
@@ -113,7 +113,7 @@ async function setupAdmin() {
     console.log('\n👑 Creating Superadmin account...');
     
     const superadminData = {
-      user_id: user.user.id,
+      user_id: userId,
       role: 'superadmin',
       permissions: {
         // Superadmin gets all permissions
@@ -158,7 +158,7 @@ async function setupAdmin() {
         'reports.export': true
       },
       is_active: true,
-      created_by: user.user.id
+      created_by: userId
     };
 
     const { data: superadmin, error: superadminError } = await supabase
@@ -207,12 +207,11 @@ async function setupAdmin() {
     // Log the admin creation
     console.log('\n📝 Logging admin creation activity...');
     
-    const { error: logError } = await supabase.rpc('log_admin_activity', {
+    const { error: logError } = await supabase.rpc('log_admin_action', {
       admin_user_uuid: superadmin.id,
       action_text: 'Account created',
-      entity_type: 'admin_user',
-      entity_id: superadmin.id,
-      details_param: { action: 'superadmin_created', email: superadminEmail }
+      entity_type_param: 'admin_user',
+      entity_id_param: superadmin.id
     });
 
     if (logError) {
@@ -248,22 +247,27 @@ async function createAdditionalAdmin() {
       return;
     }
 
-    // Check if user exists
-    console.log('\n🔍 Checking if user exists...');
-    const { data: user, error: userError } = await supabase.auth.admin.getUserByEmail(email);
-
-    if (userError || !user.user) {
-      console.log('❌ User not found. Please create the user account first through the platform.');
+    const userId = await question('Enter the user ID (UUID) for this email: ');
+    
+    if (!userId) {
+      console.log('❌ User ID is required');
       return;
     }
 
-    console.log(`✅ User found: ${user.user.email}`);
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+      console.log('❌ Invalid UUID format');
+      return;
+    }
+
+    console.log(`✅ User ID accepted: ${userId}`);
 
     // Check if user is already an admin
     const { data: existingAdmin } = await supabase
       .from('admin_users')
       .select('*')
-      .eq('user_id', user.user.id)
+      .eq('user_id', userId)
       .single();
 
     if (existingAdmin) {
@@ -340,11 +344,11 @@ async function createAdditionalAdmin() {
     console.log(`\n👤 Creating ${role} account...`);
     
     const adminData = {
-      user_id: user.user.id,
+      user_id: userId,
       role: role,
       permissions: permissions,
       is_active: true,
-      created_by: user.user.id
+      created_by: userId
     };
 
     const { data: admin, error: adminError } = await supabase
@@ -397,8 +401,4 @@ async function main() {
 }
 
 // Run the script
-if (require.main === module) {
-  main().catch(console.error);
-}
-
-module.exports = { setupAdmin, createAdditionalAdmin };
+main().catch(console.error);

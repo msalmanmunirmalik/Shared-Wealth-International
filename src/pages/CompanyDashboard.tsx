@@ -98,6 +98,8 @@ interface NetworkCompany {
   license_date: string | null;
   created_at: string;
   updated_at: string;
+  contact_email: string | null;
+  contact_phone: string | null;
 }
 
 interface UserCompany {
@@ -117,13 +119,11 @@ interface UserCompany {
 
 interface DashboardStats {
   totalCompanies: number;
-  totalImpact: number;
-  avgImpactScore: number;
-  recentActivities: number;
-  totalEmployees: number;
-  licensedCompanies: number;
+  networkPartners: number;
+  growthRate: number;
+  activeProjects: number;
   pendingApplications: number;
-  networkConnections: number;
+  approvedCompanies: number;
 }
 
 interface Activity {
@@ -142,17 +142,17 @@ const CompanyDashboard = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [companies, setCompanies] = useState<NetworkCompany[]>([]);
+  const [userCompanies, setUserCompanies] = useState<any[]>([]);
+  const [networkCompanies, setNetworkCompanies] = useState<NetworkCompany[]>([]);
   const [applications, setApplications] = useState<CompanyApplication[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [stats, setStats] = useState<DashboardStats>({
     totalCompanies: 0,
-    totalImpact: 0,
-    avgImpactScore: 0,
-    recentActivities: 0,
-    totalEmployees: 0,
-    licensedCompanies: 0,
+    networkPartners: 0,
+    growthRate: 0,
+    activeProjects: 0,
     pendingApplications: 0,
-    networkConnections: 0
+    approvedCompanies: 0
   });
   const [isLoading, setIsLoading] = useState(true);
   const [showAddCompany, setShowAddCompany] = useState(false);
@@ -193,112 +193,96 @@ const CompanyDashboard = () => {
     try {
       setIsLoading(true);
       
-      // Load user's company applications (simulated for now since tables don't exist)
-      try {
-        const { data: applicationsData, error: applicationsError } = await supabase
-          .from('company_applications')
-          .select('*')
-          .eq('user_id', user?.id)
-          .order('created_at', { ascending: false });
+      // Load user's companies
+      const { data: userCompanies, error: userError } = await supabase
+        .from('user_companies')
+        .select('*')
+        .eq('user_id', user?.id);
 
-        if (applicationsError) {
-          console.error('Error loading applications:', applicationsError);
-          setApplications([]);
-        } else {
-          setApplications(applicationsData || []);
-        }
-      } catch (error) {
-        console.log('Company applications table not found, using empty state');
-        setApplications([]);
+      if (userError) {
+        console.error('Error loading user companies:', userError);
+        setUserCompanies([]);
+      } else {
+        setUserCompanies(userCompanies || []);
       }
 
-      // Load user's approved companies (simulated for now since tables don't exist)
-      try {
-        const { data: userCompaniesData, error: userCompaniesError } = await supabase
-          .from('user_companies')
-          .select(`
-            *,
-            companies:company_id(*)
-          `)
-          .eq('user_id', user?.id)
-          .eq('status', 'active');
+      // Load network companies (public directory)
+      const { data: networkCompanies, error: networkError } = await supabase
+        .from('network_companies')
+        .select('*');
 
-        if (userCompaniesError) {
-          console.error('Error loading user companies:', userCompaniesError);
-          setCompanies([]);
-        } else {
-          const userCompanies = userCompaniesData || [];
-          setCompanies(userCompanies.map(uc => uc.companies).filter(Boolean));
-        }
-      } catch (error) {
-        console.log('User companies table not found, using empty state');
-        setCompanies([]);
+      if (networkError) {
+        console.error('Error loading network companies:', networkError);
+        setNetworkCompanies([]);
+      } else {
+        setNetworkCompanies(networkCompanies || []);
       }
 
-      // Calculate comprehensive stats
-      const totalCompanies = companies.length;
-      const totalImpact = companies.reduce((sum, company) => sum + (company.impact_score || 0), 0);
-      const avgImpactScore = totalCompanies > 0 ? totalImpact / totalCompanies : 0;
-      const totalEmployees = companies.reduce((sum, company) => sum + (company.employees || 0), 0);
-      const licensedCompanies = companies.filter(c => c.is_shared_wealth_licensed).length;
+      // Combine companies for display
+      const allCompanies: NetworkCompany[] = [
+        ...(userCompanies || []).map(uc => ({
+          id: uc.id,
+          name: uc.company_name,
+          sector: 'Technology', // Default values since user_companies doesn't have these fields
+          country: 'United Kingdom',
+          description: uc.company_name,
+          website: '',
+          employees: 10,
+          is_shared_wealth_licensed: uc.is_shared_wealth_licensed,
+          license_number: uc.license_number,
+          license_date: uc.license_date,
+          status: uc.status,
+          created_at: uc.created_at,
+          updated_at: uc.updated_at,
+          impact_score: 0,
+          shared_value: 0,
+          joined_date: uc.created_at,
+          logo: '',
+          contact_email: '',
+          contact_phone: ''
+        })),
+        ...(networkCompanies || [])
+      ];
+      
+      setCompanies(allCompanies);
+
+      // Calculate real stats based on actual data
+      const totalCompanies = allCompanies.length;
+      const networkPartners = networkCompanies?.length || 0;
+      
+      // Only calculate growth rate if there are companies to compare
+      const growthRate = totalCompanies > 0 ? Math.round((totalCompanies / Math.max(totalCompanies - 1, 1)) * 100) : 0;
+      
+      // For now, set these to 0 since we don't have real data yet
+      const activeProjects = 0; // Will be updated when projects table exists
       const pendingApplications = applications.filter(app => app.status === 'pending').length;
+      const approvedCompanies = applications.filter(app => app.status === 'approved').length;
 
       setStats({
         totalCompanies,
-        totalImpact,
-        avgImpactScore: Math.round(avgImpactScore * 10) / 10,
-        recentActivities: activities.length,
-        totalEmployees,
-        licensedCompanies,
+        networkPartners,
+        growthRate,
+        activeProjects,
         pendingApplications,
-        networkConnections: Math.floor(Math.random() * 50) + 10 // Placeholder for now
+        approvedCompanies
       });
 
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load dashboard data",
-        variant: "destructive"
-      });
+      console.error('Error loading user data:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const loadActivities = async () => {
-    // Generate sample activities for now - in production this would come from a real activities table
-    const sampleActivities: Activity[] = [
-      {
-        id: '1',
-        type: 'company_added',
-        title: 'Company Added',
-        description: 'Successfully added "GreenTech Solutions" to your portfolio',
-        company_name: 'GreenTech Solutions',
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        status: 'completed'
-      },
-      {
-        id: '2',
-        type: 'meeting_scheduled',
-        title: 'Meeting Scheduled',
-        description: 'Scheduled impact assessment meeting with "EcoInnovate Ltd"',
-        company_name: 'EcoInnovate Ltd',
-        timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-        status: 'pending'
-      },
-      {
-        id: '3',
-        type: 'impact_updated',
-        title: 'Impact Score Updated',
-        description: 'Updated impact score for "Sustainable Futures" to 8.5',
-        company_name: 'Sustainable Futures',
-        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        status: 'completed'
-      }
-    ];
-
-    setActivities(sampleActivities);
+    try {
+      // For now, set empty activities since we don't have real data yet
+      // In production, this would load from a real activities table
+      setActivities([]);
+    } catch (error) {
+      console.error('Error loading activities:', error);
+      setActivities([]);
+    }
   };
 
   const handleAddCompany = async () => {
@@ -470,128 +454,116 @@ const CompanyDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Company Dashboard</h1>
-              <p className="text-lg text-gray-600">Manage your companies and track your impact</p>
+              <p className="text-lg text-gray-600">Manage your companies and network connections</p>
             </div>
-            <Button onClick={() => setShowAddCompany(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Company
-            </Button>
+            <div className="flex space-x-3">
+              <Button onClick={loadUserData} variant="outline">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+              <Button onClick={() => setShowAddCompany(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Company
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Dashboard Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="companies">My Companies</TabsTrigger>
-            <TabsTrigger value="applications">Applications</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="activities">Activities</TabsTrigger>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-5 border shadow-lg" style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }}>
+            <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Overview</TabsTrigger>
+            <TabsTrigger value="my-companies" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">My Companies</TabsTrigger>
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Analytics</TabsTrigger>
+            <TabsTrigger value="activities" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Activities</TabsTrigger>
+            <TabsTrigger value="applications" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Applications</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            {/* Enhanced Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Building className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Total Companies</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.totalCompanies}</p>
-                    </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-slate-100 rounded-xl">
+                    <Building className="w-6 h-6 text-slate-600" />
                   </div>
-                </CardContent>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Total Companies</p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      {stats.totalCompanies > 0 ? stats.totalCompanies : 0}
+                    </p>
+                  </div>
+                </div>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <TrendingUp className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Total Impact</p>
-                      <p className="text-2xl font-bold text-gray-900">€{stats.totalImpact.toLocaleString()}</p>
-                    </div>
+              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-slate-100 rounded-xl">
+                    <Users className="w-6 h-6 text-slate-600" />
                   </div>
-                </CardContent>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Network Partners</p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      {stats.networkPartners > 0 ? stats.networkPartners : 0}
+                    </p>
+                  </div>
+                </div>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-purple-100 rounded-lg">
-                      <Star className="w-6 h-6 text-purple-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Avg Impact Score</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.avgImpactScore}</p>
-                    </div>
+              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-slate-100 rounded-xl">
+                    <TrendingUp className="w-6 h-6 text-slate-600" />
                   </div>
-                </CardContent>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Growth Rate</p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      {stats.growthRate > 0 ? `${stats.growthRate}%` : '0%'}
+                    </p>
+                  </div>
+                </div>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-orange-100 rounded-lg">
-                      <Users className="w-6 h-6 text-orange-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Total Employees</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.totalEmployees.toLocaleString()}</p>
-                    </div>
+              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-slate-100 rounded-xl">
+                    <Activity className="w-6 h-6 text-slate-600" />
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Additional Stats Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-emerald-100 rounded-lg">
-                      <Award className="w-6 h-6 text-emerald-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Licensed Companies</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.licensedCompanies}</p>
-                    </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Active Projects</p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      {stats.activeProjects > 0 ? stats.activeProjects : 0}
+                    </p>
                   </div>
-                </CardContent>
+                </div>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-indigo-100 rounded-lg">
-                      <Globe className="w-6 h-6 text-indigo-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Network Connections</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.networkConnections}</p>
-                    </div>
+              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-slate-100 rounded-xl">
+                    <Clock className="w-6 h-6 text-slate-600" />
                   </div>
-                </CardContent>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Pending Applications</p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      {stats.pendingApplications > 0 ? stats.pendingApplications : 0}
+                    </p>
+                  </div>
+                </div>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-rose-100 rounded-lg">
-                      <Activity className="w-6 h-6 text-rose-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Pending Applications</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.pendingApplications}</p>
-                    </div>
+              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-slate-100 rounded-xl">
+                    <CheckCircle className="w-6 h-6 text-slate-600" />
                   </div>
-                </CardContent>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Approved Companies</p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      {stats.approvedCompanies > 0 ? stats.approvedCompanies : 0}
+                    </p>
+                  </div>
+                </div>
               </Card>
             </div>
 
@@ -602,38 +574,49 @@ const CompanyDashboard = () => {
                 <CardDescription>Your latest network activities</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {activities.slice(0, 3).map((activity) => (
-                    <div key={activity.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
-                      <div className={`w-2 h-2 rounded-full ${
-                        activity.status === 'completed' ? 'bg-green-500' : 
-                        activity.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
-                      }`} />
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">{activity.title}</p>
-                        <p className="text-sm text-gray-600">{activity.description}</p>
+                {activities.length > 0 ? (
+                  <div className="space-y-4">
+                    {activities.slice(0, 3).map((activity) => (
+                      <div key={activity.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                        <div className={`w-2 h-2 rounded-full ${
+                          activity.status === 'completed' ? 'bg-green-500' : 
+                          activity.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
+                        }`} />
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">{activity.title}</p>
+                          <p className="text-sm text-gray-600">{activity.description}</p>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          {new Date(activity.timestamp).toLocaleDateString()}
+                        </span>
                       </div>
-                      <span className="text-xs text-gray-500">
-                        {new Date(activity.timestamp).toLocaleDateString()}
-                      </span>
+                    ))}
+                    <div className="mt-4">
+                      <Button variant="outline" onClick={() => setActiveTab("activities")}>
+                        View All Activities
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Button>
                     </div>
-                  ))}
-                </div>
-                <div className="mt-4">
-                  <Button variant="outline" onClick={() => setActiveTab("activities")}>
-                    View All Activities
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p className="text-gray-500 mb-2">No activities yet</p>
+                    <p className="text-sm text-gray-400">Your network activities will appear here</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* Companies Tab */}
-          <TabsContent value="companies" className="space-y-6">
+          <TabsContent value="my-companies" className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-900">My Companies</h2>
-              <Button onClick={() => setShowAddCompany(true)}>
+              <Button 
+                onClick={() => setShowAddCompany(true)}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white border-0"
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Company
               </Button>
@@ -688,7 +671,10 @@ const CompanyDashboard = () => {
                     }
                   </p>
                   {companies.length === 0 && (
-                    <Button onClick={() => setShowAddCompany(true)}>
+                    <Button 
+                      onClick={() => setShowAddCompany(true)}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white border-0"
+                    >
                       <Plus className="w-4 h-4 mr-2" />
                       Add Your First Company
                     </Button>
@@ -1052,7 +1038,10 @@ const CompanyDashboard = () => {
             <Button variant="outline" onClick={() => setShowAddCompany(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAddCompany}>
+            <Button 
+              onClick={handleAddCompany}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white border-0"
+            >
               Continue to Agreement
             </Button>
           </DialogFooter>

@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
-import Header from "@/components/Header";
 import LeftSidebar from "@/components/LeftSidebar";
 import PrivateRoute from "@/components/PrivateRoute";
 import { Suspense, lazy, useState } from "react";
@@ -105,10 +104,9 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Layout component for public pages (with header)
+// Layout component for public pages (no header)
 const PublicLayout = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen bg-background">
-    <Header />
     <main>{children}</main>
   </div>
 );
@@ -312,7 +310,11 @@ function App() {
                 } />
                 <Route path="/admin" element={
                   <PrivateRoute>
-                    <AdminDashboard />
+                    <div className="min-h-screen bg-background">
+                      <Suspense fallback={<LoadingSpinner />}>
+                        <AdminDashboard />
+                      </Suspense>
+                    </div>
                   </PrivateRoute>
                 } />
               </Routes>

@@ -26,8 +26,6 @@ import {
   Award
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 const TrainingCourses = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -237,10 +235,8 @@ const TrainingCourses = () => {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
-      <Header />
-      
       {/* Hero Section */}
-      <section className="py-16" style={{ background: 'linear-gradient(135deg, #07264e 0%, #086075 100%)' }}>
+      <section className="py-16 lg:py-24 bg-gradient-hero text-background">
         <div className="container mx-auto px-6 text-center">
           <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-white">Training Courses</h1>
           <p className="text-xl lg:text-2xl mb-8 text-white/80 max-w-3xl mx-auto">
@@ -464,8 +460,6 @@ const TrainingCourses = () => {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 };

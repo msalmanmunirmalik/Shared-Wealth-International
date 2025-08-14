@@ -33,14 +33,16 @@ import {
   UserCheck,
   Globe,
   Database,
-  LogOut
+  LogOut,
+  Loader2
 } from "lucide-react";
+import { Navigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,7 +54,7 @@ const AdminDashboard = () => {
 
   const checkAdminStatus = async () => {
     try {
-      setIsLoading(true);
+      setLoading(true);
       setError(null);
 
       // Simple check if user exists in admin_users table
@@ -82,7 +84,7 @@ const AdminDashboard = () => {
       console.error('Error checking admin status:', error);
       setError('An unexpected error occurred while checking admin privileges.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -94,71 +96,68 @@ const AdminDashboard = () => {
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-600">Loading Admin Dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto">
-          <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-red-500" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Dashboard</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <div className="space-y-2">
-            <Button onClick={checkAdminStatus} className="w-full">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Try Again
-            </Button>
-            <Button variant="outline" onClick={handleSignOut} className="w-full">
-              Return to Platform
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-blue-100 flex items-center justify-center">
         <div className="text-center">
-          <Shield className="w-16 h-16 mx-auto mb-4 text-red-500" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-gray-600 mb-4">You don't have permission to access the admin dashboard.</p>
-          <Button onClick={handleSignOut}>Return to Platform</Button>
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
+            <Loader2 className="w-8 h-8 text-white animate-spin" />
+          </div>
+          <h2 className="text-xl font-semibold text-blue-900">Loading Admin Dashboard...</h2>
+          <p className="text-blue-600 mt-2">Please wait while we verify your access</p>
         </div>
+      </div>
+    );
+  }
+
+  if (error || !isAdmin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-blue-100 flex items-center justify-center">
+        <Card className="w-full max-w-md border-0 shadow-2xl bg-white/90 backdrop-blur-sm">
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl">
+              <Shield className="w-8 h-8 text-white" />
+            </div>
+            <CardTitle className="text-blue-900">Access Denied</CardTitle>
+            <CardDescription className="text-blue-600">
+              {error || "You don't have permission to access the admin dashboard."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <Button asChild className="w-full bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 hover:from-blue-700 hover:via-blue-800 hover:to-blue-900 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+              <Navigate to="/dashboard" replace />
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-blue-100">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-blue-200 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Crown className="w-6 h-6 text-yellow-600" />
-                <h1 className="text-xl font-semibold text-gray-900">Admin Dashboard</h1>
-                <Badge variant="secondary" className="ml-2">
-                  Administrator
-                </Badge>
+            <div className="flex items-center space-x-3">
+              <div className="p-3 bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 rounded-xl shadow-lg">
+                <Crown className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-blue-900">Administrator Dashboard</h1>
+                <p className="text-sm text-blue-600">Platform Management & Control</p>
               </div>
             </div>
-            
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">{user?.email}</span>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="w-4 h-4 mr-2" />
+              <Badge variant="outline" className="border-blue-300 text-blue-700 bg-blue-50 shadow-sm">
+                Administrator
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSignOut}
+                className="border-blue-300 text-blue-700 hover:bg-blue-50 hover:shadow-md transition-all duration-200"
+              >
                 Sign Out
               </Button>
             </div>
@@ -169,66 +168,57 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="companies">Companies</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="system">System</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 shadow-lg">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:via-blue-700 data-[state=active]:to-blue-800 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300">Overview</TabsTrigger>
+            <TabsTrigger value="companies" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:via-blue-700 data-[state=active]:to-blue-800 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300">Companies</TabsTrigger>
+            <TabsTrigger value="users" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:via-blue-700 data-[state=active]:to-blue-800 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300">Users</TabsTrigger>
+            <TabsTrigger value="system" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:via-blue-700 data-[state=active]:to-blue-800 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300">System</TabsTrigger>
           </TabsList>
 
-          {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             <div className="text-center py-12">
-              <Database className="w-16 h-16 mx-auto mb-4 text-blue-600" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Admin Dashboard Ready</h2>
-              <p className="text-gray-600 mb-4">
-                Welcome to the Shared Wealth International Admin Dashboard. 
-                This is where you can manage platform users, companies, and system settings.
-              </p>
-              <p className="text-sm text-gray-500">
-                More features will be available as the platform develops.
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <BarChart3 className="w-10 h-10 text-blue-700" />
+              </div>
+              <h2 className="text-3xl font-bold text-blue-900 mb-3">Platform Overview</h2>
+              <p className="text-blue-600 max-w-2xl mx-auto text-lg">
+                Welcome to the Shared Wealth International admin dashboard. Here you can manage companies, users, and platform settings.
               </p>
             </div>
           </TabsContent>
 
-          {/* Companies Tab */}
           <TabsContent value="companies" className="space-y-6">
             <div className="text-center py-12">
-              <Building className="w-16 h-16 mx-auto mb-4 text-green-600" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Company Management</h2>
-              <p className="text-gray-600 mb-4">
-                Manage company applications, approvals, and network members.
-              </p>
-              <p className="text-sm text-gray-500">
-                Company management features coming soon.
+              <div className="w-20 h-20 bg-gradient-to-br from-emerald-100 via-emerald-200 to-emerald-300 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Building className="w-10 h-10 text-emerald-700" />
+              </div>
+              <h2 className="text-3xl font-bold text-blue-900 mb-3">Company Management</h2>
+              <p className="text-blue-600 max-w-2xl mx-auto text-lg">
+                Review and approve company applications, manage existing companies, and monitor network growth.
               </p>
             </div>
           </TabsContent>
 
-          {/* Users Tab */}
           <TabsContent value="users" className="space-y-6">
             <div className="text-center py-12">
-              <Users className="w-16 h-16 mx-auto mb-4 text-purple-600" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">User Management</h2>
-              <p className="text-gray-600 mb-4">
-                Manage platform users, roles, and permissions.
-              </p>
-              <p className="text-sm text-gray-500">
-                User management features coming soon.
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Users className="w-10 h-10 text-blue-700" />
+              </div>
+              <h2 className="text-3xl font-bold text-blue-900 mb-3">User Management</h2>
+              <p className="text-blue-600 max-w-2xl mx-auto text-lg">
+                Manage user accounts, permissions, and access levels across the platform.
               </p>
             </div>
           </TabsContent>
 
-          {/* System Tab */}
           <TabsContent value="system" className="space-y-6">
             <div className="text-center py-12">
-              <Settings className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">System Settings</h2>
-              <p className="text-gray-600 mb-4">
-                Configure platform settings, monitor system health, and manage integrations.
-              </p>
-              <p className="text-sm text-gray-500">
-                System management features coming soon.
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Settings className="w-10 h-10 text-blue-700" />
+              </div>
+              <h2 className="text-3xl font-bold text-blue-900 mb-3">System Settings</h2>
+              <p className="text-blue-600 max-w-2xl mx-auto text-lg">
+                Configure platform settings, manage content, and monitor system health.
               </p>
             </div>
           </TabsContent>
