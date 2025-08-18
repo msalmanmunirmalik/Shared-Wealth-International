@@ -326,6 +326,13 @@ function App() {
                   </PrivateRoute>
                 } />
 
+                {/* Admin Route */}
+                <Route path="/admin" element={
+                  <PrivateRoute requireAdmin={true}>
+                    <Admin />
+                  </PrivateRoute>
+                } />
+
               </Routes>
             </Suspense>
             </ErrorBoundary>

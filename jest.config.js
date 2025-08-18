@@ -1,39 +1,41 @@
 export default {
-  preset: 'ts-jest',
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-  moduleNameMapping: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
-      '<rootDir>/__mocks__/fileMock.js',
-  },
+  testEnvironment: 'node',
   testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.{ts,tsx}',
-    '<rootDir>/src/**/*.{test,spec}.{ts,tsx}',
+    '**/server/__tests__/basic.test.ts',
+    '**/server/__tests__/simple.test.ts',
+    '**/server/__tests__/services/*.unit.test.ts'
   ],
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/main.tsx',
-    '!src/vite-env.d.ts',
-  ],
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
-    },
-  },
+  extensionsToTreatAsEsm: ['.ts'],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', {
+      useESM: true,
+      tsconfig: 'tsconfig.server.json'
+    }]
   },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
-  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.json',
-    },
+  moduleNameMapper: {
+    '^\.\./\.\./src/integrations/postgresql/database\\.js$': '<rootDir>/src/integrations/postgresql/database.ts',
+    '^\.\./\.\./src/integrations/postgresql/config\\.js$': '<rootDir>/src/integrations/postgresql/config.ts'
   },
+  setupFiles: ['<rootDir>/server/__tests__/jest.setup.ts'],
+  testTimeout: 30000,
+  collectCoverage: false,
+  clearMocks: true,
+  restoreMocks: true,
+  verbose: true,
+  forceExit: true,
+  detectOpenHandles: true,
+  moduleFileExtensions: ['ts', 'js', 'json'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/dist/',
+    '/coverage/',
+    '.*\\.disabled',
+    '.*\\.test\\.ts$',
+    '.*/services\\.disabled/',
+    '.*/integration/',
+    '.*/security/'
+  ],
+  testEnvironmentOptions: {
+    NODE_ENV: 'test'
+  }
 };

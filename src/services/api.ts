@@ -12,15 +12,20 @@ class ApiService {
     };
 
     // Add auth token if available
-    const token = localStorage.getItem('session') 
-      ? JSON.parse(localStorage.getItem('session')!).access_token 
-      : null;
-    
-    if (token) {
-      config.headers = {
-        ...config.headers,
-        'Authorization': `Bearer ${token}`,
-      };
+    const session = localStorage.getItem('session');
+    if (session) {
+      try {
+        const sessionData = JSON.parse(session);
+        const token = sessionData.access_token || sessionData.session?.access_token;
+        if (token) {
+          config.headers = {
+            ...config.headers,
+            'Authorization': `Bearer ${token}`,
+          };
+        }
+      } catch (error) {
+        console.error('Error parsing session from localStorage:', error);
+      }
     }
 
     try {

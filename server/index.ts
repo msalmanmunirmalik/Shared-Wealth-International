@@ -3,62 +3,165 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { body, validationResult } from 'express-validator';
 import pool from '../src/integrations/postgresql/config.js';
 import { DatabaseService } from '../src/integrations/postgresql/database.js';
 
-// Extend Express Request interface
-interface AuthenticatedRequest extends Request {
-  user?: any;
-}
-
+// Load environment variables
 dotenv.config();
+
+// Security: Validate required environment variables
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('❌ CRITICAL: JWT_SECRET environment variable is not set!');
+  process.exit(1);
+}
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Security: Apply Helmet security headers
+app.use(helmet());
 
-// JWT secret
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+// Security: Configure CORS properly (not allowing all origins)
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:8080', 'http://localhost:8081'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
-// Authentication middleware
+// Security: Rate limiting to prevent brute force attacks
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs for auth endpoints
+  message: 'Too many authentication attempts, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs for general endpoints
+  message: 'Too many requests, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Security: Request size limits
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Extend Express Request interface with proper typing
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    email: string;
+    role: string;
+    created_at: string;
+  };
+}
+
+// Security: Authentication middleware with proper error handling
 const authenticateToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: 'Access token required' });
-  }
-
   try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({ message: 'Access token required' });
+    }
+
+    // Security: Validate JWT token
     const decoded = jwt.verify(token, JWT_SECRET) as any;
+    
+    if (!decoded || !decoded.userId) {
+      return res.status(401).json({ message: 'Invalid token format' });
+    }
+
+    // Security: Check if user exists and is active
     const user = await DatabaseService.findOne('users', { where: { id: decoded.userId } });
     
     if (!user) {
-      return res.status(401).json({ message: 'Invalid token' });
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    // Security: Validate user role
+    if (!['user', 'admin', 'superadmin'].includes(user.role)) {
+      return res.status(401).json({ message: 'Invalid user role' });
     }
 
     req.user = user;
     next();
   } catch (error) {
-    return res.status(403).json({ message: 'Invalid token' });
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(403).json({ message: 'Invalid token' });
+    }
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(403).json({ message: 'Token expired' });
+    }
+    console.error('Authentication error:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+// Security: Admin role validation middleware
+const requireAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+  
+  if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+    return res.status(403).json({ message: 'Admin access required' });
+  }
+  
+  next();
+};
+
+// Security: Super admin role validation middleware
+const requireSuperAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+  
+  if (req.user.role !== 'superadmin') {
+    return res.status(403).json({ message: 'Super admin access required' });
+  }
+  
+  next();
+};
+
+// Health check endpoint
+app.get('/api/health', generalLimiter, (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
-// Authentication routes
-app.post('/api/auth/signin', async (req, res) => {
+// Authentication routes with rate limiting and validation
+app.post('/api/auth/signin', authLimiter, [
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+], async (req, res) => {
   try {
+    // Security: Validate input
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        message: 'Validation failed', 
+        errors: errors.array() 
+      });
+    }
+
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+    // Security: Additional input sanitization
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ message: 'Invalid input types' });
     }
 
     const user = await DatabaseService.findOne('users', { where: { email } });
@@ -67,16 +170,27 @@ app.post('/api/auth/signin', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    // Security: Verify password with constant-time comparison
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
     
     if (!isValidPassword) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    // Security: Generate JWT with proper expiration
     const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
+      { 
+        userId: user.id, 
+        email: user.email, 
+        role: user.role,
+        iat: Math.floor(Date.now() / 1000)
+      },
       JWT_SECRET,
-      { expiresIn: '24h' }
+      { 
+        expiresIn: '24h',
+        issuer: 'wealth-pioneers-network',
+        audience: 'wealth-pioneers-users'
+      }
     );
 
     const session = {
@@ -96,12 +210,25 @@ app.post('/api/auth/signin', async (req, res) => {
   }
 });
 
-app.post('/api/auth/signup', async (req, res) => {
+app.post('/api/auth/signup', authLimiter, [
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+], async (req, res) => {
   try {
+    // Security: Validate input
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        message: 'Validation failed', 
+        errors: errors.array() 
+      });
+    }
+
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+    // Security: Additional input sanitization
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ message: 'Invalid input types' });
     }
 
     // Check if user already exists
@@ -110,7 +237,7 @@ app.post('/api/auth/signup', async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Hash password
+    // Security: Hash password with proper salt rounds
     const saltRounds = 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
@@ -129,16 +256,28 @@ app.post('/api/auth/signup', async (req, res) => {
 });
 
 app.post('/api/auth/signout', authenticateToken, (req, res) => {
-  // In a real app, you might want to blacklist the token
+  // Security: In production, implement token blacklisting
   res.json({ message: 'Signed out successfully' });
 });
 
-app.post('/api/auth/reset-password', async (req, res) => {
+app.post('/api/auth/reset-password', authLimiter, [
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required')
+], async (req, res) => {
   try {
+    // Security: Validate input
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        message: 'Validation failed', 
+        errors: errors.array() 
+      });
+    }
+
     const { email } = req.body;
     
-    if (!email) {
-      return res.status(400).json({ message: 'Email is required' });
+    // Security: Additional input sanitization
+    if (typeof email !== 'string') {
+      return res.status(400).json({ message: 'Invalid input type' });
     }
 
     // In a real app, you would send a reset email
@@ -150,10 +289,16 @@ app.post('/api/auth/reset-password', async (req, res) => {
   }
 });
 
-// Admin check endpoints
-app.get('/api/auth/admin/check/:userId', authenticateToken, async (req, res) => {
+// Admin check endpoints with proper validation
+app.get('/api/auth/admin/check/:userId', authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { userId } = req.params;
+    
+    // Security: Validate userId parameter
+    if (!userId || typeof userId !== 'string') {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
     const user = await DatabaseService.findOne('users', { where: { id: userId } });
     
     if (!user) {
@@ -168,9 +313,15 @@ app.get('/api/auth/admin/check/:userId', authenticateToken, async (req, res) => 
   }
 });
 
-app.get('/api/auth/admin/super/:userId', authenticateToken, async (req, res) => {
+app.get('/api/auth/admin/super/:userId', authenticateToken, requireSuperAdmin, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { userId } = req.params;
+    
+    // Security: Validate userId parameter
+    if (!userId || typeof userId !== 'string') {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
     const user = await DatabaseService.findOne('users', { where: { id: userId } });
     
     if (!user) {
@@ -185,13 +336,13 @@ app.get('/api/auth/admin/super/:userId', authenticateToken, async (req, res) => 
   }
 });
 
-// User routes
+// User routes with proper validation
 app.get('/api/users/me', authenticateToken, (req: AuthenticatedRequest, res: Response) => {
   res.json(req.user);
 });
 
-// Company routes
-app.get('/api/companies', async (req, res) => {
+// Company routes with rate limiting
+app.get('/api/companies', generalLimiter, async (req, res) => {
   try {
     const companies = await DatabaseService.findAll('companies');
     res.json(companies);
@@ -201,9 +352,15 @@ app.get('/api/companies', async (req, res) => {
   }
 });
 
-app.get('/api/companies/:id', async (req, res) => {
+app.get('/api/companies/:id', generalLimiter, async (req, res) => {
   try {
     const { id } = req.params;
+    
+    // Security: Validate id parameter
+    if (!id || typeof id !== 'string') {
+      return res.status(400).json({ message: 'Invalid company ID' });
+    }
+    
     const company = await DatabaseService.findById('companies', id);
     
     if (!company) {
@@ -217,8 +374,8 @@ app.get('/api/companies/:id', async (req, res) => {
   }
 });
 
-// Network routes
-app.get('/api/network', async (req, res) => {
+// Network routes with rate limiting
+app.get('/api/network', generalLimiter, async (req, res) => {
   try {
     const companies = await DatabaseService.findAll('companies', { where: { status: 'approved' } });
     res.json(companies);
@@ -228,8 +385,8 @@ app.get('/api/network', async (req, res) => {
   }
 });
 
-// Funding routes
-app.get('/api/funding', async (req, res) => {
+// Funding routes with rate limiting
+app.get('/api/funding', generalLimiter, async (req, res) => {
   try {
     const opportunities = await DatabaseService.findAll('funding_opportunities');
     res.json(opportunities);
@@ -239,8 +396,8 @@ app.get('/api/funding', async (req, res) => {
   }
 });
 
-// Forum routes
-app.get('/api/forum', async (req, res) => {
+// Forum routes with rate limiting
+app.get('/api/forum', generalLimiter, async (req, res) => {
   try {
     const posts = await DatabaseService.findAll('forum_posts');
     res.json(posts);
@@ -250,8 +407,8 @@ app.get('/api/forum', async (req, res) => {
   }
 });
 
-// Events routes
-app.get('/api/events', async (req, res) => {
+// Events routes with rate limiting
+app.get('/api/events', generalLimiter, async (req, res) => {
   try {
     const events = await DatabaseService.findAll('events');
     res.json(events);
@@ -261,8 +418,8 @@ app.get('/api/events', async (req, res) => {
   }
 });
 
-// Messaging routes
-app.get('/api/messaging', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+// Messaging routes with authentication and rate limiting
+app.get('/api/messaging', authenticateToken, generalLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const messages = await DatabaseService.findAll('messages', { 
       where: { 
@@ -276,13 +433,9 @@ app.get('/api/messaging', authenticateToken, async (req: AuthenticatedRequest, r
   }
 });
 
-// Admin routes
-app.get('/api/admin/stats', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+// Admin routes with proper authentication and validation
+app.get('/api/admin/stats', authenticateToken, requireAdmin, generalLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    if (req.user!.role !== 'admin' && req.user!.role !== 'superadmin') {
-      return res.status(403).json({ message: 'Admin access required' });
-    }
-
     const totalUsers = await DatabaseService.count('users');
     const totalCompanies = await DatabaseService.count('companies');
     const pendingCompanies = await DatabaseService.count('companies', { where: { status: 'pending' } });
@@ -300,12 +453,8 @@ app.get('/api/admin/stats', authenticateToken, async (req: AuthenticatedRequest,
   }
 });
 
-app.get('/api/admin/users', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+app.get('/api/admin/users', authenticateToken, requireAdmin, generalLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    if (req.user!.role !== 'admin' && req.user!.role !== 'superadmin') {
-      return res.status(403).json({ message: 'Admin access required' });
-    }
-
     const users = await DatabaseService.findAll('users');
     res.json(users);
   } catch (error) {
@@ -314,7 +463,35 @@ app.get('/api/admin/users', authenticateToken, async (req: AuthenticatedRequest,
   }
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Security: Global error handler
+app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error('Unhandled error:', error);
+  res.status(500).json({ message: 'Internal server error' });
+});
+
+// Security: 404 handler for undefined routes
+app.use('*', (req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
+
+// Start server with proper error handling
+const server = app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`🔒 Security features enabled: Helmet, Rate Limiting, CORS`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+});
+
+// Security: Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    console.log('Process terminated');
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully');
+  server.close(() => {
+    console.log('Process terminated');
+  });
 });

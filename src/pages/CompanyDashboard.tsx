@@ -53,7 +53,8 @@ import {
   MoreHorizontal,
   CheckCircle2,
   Clock4,
-  AlertTriangle
+  AlertTriangle,
+  LogOut
 } from "lucide-react";
 
 interface CompanyApplication {
@@ -138,7 +139,7 @@ interface Activity {
 }
 
 const CompanyDashboard = () => {
-  const { user } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [companies, setCompanies] = useState<NetworkCompany[]>([]);
@@ -204,11 +205,11 @@ const CompanyDashboard = () => {
         ...(dashboardData.userCompanies || []).map(uc => ({
           id: uc.id,
           name: uc.company_name || 'Unknown Company',
-          sector: 'Technology', // Default values since user_companies doesn't have these fields
-          country: 'United Kingdom',
-          description: uc.company_name || 'Company description',
-          website: '',
-          employees: 10,
+          sector: uc.sector || 'Technology',
+          country: uc.country || 'United Kingdom',
+          description: uc.description || 'Company description',
+          website: uc.website || '',
+          employees: uc.employees || 10,
           is_shared_wealth_licensed: uc.is_shared_wealth_licensed || false,
           license_number: uc.license_number || '',
           license_date: uc.license_date || '',
@@ -220,7 +221,9 @@ const CompanyDashboard = () => {
           joined_date: uc.created_at || new Date().toISOString(),
           logo: '',
           contact_email: '',
-          contact_phone: ''
+          contact_phone: '',
+          highlights: [],
+          location: uc.country || 'United Kingdom'
         })),
         ...(dashboardData.networkCompanies || [])
       ];
@@ -452,12 +455,13 @@ const CompanyDashboard = () => {
                   Admin Panel
                 </Button>
               )}
-              <Button onClick={signOut} variant="outline" className="bg-red-600 text-white hover:bg-red-700">
+              <Button onClick={signOut} variant="outline" className="bg-red-600 text-white hover:bg-blue-700">
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
               </Button>
             </div>
           </div>
+          
         </div>
 
         {/* Tabs */}
