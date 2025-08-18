@@ -8,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { NetworkService } from "@/services/mockServices";
+import { NetworkCompany, UserCompany } from "@/types";
 import { 
   Building, 
   Users, 
@@ -34,42 +35,7 @@ import {
   RefreshCw
 } from "lucide-react";
 
-interface NetworkCompany {
-  id: string;
-  name: string;
-  sector: string;
-  country: string;
-  description: string | null;
-  employees: number | null;
-  impact_score: number | null;
-  shared_value: string | null;
-  joined_date: string;
-  website: string | null;
-  location: string | null;
-  highlights: string[] | null;
-  status: string;
-  is_shared_wealth_licensed: boolean;
-  license_number: string | null;
-  license_date: string | null;
-  role?: string;
-  created_at: string;
-  updated_at: string;
-}
 
-interface UserCompany {
-  id: string;
-  user_id: string;
-  company_id: string | null;
-  company_name: string;
-  role: string;
-  position: string;
-  is_shared_wealth_licensed: boolean;
-  license_number: string | null;
-  license_date: string | null;
-  status: string;
-  created_at: string;
-  updated_at: string;
-}
 
 const NetworkPage = () => {
   const { user } = useAuth();
@@ -104,118 +70,13 @@ const NetworkPage = () => {
       
       // Load user's personal network companies
       if (user) {
-        const { data: userCompaniesData, error: userCompaniesError } = await supabase
-          .from('user_companies')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('status', 'approved');
-
-        if (userCompaniesError) {
-          console.error('Error loading user companies:', userCompaniesError);
-        } else {
-          // Convert user companies to network company format
-          const userNetworkCompanies = userCompaniesData?.map(item => ({
-            id: item.id,
-            name: item.company_name,
-            sector: 'Unknown', // Will be updated when we have sector data
-            country: 'Unknown', // Will be updated when we have country data
-            description: null,
-            employees: null,
-            impact_score: null,
-            shared_value: null,
-            joined_date: item.created_at,
-            website: null,
-            location: null,
-            highlights: null,
-            status: item.status,
-            is_shared_wealth_licensed: item.is_shared_wealth_licensed,
-            license_number: item.license_number,
-            license_date: item.license_date,
-            created_at: item.created_at,
-            updated_at: item.updated_at
-          })) || [];
-
-          // Add Letstern to user's network if they are the founder
-          const letsternUserCompany: NetworkCompany = {
-            id: 'letstern-user-demo',
-            name: 'Letstern Limited',
-            sector: 'Technology & Innovation',
-            country: 'United Kingdom',
-            description: 'Letstern Limited is a Shared Wealth Enterprise focused on technology innovation and sustainable business practices. We are committed to creating shared value through collaborative partnerships and innovative solutions.',
-            employees: 25,
-            impact_score: 85,
-            shared_value: 'Technology for Social Good',
-            joined_date: '2025-01-15',
-            website: 'https://letstern.com',
-            location: 'London, United Kingdom',
-            highlights: [
-              'Technology Innovation',
-              'Sustainable Business Practices',
-              'Shared Wealth Principles',
-              'Collaborative Partnerships'
-            ],
-            status: 'active',
-            is_shared_wealth_licensed: true,
-            license_number: 'SWI-LET-2025-001',
-            license_date: '2025-01-15',
-            role: 'Founder & CEO',
-            created_at: '2025-01-15T00:00:00Z',
-            updated_at: '2025-01-15T00:00:00Z'
-          };
-
-          setMyNetworkCompanies([letsternUserCompany, ...userNetworkCompanies]);
-        }
+        const userNetworkCompanies = await NetworkService.getUserNetworkCompanies(user.id);
+        setMyNetworkCompanies(userNetworkCompanies);
       }
 
       // Load all public network companies
-      const { data: networkCompaniesData, error: networkCompaniesError } = await supabase
-        .from('network_companies')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      if (networkCompaniesError) {
-        console.error('Error loading network companies:', networkCompaniesError);
-        toast({
-          title: "Error",
-          description: "Failed to load network companies",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Add Letstern company to the network (bypassing approval for demonstration)
-      const letsternCompany: NetworkCompany = {
-        id: 'letstern-demo',
-        name: 'Letstern Limited',
-        sector: 'Technology & Innovation',
-        country: 'United Kingdom',
-        description: 'Letstern Limited is a Shared Wealth Enterprise focused on technology innovation and sustainable business practices. We are committed to creating shared value through collaborative partnerships and innovative solutions.',
-        employees: 25,
-        impact_score: 85,
-        shared_value: 'Technology for Social Good',
-        joined_date: '2025-01-15',
-        website: 'https://letstern.com',
-        location: 'London, United Kingdom',
-        highlights: [
-          'Technology Innovation',
-          'Sustainable Business Practices',
-          'Shared Wealth Principles',
-          'Collaborative Partnerships'
-        ],
-        status: 'active',
-        is_shared_wealth_licensed: true,
-        license_number: 'SWI-LET-2025-001',
-        license_date: '2025-01-15',
-        role: 'Founder & CEO',
-        created_at: '2025-01-15T00:00:00Z',
-        updated_at: '2025-01-15T00:00:00Z'
-      };
-
-      // Combine network companies with Letstern
-      const allCompanies = [letsternCompany, ...(networkCompaniesData || [])];
-      setAllNetworkCompanies(allCompanies);
-
+      const networkCompanies = await NetworkService.getAllNetworkCompanies();
+      setAllNetworkCompanies(networkCompanies);
     } catch (error) {
       console.error('Error loading network data:', error);
       toast({

@@ -1,16 +1,27 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { apiService } from '@/services/api';
+
+export interface User {
+  id: string;
+  email: string;
+  role: 'user' | 'admin' | 'superadmin';
+  created_at: string;
+}
+
+export interface Session {
+  user: User;
+  access_token: string;
+}
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
+  isAdmin: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error: any }>;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,235 +34,126 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const [isAdmin, setIsAdmin] = useState(false);
 
+  // Check for existing session on app load
   useEffect(() => {
-    console.log('Setting up auth state listener...');
-    console.log('localStorage available:', typeof localStorage !== 'undefined');
-    console.log('Current localStorage auth keys:', Object.keys(localStorage).filter(key => key.includes('supabase')));
-    
-    // Get initial session
-    const getInitialSession = async () => {
+    const checkSession = async () => {
       try {
-        console.log('Calling supabase.auth.getSession()...');
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error('Error getting initial session:', error);
-        } else {
-          console.log('Initial session:', session?.user?.email);
-          console.log('Initial user:', session?.user);
-          console.log('Session exists:', !!session);
-          console.log('Session data:', session);
-          setSession(session);
-          setUser(session?.user ?? null);
+        const storedSession = localStorage.getItem('session');
+        const storedUser = localStorage.getItem('user');
+        const storedIsAdmin = localStorage.getItem('isAdmin');
+
+        if (storedSession && storedUser) {
+          const parsedSession = JSON.parse(storedSession);
+          const parsedUser = JSON.parse(storedUser);
+          const parsedIsAdmin = storedIsAdmin === 'true';
+
+          setSession(parsedSession);
+          setUser(parsedUser);
+          setIsAdmin(parsedIsAdmin);
         }
       } catch (error) {
-        console.error('Exception getting initial session:', error);
+        console.error('Error checking session:', error);
+        // Clear invalid data
+        localStorage.removeItem('session');
+        localStorage.removeItem('user');
+        localStorage.removeItem('isAdmin');
       } finally {
         setLoading(false);
       }
     };
 
-    getInitialSession();
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
-        console.log('New session:', session);
-        console.log('New user:', session?.user);
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (event === 'SIGNED_IN') {
-          toast({
-            title: "Welcome!",
-            description: `Signed in as ${session?.user?.email}`,
-          });
-        } else if (event === 'SIGNED_OUT') {
-          console.log('User signed out, clearing state');
-          setUser(null);
-          setSession(null);
-        }
-        
-        setLoading(false);
-      }
-    );
-
-    return () => {
-      console.log('Cleaning up auth subscription');
-      subscription.unsubscribe();
-    };
-  }, [toast]);
+    checkSession();
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('Attempting sign in for:', email);
-      setLoading(true);
+      const response = await apiService.signIn(email, password);
       
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-      
-      console.log('Sign in response data:', data);
-      console.log('Sign in response error:', error);
-      
-      if (error) {
-        console.error('Sign in error:', error);
-        toast({
-          title: "Sign In Failed",
-          description: error.message,
-          variant: "destructive"
-        });
+      if (response.session) {
+        setSession(response.session);
+        setUser(response.session.user);
+        
+        // Check if user is admin
+        try {
+          const adminCheck = await apiService.isAdmin(response.session.user.id);
+          setIsAdmin(adminCheck);
+          
+          // Store in localStorage
+          localStorage.setItem('session', JSON.stringify(response.session));
+          localStorage.setItem('user', JSON.stringify(response.session.user));
+          localStorage.setItem('isAdmin', adminCheck.toString());
+        } catch (error) {
+          console.error('Error checking admin status:', error);
+          setIsAdmin(false);
+          localStorage.setItem('isAdmin', 'false');
+        }
       } else {
-        console.log('Sign in successful, user:', data.user);
-        console.log('Sign in successful, session:', data.session);
+        throw new Error('Invalid response from server');
       }
-      
-      return { error };
-    } catch (error: any) {
-      console.error('Sign in exception:', error);
-      toast({
-        title: "Sign In Failed",
-        description: "An unexpected error occurred",
-        variant: "destructive"
-      });
-      return { error };
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Sign in error:', error);
+      throw error;
     }
   };
 
   const signUp = async (email: string, password: string) => {
     try {
-      console.log('Attempting sign up for:', email);
-      setLoading(true);
-      
-      const redirectUrl = `${window.location.origin}/auth`;
-      
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl
-        }
-      });
-      
-      if (error) {
-        console.error('Sign up error:', error);
-        toast({
-          title: "Sign Up Failed",
-          description: error.message,
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Check your email",
-          description: "Please check your email for a confirmation link",
-        });
-      }
-      
-      return { error };
-    } catch (error: any) {
-      console.error('Sign up exception:', error);
-      toast({
-        title: "Sign Up Failed",
-        description: "An unexpected error occurred",
-        variant: "destructive"
-      });
-      return { error };
-    } finally {
-      setLoading(false);
+      await apiService.signUp(email, password);
+    } catch (error) {
+      console.error('Sign up error:', error);
+      throw error;
     }
   };
 
   const signOut = async () => {
     try {
-      console.log('Signing out user:', user?.email);
-      setLoading(true);
-      
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error('Sign out error:', error);
-        toast({
-          title: "Sign Out Failed",
-          description: error.message,
-          variant: "destructive"
-        });
-      } else {
-        console.log('Sign out successful');
-    setUser(null);
-    setSession(null);
-        toast({
-          title: "Signed out successfully",
-          description: "You have been signed out",
-        });
-      }
+      await apiService.signOut();
     } catch (error) {
-      console.error('Sign out exception:', error);
-      toast({
-        title: "Sign Out Failed",
-        description: "An error occurred while signing out",
-        variant: "destructive"
-      });
+      console.error('Sign out error:', error);
     } finally {
-      setLoading(false);
+      // Clear local state and storage
+      setUser(null);
+      setSession(null);
+      setIsAdmin(false);
+      localStorage.removeItem('session');
+      localStorage.removeItem('user');
+      localStorage.removeItem('isAdmin');
     }
   };
 
   const resetPassword = async (email: string) => {
     try {
-      console.log('Attempting password reset for:', email);
-      setLoading(true);
-      
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth`
-      });
-      
-      if (error) {
-        console.error('Password reset error:', error);
-        toast({
-          title: "Password Reset Failed",
-          description: error.message,
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Check your email",
-          description: "Password reset instructions sent to your email",
-        });
-      }
-      
-      return { error };
-    } catch (error: any) {
-      console.error('Password reset exception:', error);
-    toast({
-        title: "Password Reset Failed",
-        description: "An unexpected error occurred",
-        variant: "destructive"
-    });
-      return { error };
-    } finally {
-      setLoading(false);
+      await apiService.resetPassword(email);
+    } catch (error) {
+      console.error('Reset password error:', error);
+      throw error;
     }
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
     session,
     loading,
+    isAdmin,
     signIn,
     signUp,
     signOut,
-    resetPassword
+    resetPassword,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

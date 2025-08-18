@@ -13,13 +13,13 @@ const About = lazy(() => import("@/pages/About"));
 const Model = lazy(() => import("@/pages/Model"));
 const Network = lazy(() => import("@/pages/Network"));
 const Resources = lazy(() => import("@/pages/Resources"));
-const Auth = lazy(() => import("@/pages/Auth"));
+
 const Companies = lazy(() => import("@/pages/Companies"));
 const Calculator = lazy(() => import("@/pages/Calculator"));
 const Assessment = lazy(() => import("@/pages/Assessment"));
 const Simulator = lazy(() => import("@/pages/Simulator"));
 const Configurator = lazy(() => import("@/pages/Configurator"));
-const AdminDashboard = lazy(() => import("@/components/AdminDashboard"));
+
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const CollaborationHub = lazy(() => import('./pages/CollaborationHub'));
 const CompanyDashboard = lazy(() => import('./pages/CompanyDashboard'));
@@ -41,6 +41,18 @@ const MessagingSystem = lazy(() => import('./pages/MessagingSystem'));
 const IPSimulator = lazy(() => import('./pages/IPSimulator'));
 const Tools = lazy(() => import('./pages/Tools'));
 const Impact = lazy(() => import('./pages/Impact'));
+const Admin = lazy(() => import('./pages/Admin'));
+const Auth = lazy(() => import('./pages/Auth'));
+
+// Error Boundary component
+const ErrorBoundary = ({ children, fallback }: { children: React.ReactNode; fallback: React.ReactNode }) => {
+  try {
+    return <>{children}</>;
+  } catch (error) {
+    console.error('Error in component:', error);
+    return <>{fallback}</>;
+  }
+};
 
 // Loading component
 const LoadingSpinner = () => (
@@ -119,25 +131,30 @@ const LandingLayout = ({ children }: { children: React.ReactNode }) => (
 );
 
 function App() {
+  console.log('App component rendering');
+  
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <Toaster />
-          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <Suspense fallback={<LoadingSpinner />}>
-              <Routes>
+              <TooltipProvider>
+          <AuthProvider>
+            <Toaster />
+            <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <ErrorBoundary fallback={<div>Something went wrong. Check console for errors.</div>}>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
                 {/* Public Routes - Always show Header */}
                 <Route path="/" element={
                   <LandingLayout>
                     <Index />
                   </LandingLayout>
                 } />
-                <Route path="/auth" element={
-                  <LandingLayout>
-                    <Auth />
-                  </LandingLayout>
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/admin" element={
+                  <PrivateRoute requireAdmin={true}>
+                    <Admin />
+                  </PrivateRoute>
                 } />
+
                 <Route path="/about" element={
                   <LandingLayout>
                     <About />
@@ -308,21 +325,14 @@ function App() {
                     </AuthenticatedLayout>
                   </PrivateRoute>
                 } />
-                <Route path="/admin" element={
-                  <PrivateRoute>
-                    <div className="min-h-screen bg-background">
-                      <Suspense fallback={<LoadingSpinner />}>
-                        <AdminDashboard />
-                      </Suspense>
-                    </div>
-                  </PrivateRoute>
-                } />
+
               </Routes>
             </Suspense>
+            </ErrorBoundary>
           </Router>
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+            </AuthProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
   );
 }
 

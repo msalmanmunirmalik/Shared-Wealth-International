@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import apiService from "@/services/api";
 import { 
   Users, 
   Building, 
@@ -57,27 +57,21 @@ const AdminDashboard = () => {
       setLoading(true);
       setError(null);
 
-      // Simple check if user exists in admin_users table
-      const { data, error: adminError } = await supabase
-        .from('admin_users')
-        .select('id')
-        .eq('user_id', user?.id)
-        .single();
-
-      if (adminError) {
-        console.error('Error checking admin status:', adminError);
-        setError('Failed to verify admin privileges. Please check if you have admin access.');
-        return;
-      }
-
-      if (data) {
-        setIsAdmin(true);
-        toast({
-          title: "Welcome to Admin Dashboard",
-          description: "You have successfully accessed the admin panel.",
-        });
+      // Check if user has admin privileges using the real API
+      if (user?.id) {
+        const isUserAdmin = await apiService.isAdmin(user.id);
+        
+        if (isUserAdmin) {
+          setIsAdmin(true);
+          toast({
+            title: "Welcome to Admin Dashboard",
+            description: "You have successfully accessed the admin panel.",
+          });
+        } else {
+          setError('You do not have admin privileges. Please contact a system administrator.');
+        }
       } else {
-        setError('You do not have admin privileges. Please contact a system administrator.');
+        setError('User not authenticated. Please sign in.');
       }
 
     } catch (error) {
@@ -125,7 +119,7 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent className="text-center">
             <Button asChild className="w-full bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 hover:from-blue-700 hover:via-blue-800 hover:to-blue-900 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-              <Navigate to="/dashboard" replace />
+              <Navigate to="/" replace />
             </Button>
           </CardContent>
         </Card>

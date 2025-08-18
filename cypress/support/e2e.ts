@@ -26,9 +26,9 @@ Cypress.on('uncaught:exception', (err, runnable) => {
   return true;
 });
 
-// Custom command for waiting for Supabase operations
-Cypress.Commands.add('waitForSupabase', () => {
-  cy.wait(1000); // Adjust based on your Supabase response times
+// Custom command for waiting for API operations
+Cypress.Commands.add('waitForApi', () => {
+  cy.wait(1000); // Adjust based on your API response times
 });
 
 // Custom command for login

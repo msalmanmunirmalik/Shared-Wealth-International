@@ -32,7 +32,7 @@ describe('Authentication Flow', () => {
     cy.get('[data-cy=submit-button]').click();
     
     // Wait for authentication to complete
-    cy.waitForSupabase();
+    cy.waitForApi();
     
     // Should redirect to dashboard
     cy.url().should('include', '/dashboard');

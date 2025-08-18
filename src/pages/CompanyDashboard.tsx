@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { CompanyDashboardService } from "@/services/mockServices";
 import SocialLicenseAgreement from "@/components/SocialLicenseAgreement";
 import { 
   Users, 
@@ -193,62 +193,43 @@ const CompanyDashboard = () => {
     try {
       setIsLoading(true);
       
-      // Load user's companies
-      const { data: userCompanies, error: userError } = await supabase
-        .from('user_companies')
-        .select('*')
-        .eq('user_id', user?.id);
-
-      if (userError) {
-        console.error('Error loading user companies:', userError);
-        setUserCompanies([]);
-      } else {
-        setUserCompanies(userCompanies || []);
-      }
-
-      // Load network companies (public directory)
-      const { data: networkCompanies, error: networkError } = await supabase
-        .from('network_companies')
-        .select('*');
-
-      if (networkError) {
-        console.error('Error loading network companies:', networkError);
-        setNetworkCompanies([]);
-      } else {
-        setNetworkCompanies(networkCompanies || []);
-      }
-
+      // Load dashboard data using the service
+      const dashboardData = await CompanyDashboardService.getCompanyDashboardData(user?.id || '');
+      
+      setUserCompanies(dashboardData.userCompanies);
+      setNetworkCompanies(dashboardData.networkCompanies);
+      
       // Combine companies for display
       const allCompanies: NetworkCompany[] = [
-        ...(userCompanies || []).map(uc => ({
+        ...(dashboardData.userCompanies || []).map(uc => ({
           id: uc.id,
-          name: uc.company_name,
+          name: uc.company_name || 'Unknown Company',
           sector: 'Technology', // Default values since user_companies doesn't have these fields
           country: 'United Kingdom',
-          description: uc.company_name,
+          description: uc.company_name || 'Company description',
           website: '',
           employees: 10,
-          is_shared_wealth_licensed: uc.is_shared_wealth_licensed,
-          license_number: uc.license_number,
-          license_date: uc.license_date,
-          status: uc.status,
-          created_at: uc.created_at,
-          updated_at: uc.updated_at,
+          is_shared_wealth_licensed: uc.is_shared_wealth_licensed || false,
+          license_number: uc.license_number || '',
+          license_date: uc.license_date || '',
+          status: uc.status || 'active',
+          created_at: uc.created_at || new Date().toISOString(),
+          updated_at: uc.updated_at || new Date().toISOString(),
           impact_score: 0,
           shared_value: 0,
-          joined_date: uc.created_at,
+          joined_date: uc.created_at || new Date().toISOString(),
           logo: '',
           contact_email: '',
           contact_phone: ''
         })),
-        ...(networkCompanies || [])
+        ...(dashboardData.networkCompanies || [])
       ];
       
       setCompanies(allCompanies);
 
       // Calculate real stats based on actual data
       const totalCompanies = allCompanies.length;
-      const networkPartners = networkCompanies?.length || 0;
+      const networkPartners = dashboardData.networkCompanies?.length || 0;
       
       // Only calculate growth rate if there are companies to compare
       const growthRate = totalCompanies > 0 ? Math.round((totalCompanies / Math.max(totalCompanies - 1, 1)) * 100) : 0;
@@ -464,6 +445,16 @@ const CompanyDashboard = () => {
               <Button onClick={() => setShowAddCompany(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Add Company
+              </Button>
+              {isAdmin && (
+                <Button onClick={() => window.location.href = '/admin'} variant="outline" className="bg-blue-600 text-white hover:bg-blue-700">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Admin Panel
+                </Button>
+              )}
+              <Button onClick={signOut} variant="outline" className="bg-red-600 text-white hover:bg-red-700">
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
               </Button>
             </div>
           </div>
