@@ -75,9 +75,17 @@ export const companyValidation = {
       .isIn(['startup', 'small', 'medium', 'large'])
       .withMessage('Size must be one of: startup, small, medium, large'),
     body('location')
+      .optional()
       .trim()
-      .isLength({ min: 2, max: 255 })
-      .withMessage('Location must be between 2 and 255 characters'),
+      .custom((value) => {
+        if (value && value.length > 0 && value.length < 2) {
+          throw new Error('Location must be between 2 and 255 characters');
+        }
+        if (value && value.length > 255) {
+          throw new Error('Location must be between 2 and 255 characters');
+        }
+        return true;
+      }),
     body('website')
       .optional()
       .isURL()

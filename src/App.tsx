@@ -22,11 +22,12 @@ const Configurator = lazy(() => import("@/pages/Configurator"));
 
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const CollaborationHub = lazy(() => import('./pages/CollaborationHub'));
-const CompanyDashboard = lazy(() => import('./pages/CompanyDashboard'));
+const UserDashboard = lazy(() => import('./pages/UserDashboard'));
 const TestDashboard = lazy(() => import('./pages/TestDashboard'));
 const MyCompanies = lazy(() => import('./pages/MyCompanies'));
 const DashboardResources = lazy(() => import('./pages/DashboardResources'));
 const DashboardForum = lazy(() => import('./pages/DashboardForum'));
+const NewsAndUpdates = lazy(() => import('./pages/NewsAndUpdates'));
 const DashboardEvents = lazy(() => import('./pages/DashboardEvents'));
 const SharedWealthModel = lazy(() => import('./pages/SharedWealthModel'));
 const AboutUs = lazy(() => import('./pages/AboutUs'));
@@ -41,8 +42,15 @@ const MessagingSystem = lazy(() => import('./pages/MessagingSystem'));
 const IPSimulator = lazy(() => import('./pages/IPSimulator'));
 const Tools = lazy(() => import('./pages/Tools'));
 const Impact = lazy(() => import('./pages/Impact'));
+const ImpactAnalytics = lazy(() => import('./pages/ImpactAnalytics'));
 const Admin = lazy(() => import('./pages/Admin'));
 const Auth = lazy(() => import('./pages/Auth'));
+
+// New Social Features Pages
+const SocialDashboard = lazy(() => import('./pages/SocialDashboard'));
+const Messaging = lazy(() => import('./pages/Messaging'));
+const FileManager = lazy(() => import('./pages/FileManager'));
+const CompanyManagement = lazy(() => import('./pages/CompanyManagement'));
 
 // Error Boundary component
 const ErrorBoundary = ({ children, fallback }: { children: React.ReactNode; fallback: React.ReactNode }) => {
@@ -78,12 +86,14 @@ const queryClient = new QueryClient({
 // Layout component for authenticated users with sidebar ONLY (no header)
 const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeTab, setActiveTab] = useState('company-dashboard');
+  const [activeTab, setActiveTab] = useState('user-dashboard');
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'company-dashboard':
-        return <CompanyDashboard />;
+      case 'user-dashboard':
+        return <UserDashboard />;
+      case 'news-updates':
+        return <NewsAndUpdates />;
       case 'network':
         return <Network />;
       case 'funding-platform':
@@ -93,7 +103,7 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
       case 'tools-learning':
         return <Resources />; // Maps to Tools & Learning
       default:
-        return <CompanyDashboard />;
+        return <UserDashboard />;
     }
   };
 
@@ -109,6 +119,29 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="flex-1 flex flex-col overflow-hidden">
           <main className="flex-1 overflow-y-auto">
             {renderTabContent()}
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Layout component for company management page (separate from dashboard)
+const CompanyManagementLayout = ({ children }: { children: React.ReactNode }) => {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="flex h-screen bg-gray-50">
+        <LeftSidebar
+          isCollapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          activeTab="company-management"
+          onTabChange={() => {}} // No tab switching in company management
+        />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <main className="flex-1 overflow-y-auto">
+            {children}
           </main>
         </div>
       </div>
@@ -134,10 +167,10 @@ function App() {
   console.log('App component rendering');
   
   return (
-    <QueryClientProvider client={queryClient}>
-              <TooltipProvider>
-          <AuthProvider>
-            <Toaster />
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <AuthProvider>
+        <Toaster />
             <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <ErrorBoundary fallback={<div>Something went wrong. Check console for errors.</div>}>
               <Suspense fallback={<LoadingSpinner />}>
@@ -148,7 +181,7 @@ function App() {
                     <Index />
                   </LandingLayout>
                 } />
-                <Route path="/auth" element={<Auth />} />
+                  <Route path="/auth" element={<Auth />} />
                 <Route path="/admin" element={
                   <PrivateRoute requireAdmin={true}>
                     <Admin />
@@ -242,6 +275,11 @@ function App() {
                     <Impact />
                   </PublicLayout>
                 } />
+                <Route path="/impact-analytics" element={
+                  <PublicLayout>
+                    <ImpactAnalytics />
+                  </PublicLayout>
+                } />
 
                 {/* NEW ENHANCEMENT FEATURES - Always show Header */}
                 <Route path="/business-canvas" element={
@@ -259,6 +297,35 @@ function App() {
                     <MessagingSystem />
                   </PublicLayout>
                 } />
+                
+                {/* Social Features Routes */}
+                <Route path="/social-dashboard" element={
+                  <PublicLayout>
+                    <SocialDashboard />
+                  </PublicLayout>
+                } />
+                <Route path="/realtime-messaging" element={
+                  <PublicLayout>
+                    <Messaging />
+                  </PublicLayout>
+                } />
+                <Route path="/file-manager" element={
+                  <PublicLayout>
+                    <FileManager />
+                  </PublicLayout>
+                } />
+                <Route path="/news-updates" element={
+                  <PublicLayout>
+                    <NewsAndUpdates />
+                  </PublicLayout>
+                } />
+                <Route path="/company/:companyId" element={
+                  <PrivateRoute>
+                    <CompanyManagementLayout>
+                      <CompanyManagement />
+                    </CompanyManagementLayout>
+                  </PrivateRoute>
+                } />
                 <Route path="/network" element={
                   <PublicLayout>
                     <Network />
@@ -266,10 +333,10 @@ function App() {
                 } />
 
                 {/* Protected Routes - Require authentication with sidebar layout AND Header */}
-                <Route path="/company-dashboard" element={
+                <Route path="/user-dashboard" element={
                   <PrivateRoute>
                     <AuthenticatedLayout>
-                      <CompanyDashboard />
+                      <UserDashboard />
                     </AuthenticatedLayout>
                   </PrivateRoute>
                 } />
@@ -333,14 +400,14 @@ function App() {
                   </PrivateRoute>
                 } />
 
-              </Routes>
-            </Suspense>
+                </Routes>
+              </Suspense>
             </ErrorBoundary>
-          </Router>
-            </AuthProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-  );
+        </Router>
+      </AuthProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 }
 
 export default App;

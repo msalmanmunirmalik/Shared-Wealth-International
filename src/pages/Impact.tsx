@@ -103,11 +103,11 @@ const Impact = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Hero Section */}
+      {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold text-gray-900 mb-6">
             Track and Share Impact Stories
-          </h1>
+            </h1>
           <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
             Discover how Shared Wealth International and our partner companies are creating 
             measurable positive change across the globe. From social impact to environmental 
@@ -119,7 +119,7 @@ const Impact = () => {
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
             Global Impact Overview
-          </h2>
+            </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {impactMetrics.map((metric, index) => (
               <Card key={index} className="text-center hover:shadow-lg transition-shadow duration-200">
@@ -157,11 +157,11 @@ const Impact = () => {
           </div>
         </div>
 
-        {/* Impact Stories */}
+      {/* Impact Stories */}
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
             Featured Impact Stories
-          </h2>
+            </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {impactStories.map((story, index) => (
               <Card key={index} className="hover:shadow-lg transition-shadow duration-200">
@@ -202,7 +202,7 @@ const Impact = () => {
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
             Global Reach & Distribution
-          </h2>
+              </h2>
           <div className="bg-white rounded-2xl p-8 shadow-lg">
             <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
               {globalReach.map((region, index) => (
@@ -222,7 +222,7 @@ const Impact = () => {
                   >
                     {region.impact} Impact
                   </Badge>
-                </div>
+                  </div>
               ))}
             </div>
           </div>

@@ -1,14 +1,23 @@
 import app from './app.js';
+import { createServer } from 'http';
 import { checkDatabaseHealth, closeDatabasePool } from '../src/integrations/postgresql/config.js';
+import { webSocketService } from './services/webSocketService.js';
 
 const PORT = process.env.PORT || 8080;
 
+// Create HTTP server
+const httpServer = createServer(app);
+
+// Initialize WebSocket service
+webSocketService.initialize(httpServer);
+
 // Start server with proper error handling
-const server = app.listen(PORT, async () => {
+const server = httpServer.listen(PORT, async () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`🔒 Security features enabled: Helmet, Rate Limiting, CORS`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🏗️  Architecture: Layered (Routes → Controllers → Services → Database)`);
+  console.log(`🔌 WebSocket service initialized for real-time features`);
   
   // Check database health on startup
   try {
@@ -30,6 +39,10 @@ const gracefulShutdown = async (signal: string) => {
   // Close server
   server.close(async () => {
     console.log('✅ HTTP server closed');
+    
+    // Close WebSocket service
+    webSocketService.close();
+    console.log('✅ WebSocket service closed');
     
     // Close database pool
     await closeDatabasePool();

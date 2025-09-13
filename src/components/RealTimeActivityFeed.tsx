@@ -14,8 +14,8 @@ import {
   Activity
 } from 'lucide-react';
 
-// Dummy data for showcasing the concept
-const dummyActivities = [
+// Sample data for showcasing the concept (replace with real API data)
+const sampleActivities = [
   {
     id: '1',
     activity_type: 'meeting',
@@ -142,8 +142,8 @@ const RealTimeActivityFeed: React.FC = () => {
   };
 
   const filteredActivities = activeFilter === 'all' 
-    ? dummyActivities 
-    : dummyActivities.filter(activity => activity.activity_type === activeFilter);
+    ? sampleActivities 
+    : sampleActivities.filter(activity => activity.activity_type === activeFilter);
 
   return (
     <div className="space-y-6">
@@ -247,7 +247,7 @@ const RealTimeActivityFeed: React.FC = () => {
 
       <div className="text-center pt-4 border-t">
         <p className="text-sm text-gray-500">
-          Showing {filteredActivities.length} of {dummyActivities.length} impact stories
+          Showing {filteredActivities.length} of {sampleActivities.length} impact stories
         </p>
       </div>
     </div>

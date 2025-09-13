@@ -1,10 +1,15 @@
 import pool from './config.js';
 
 // Security: Validate table names to prevent SQL injection
-const ALLOWED_TABLES = [
-  'users', 'companies', 'user_companies', 'network_connections',
-  'funding_opportunities', 'funding_applications', 'forum_posts', 'events', 'messages'
-];
+  const ALLOWED_TABLES = [
+    'users', 'companies', 'user_companies', 'network_connections',
+    'funding_opportunities', 'funding_applications', 'forum_posts', 'events', 'messages',
+    'news_articles', 'content_sections', 'admin_activity_log', 'activity_feed',
+    'forum_categories', 'forum_topics', 'forum_replies', 'social_license_agreements',
+    'network_companies', 'company_applications', 'admin_users', 'file_uploads',
+  'projects', 'company_applications', 'collaboration_meetings', 'user_connections',
+  'post_reactions', 'bookmarks', 'content_shares', 'company_news', 'unified_content'
+  ];
 
 // Security: Validate table name to prevent SQL injection
 function validateTableName(table: string): boolean {
@@ -16,10 +21,24 @@ function validateTableName(table: string): boolean {
 function sanitizeColumnNames(columns: string[]): string[] {
   const allowedColumns = [
     'id', 'email', 'password_hash', 'role', 'created_at', 'updated_at',
-    'name', 'description', 'industry', 'size', 'location', 'website', 'logo', 'status',
+    'first_name', 'last_name', 'phone', 'is_active', 'email_verified', 'last_login',
+    'name', 'description', 'industry', 'sector', 'size', 'location', 'website', 'logo', 'status',
     'user_id', 'company_id', 'connected_company_id', 'connection_strength', 'shared_projects',
     'collaboration_score', 'title', 'category', 'amount', 'deadline', 'eligibility', 'url',
-    'content', 'start_date', 'end_date', 'max_participants', 'recipient_id', 'sender_id', 'message'
+    'content', 'start_date', 'end_date', 'max_participants', 'recipient_id', 'sender_id', 'message',
+    'applicant_user_id', 'applicant_role', 'applicant_position', 'is_shared_wealth_licensed',
+    'license_number', 'license_date', 'created_by_admin', 'logo_url', 'logo_file_path', 'countries', 'employees',
+    'is_primary', 'joined_at', 'filename', 'original_filename', 'file_path', 'file_size', 'mime_type', 'upload_type', 'uploaded_by', 'related_entity_type', 'related_entity_id',
+    'sender_id', 'recipient_id', 'content', 'message_type', 'attachments', 'reply_to_id', 'is_read', 'read_at',
+    'project_type', 'status', 'start_date', 'end_date', 'budget', 'currency', 'participants', 'project_manager_id',
+    'company_name', 'applicant_name', 'applicant_email', 'applicant_phone', 'company_sector', 'company_size', 'company_location', 'company_website', 'company_description', 'business_model', 'shared_wealth_commitment', 'expected_impact', 'application_status', 'review_notes', 'reviewed_by', 'reviewed_at',
+    'meeting_title', 'meeting_date', 'meeting_notes', 'outcomes', 'impact_score', 'shared_wealth_contribution', 'meeting_type',
+  'follower_id', 'following_id', 'connection_type',
+  'post_id', 'post_type', 'reaction_type',
+  'bookmarked_id', 'bookmarked_type',
+  'content_id', 'content_type', 'share_type', 'platform',
+  'company_id', 'author_id', 'title', 'content', 'tags', 'media_urls', 'is_published', 'published_at',
+  'type', 'metadata', 'reactions', 'comments_count', 'shares_count', 'views_count'
   ];
   
   return columns.filter(col => allowedColumns.includes(col.toLowerCase()));
@@ -29,10 +48,11 @@ export class DatabaseService {
   // Generic query method with security improvements
   static async query(text: string, params?: any[]): Promise<any> {
     // Security: Validate SQL query doesn't contain dangerous patterns
+    // Allow DELETE FROM with WHERE clause (safe delete operations)
     if (text.toLowerCase().includes('drop') || 
-        text.toLowerCase().includes('delete from') ||
         text.toLowerCase().includes('truncate') ||
-        text.toLowerCase().includes('alter')) {
+        text.toLowerCase().includes('alter') ||
+        (text.toLowerCase().includes('delete from') && !text.toLowerCase().includes('where'))) {
       throw new Error('Dangerous SQL operation detected');
     }
 

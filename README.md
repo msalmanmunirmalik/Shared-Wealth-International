@@ -1,218 +1,415 @@
-# Wealth Pioneers Network
+# Shared Wealth International Platform
 
-A comprehensive platform for building and managing shared wealth initiatives, connecting organizations committed to equitable wealth distribution and inclusive decision-making.
+A comprehensive platform for building sustainable businesses through shared wealth principles, featuring company management, funding opportunities, and collaborative networking.
 
-## 🚀 Project Overview
-
-The Wealth Pioneers Network is a modern web application that serves as a global hub for companies implementing shared wealth principles. It provides tools, resources, and a community for organizations committed to:
-
-- **Shared Wealth Creation**: Giving stakeholders a genuine share in the value they create
-- **Inclusive Decision-Making**: Embedding stakeholder voices into governance structures  
-- **Value-Led Approach**: Ensuring clear social mission and mutual responsibilities
-
-## ✨ Key Features
-
-### 🎯 Core Functionality
-- **Interactive Tools**: Calculator, Assessment, Simulator, and Configurator
-- **Network Management**: Company profiles, partnerships, and impact tracking
-- **Resource Hub**: Educational content, case studies, and best practices
-- **Dashboard**: Comprehensive overview with metrics and activity tracking
-
-### 🛠️ Enhanced Tools
-
-#### Advanced Impact Calculator
-- Industry-specific calculations with multipliers
-- Environmental impact assessment
-- Stakeholder satisfaction scoring
-- ROI and payback period analysis
-- Implementation recommendations
-
-#### Readiness Assessment
-- Comprehensive organizational evaluation
-- Personalized recommendations
-- Progress tracking
-- Action planning
-
-#### Governance Simulator
-- Interactive scenario modeling
-- Decision-making simulations
-- Outcome predictions
-- Best practice recommendations
-
-#### Model Configurator
-- Custom shared wealth model design
-- Component selection and combination
-- Implementation roadmap generation
-- Risk assessment
-
-### 📊 Dashboard Features
-- **Real-time Metrics**: Network growth, impact scores, partnerships
-- **Progress Tracking**: Visual indicators for goals and achievements
-- **Activity Feed**: Latest updates from the network
-- **Quick Access**: Direct links to all tools and resources
-
-## 🛠️ Technology Stack
-
-- **Frontend**: React 18 + TypeScript + Vite
-- **UI Framework**: shadcn/ui + Tailwind CSS
-- **State Management**: React Query + Context API
-- **Routing**: React Router DOM
-- **Backend**: Supabase (PostgreSQL + Auth + Real-time)
-- **Charts**: Recharts
-- **Forms**: React Hook Form + Zod validation
-- **Icons**: Lucide React
-
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ and npm
-- Git
+
+- **Node.js** (v18 or higher)
+- **pnpm** (package manager)
+- **PostgreSQL** (v12 or higher)
+- **Redis** (v6 or higher)
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/msalmanmunirmalik/wealth-pioneers-network.git
+   git clone <repository-url>
    cd wealth-pioneers-network
    ```
 
-2. **Install dependencies**
+2. **Run the deployment script**
    ```bash
-   npm install
+   ./scripts/deploy.sh
    ```
 
-3. **Set up environment variables**
-   Create a `.env.local` file in the root directory:
-   ```env
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
+3. **Access the application**
+   - Frontend: http://localhost:3001
+   - API Documentation: http://localhost:3001/api-docs
+   - Health Check: http://localhost:3001/api/health
 
-4. **Start the development server**
-   ```bash
-   npm run dev
-   ```
+## 📋 Manual Setup
 
-5. **Open your browser**
-   Navigate to `http://localhost:5173`
+### 1. Environment Configuration
 
-## 📁 Project Structure
+Copy the environment template and configure your settings:
 
-```
-src/
-├── components/          # Reusable UI components
-│   ├── ui/             # shadcn/ui components
-│   ├── admin/          # Admin-specific components
-│   └── *.tsx           # Main feature components
-├── pages/              # Page components
-├── contexts/           # React contexts
-├── hooks/              # Custom React hooks
-├── lib/                # Utility functions
-├── integrations/       # External service integrations
-└── App.tsx            # Main application component
+```bash
+cp env.example .env
 ```
 
-## 🎨 Design System
+Update the `.env` file with your configuration:
 
-The application uses a comprehensive design system with:
+```env
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=shared_wealth_international
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
 
-- **Color Palette**: Navy, Gold, Teal, Green, Orange
-- **Typography**: Modern, readable fonts
-- **Components**: Consistent UI patterns
-- **Animations**: Smooth transitions and micro-interactions
-- **Responsive Design**: Mobile-first approach
+# JWT Secret (generate a secure key)
+JWT_SECRET=your-super-secret-jwt-key
 
-## 🔧 Available Scripts
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run build:dev` - Build for development
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+# Optional: Sentry for monitoring
+SENTRY_DSN=your-sentry-dsn
+```
 
-## 🌟 Key Enhancements Made
+### 2. Database Setup
 
-### 1. Advanced Impact Calculator
-- Added industry-specific multipliers
-- Environmental impact calculations
-- Stakeholder satisfaction scoring
-- ROI and payback period analysis
-- Tabbed interface for better UX
+```bash
+# Install dependencies
+pnpm install
 
-### 2. Comprehensive Dashboard
-- Real-time metrics display
-- Network progress tracking
-- Activity feed
-- Quick access to tools
-- Responsive design
+# Setup database schema and sample data
+pnpm run db:setup
+```
 
-### 3. Enhanced Navigation
-- Dashboard integration
-- Improved mobile menu
-- Better user experience
+### 3. Start Services
 
-### 4. Interactive Tools Integration
-- All tools now properly connected
-- Consistent UI/UX across tools
-- Better error handling
+```bash
+# Start Redis (if not running)
+redis-server
 
-## 🔐 Authentication & Authorization
+# Build and start the application
+pnpm run build
+pnpm run server:start
+```
 
-The application uses Supabase for authentication with:
-- Email/password authentication
+## 🏗️ Architecture
+
+### Frontend (React + TypeScript)
+- **Framework**: React 18 with TypeScript
+- **UI Components**: Shadcn/ui with Radix UI
+- **Styling**: Tailwind CSS
+- **State Management**: React Query + Context API
+- **Routing**: React Router v6
+- **Build Tool**: Vite
+
+### Backend (Node.js + Express)
+- **Runtime**: Node.js with TypeScript
+- **Framework**: Express.js
+- **Database**: PostgreSQL with connection pooling
+- **Caching**: Redis for session management and caching
+- **Authentication**: JWT with role-based access control
+- **File Upload**: Multer with Sharp for image processing
+- **Monitoring**: Sentry for error tracking and performance monitoring
+- **Logging**: Winston for structured logging
+
+### Database Schema
+
+The platform uses PostgreSQL with the following main entities:
+
+- **Users**: Authentication and user management
+- **Companies**: Company profiles and applications
+- **Funding Opportunities**: Investment and grant opportunities
+- **Funding Applications**: Applications for funding
+- **News Articles**: Content management
+- **Events**: Event management
+- **Messages**: Internal messaging system
+- **Forum**: Discussion forums
+- **File Uploads**: File management system
+
+## 🔧 Development
+
+### Available Scripts
+
+```bash
+# Development
+pnpm run dev                    # Start development server
+pnpm run server:dev            # Start backend in development mode
+
+# Building
+pnpm run build                 # Build frontend
+pnpm run server:build          # Build backend
+pnpm run server:start          # Start production server
+
+# Database
+pnpm run db:setup              # Setup database schema
+pnpm run db:reset              # Reset database
+
+# Testing
+pnpm run test                  # Run frontend tests
+pnpm run test:backend          # Run backend tests
+pnpm run test:coverage         # Run tests with coverage
+
+# Code Quality
+pnpm run lint                  # Run ESLint
+pnpm run lint:fix              # Fix ESLint issues
+pnpm run format                # Format code with Prettier
+pnpm run type-check            # Run TypeScript type checking
+```
+
+### Project Structure
+
+```
+wealth-pioneers-network/
+├── src/                          # Frontend source code
+│   ├── components/              # React components
+│   ├── pages/                   # Page components
+│   ├── contexts/                # React contexts
+│   ├── services/                # API services
+│   ├── hooks/                   # Custom hooks
+│   ├── lib/                     # Utility libraries
+│   └── integrations/            # External integrations
+├── server/                      # Backend source code
+│   ├── routes/                  # API routes
+│   ├── controllers/             # Route controllers
+│   ├── middleware/              # Express middleware
+│   ├── services/                # Business logic services
+│   └── types/                   # TypeScript types
+├── database/                    # Database files
+│   └── schema.sql              # Database schema
+├── scripts/                     # Utility scripts
+│   ├── deploy.sh               # Deployment script
+│   └── setup-database.js       # Database setup
+├── uploads/                     # File uploads directory
+├── logs/                        # Application logs
+└── dist/                        # Built application
+```
+
+## 🔐 Authentication & Security
+
+### User Roles
+
+- **User**: Standard platform user
+- **Admin**: Administrative privileges
+- **Super Admin**: Full system access
+
+### Security Features
+
+- JWT-based authentication
 - Role-based access control
-- Admin panel for administrators
-- Secure session management
+- Rate limiting on API endpoints
+- Input validation and sanitization
+- SQL injection prevention
+- CORS configuration
+- Helmet security headers
+- File upload validation
+- Session management with Redis
 
-## 📊 Data Management
+## 📁 File Management
 
-- **Supabase Database**: PostgreSQL with real-time subscriptions
-- **File Storage**: Supabase Storage for assets
-- **Caching**: React Query for efficient data fetching
-- **State Management**: Context API for global state
+### Supported File Types
+
+- **Images**: JPEG, PNG, GIF, WebP
+- **Documents**: PDF, TXT, DOC, DOCX
+
+### File Processing
+
+- Automatic image resizing and optimization
+- Logo processing with multiple sizes
+- File validation and security checks
+- Organized storage structure
+
+## 📊 Monitoring & Logging
+
+### Application Monitoring
+
+- **Sentry**: Error tracking and performance monitoring
+- **Winston**: Structured logging with multiple transports
+- **Health Checks**: System health monitoring endpoints
+- **Performance Metrics**: API response time tracking
+
+### Log Levels
+
+- **Error**: System errors and exceptions
+- **Warn**: Warnings and slow operations
+- **Info**: General information and API requests
+- **Debug**: Detailed debugging information
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
-1. Connect your GitHub repository to Vercel
-2. Set environment variables in Vercel dashboard
-3. Deploy automatically on push to main branch
+### Production Deployment
 
-### Netlify
-1. Connect your GitHub repository to Netlify
-2. Set build command: `npm run build`
-3. Set publish directory: `dist`
-4. Configure environment variables
+1. **Environment Setup**
+   ```bash
+   # Set production environment variables
+   export NODE_ENV=production
+   export DB_PASSWORD=your-secure-password
+   export JWT_SECRET=your-secure-jwt-secret
+   ```
+
+2. **Build Application**
+   ```bash
+   pnpm run build
+   pnpm run server:build
+   ```
+
+3. **Start Production Server**
+   ```bash
+   pnpm run server:start
+   ```
+
+### Docker Deployment (Optional)
+
+```dockerfile
+# Dockerfile example
+FROM node:18-alpine
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install -g pnpm && pnpm install
+
+COPY . .
+RUN pnpm run build && pnpm run server:build
+
+EXPOSE 3001
+CMD ["pnpm", "run", "server:start"]
+```
+
+### Environment Variables
+
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `NODE_ENV` | Environment mode | Yes | `development` |
+| `PORT` | Server port | No | `3001` |
+| `DB_HOST` | Database host | Yes | `localhost` |
+| `DB_NAME` | Database name | Yes | `shared_wealth_international` |
+| `DB_USER` | Database user | Yes | `postgres` |
+| `DB_PASSWORD` | Database password | Yes | - |
+| `JWT_SECRET` | JWT signing secret | Yes | - |
+| `REDIS_HOST` | Redis host | No | `localhost` |
+| `REDIS_PORT` | Redis port | No | `6379` |
+| `SENTRY_DSN` | Sentry DSN for monitoring | No | - |
+
+## 🔧 Configuration
+
+### Database Configuration
+
+The application uses PostgreSQL with connection pooling:
+
+```typescript
+const pool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: parseInt(process.env.DB_PORT || '5432'),
+  max: parseInt(process.env.DB_MAX_CONNECTIONS || '20'),
+  idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT_MS || '30000'),
+  connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT_MS || '2000'),
+});
+```
+
+### Redis Configuration
+
+Redis is used for caching and session management:
+
+```typescript
+const redis = new Redis({
+  host: process.env.REDIS_HOST || 'localhost',
+  port: parseInt(process.env.REDIS_PORT || '6379'),
+  password: process.env.REDIS_PASSWORD,
+  db: parseInt(process.env.REDIS_DB || '0'),
+});
+```
+
+## 🧪 Testing
+
+### Running Tests
+
+```bash
+# Run all tests
+pnpm run test
+
+# Run backend tests only
+pnpm run test:backend
+
+# Run tests with coverage
+pnpm run test:coverage
+
+# Run tests in watch mode
+pnpm run test:watch
+```
+
+### Test Structure
+
+- **Unit Tests**: Individual component and function tests
+- **Integration Tests**: API endpoint tests
+- **E2E Tests**: End-to-end user workflow tests
+
+## 📚 API Documentation
+
+The API documentation is automatically generated using Swagger/OpenAPI and is available at:
+
+- **Development**: http://localhost:3001/api-docs
+- **Production**: https://your-domain.com/api-docs
+
+### API Endpoints
+
+#### Authentication
+- `POST /api/auth/signin` - User sign in
+- `POST /api/auth/signup` - User sign up
+- `POST /api/auth/signout` - User sign out
+- `POST /api/auth/reset-password` - Password reset
+
+#### Companies
+- `GET /api/companies` - List companies
+- `POST /api/companies` - Create company
+- `GET /api/companies/:id` - Get company details
+- `PUT /api/companies/:id` - Update company
+- `DELETE /api/companies/:id` - Delete company
+
+#### Admin
+- `GET /api/admin/stats` - Admin statistics
+- `GET /api/admin/users` - List users
+- `POST /api/admin/users` - Create user
+- `PUT /api/admin/users/:id/role` - Update user role
+
+#### Files
+- `POST /api/files/logo/:companyId` - Upload company logo
+- `POST /api/files/document` - Upload document
+- `GET /api/files/:id` - Get file information
+- `DELETE /api/files/:id` - Delete file
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes
-4. Commit your changes: `git commit -m 'Add feature'`
-5. Push to the branch: `git push origin feature-name`
-6. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 📝 License
+### Development Guidelines
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+- Follow TypeScript best practices
+- Write tests for new features
+- Use conventional commit messages
+- Ensure code passes linting and formatting checks
+- Update documentation for API changes
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
 For support and questions:
-- Create an issue in the GitHub repository
-- Contact the development team
-- Check the documentation
 
-## 🔮 Future Roadmap
+- **Documentation**: Check this README and API docs
+- **Issues**: Create an issue on GitHub
+- **Email**: support@sharedwealth.com
 
-- [ ] Real-time collaboration features
-- [ ] Advanced analytics and reporting
-- [ ] Mobile application
-- [ ] API for third-party integrations
-- [ ] Multi-language support
-- [ ] Advanced AI-powered recommendations
+## 🔄 Changelog
+
+### Version 1.0.0
+- Initial release
+- Complete company management system
+- User authentication and authorization
+- File upload and management
+- Admin dashboard and analytics
+- Funding opportunity management
+- News and event management
+- Forum system
+- Comprehensive API documentation
+- Production-ready deployment setup
 
 ---
 
-**Built with ❤️ for a more equitable future**
+**Built with ❤️ for sustainable business development**

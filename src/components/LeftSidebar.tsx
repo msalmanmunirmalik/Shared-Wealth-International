@@ -25,7 +25,8 @@ const LeftSidebar = ({ isCollapsed, onToggle, activeTab, onTabChange }: LeftSide
   };
 
   const mainNavigation = [
-    { id: 'company-dashboard', name: 'Company Dashboard', icon: Home, description: 'Main dashboard', primary: true },
+    { id: 'user-dashboard', name: 'User Dashboard', icon: Home, description: 'Main dashboard', primary: true },
+    { id: 'news-updates', name: 'News & Updates', icon: FileText, description: 'Latest news and updates' },
     { id: 'network', name: 'Network', icon: Globe, description: 'Company network' },
     { id: 'funding-platform', name: 'Funding Platform', icon: DollarSign, description: 'Funding opportunities' },
     { id: 'business-canvas', name: 'Business Canvas', icon: Target, description: 'Business model canvas' },

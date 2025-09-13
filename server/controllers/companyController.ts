@@ -55,7 +55,10 @@ export class CompanyController {
       const result = await CompanyService.getCompanyById(id);
       
       if (result.success) {
-        res.json(result.data);
+        res.json({
+          success: true,
+          data: result.data
+        });
       } else if (result.message === 'Company not found') {
         res.status(404).json({
           success: false,
@@ -82,6 +85,7 @@ export class CompanyController {
   static async createCompany(req: Request, res: Response): Promise<void> {
     try {
       const companyData: CreateCompanyRequest = req.body;
+      const userId = (req as any).user?.id; // Get user ID from JWT token
       
       // Additional input sanitization
       if (!companyData.name || typeof companyData.name !== 'string') {
@@ -92,7 +96,15 @@ export class CompanyController {
         return;
       }
 
-      const result = await CompanyService.createCompany(companyData);
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'User authentication required'
+        });
+        return;
+      }
+
+      const result = await CompanyService.createCompany(companyData, userId);
       
       if (result.success) {
         res.status(201).json(result.data);
@@ -104,6 +116,74 @@ export class CompanyController {
       }
     } catch (error) {
       console.error('Create company controller error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  /**
+   * Get companies for the authenticated user
+   */
+  static async getUserCompanies(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.id;
+      
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'User authentication required'
+        });
+        return;
+      }
+
+      const result = await CompanyService.getUserCompanies(userId);
+      
+      if (result.success) {
+        res.json(result.data);
+      } else {
+        res.status(500).json({
+          success: false,
+          message: result.message
+        });
+      }
+    } catch (error) {
+      console.error('Get user companies controller error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  /**
+   * Get company applications for the authenticated user
+   */
+  static async getUserApplications(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.id;
+      
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'User authentication required'
+        });
+        return;
+      }
+
+      const result = await CompanyService.getUserApplications(userId);
+      
+      if (result.success) {
+        res.json(result.data);
+      } else {
+        res.status(500).json({
+          success: false,
+          message: result.message
+        });
+      }
+    } catch (error) {
+      console.error('Get user applications controller error:', error);
       res.status(500).json({
         success: false,
         message: 'Internal server error'

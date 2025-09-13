@@ -144,6 +144,41 @@ export class AdminController {
   }
 
   /**
+   * Update user information
+   */
+  static async updateUser(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      
+      if (!id || typeof id !== 'string') {
+        res.status(400).json({
+          success: false,
+          message: 'Invalid user ID'
+        });
+        return;
+      }
+
+      const result = await AdminService.updateUser(id, updateData);
+      
+      if (result.success) {
+        res.json(result.data);
+      } else {
+        res.status(500).json({
+          success: false,
+          message: result.message
+        });
+      }
+    } catch (error) {
+      console.error('Update user controller error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  /**
    * Delete user
    */
   static async deleteUser(req: Request, res: Response): Promise<void> {
@@ -271,6 +306,54 @@ export class AdminController {
       }
     } catch (error) {
       console.error('Get system health controller error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  /**
+   * Get comprehensive analytics
+   */
+  static async getAnalytics(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await AdminService.getAnalytics();
+      
+      if (result.success) {
+        res.json(result.data);
+      } else {
+        res.status(500).json({
+          success: false,
+          message: result.message
+        });
+      }
+    } catch (error) {
+      console.error('Get analytics controller error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  /**
+   * Get funding analytics
+   */
+  static async getFundingAnalytics(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await AdminService.getFundingAnalytics();
+      
+      if (result.success) {
+        res.json(result.data);
+      } else {
+        res.status(500).json({
+          success: false,
+          message: result.message
+        });
+      }
+    } catch (error) {
+      console.error('Get funding analytics controller error:', error);
       res.status(500).json({
         success: false,
         message: 'Internal server error'

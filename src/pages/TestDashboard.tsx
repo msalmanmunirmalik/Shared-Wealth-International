@@ -55,7 +55,7 @@ const TestDashboard = () => {
         </div>
 
         <a 
-          href="/company-dashboard" 
+          href="/user-dashboard" 
           style={{
             display: 'inline-block',
             backgroundColor: 'rgb(30, 58, 138)',

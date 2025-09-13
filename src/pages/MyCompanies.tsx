@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AuthContext";
+import { apiService } from "@/services/api";
 import { 
   Building, 
   Users, 
@@ -15,48 +17,45 @@ import {
 } from "lucide-react";
 
 const MyCompanies = () => {
-  // Dummy companies data
-  const companies = [
-    {
-      id: 1,
-      name: "Pathway Technologies",
-      description: "Sustainable technology solutions for modern businesses",
-      status: "active",
-      members: 12,
-      impact: "€2.1M",
-      lastActivity: "2 hours ago",
-      avatar: "/placeholder.svg",
-      industry: "Technology",
-      founded: "2020",
-      location: "San Francisco, CA"
-    },
-    {
-      id: 2,
-      name: "TechCorp Innovations",
-      description: "Innovative software development and consulting services",
-      status: "active",
-      members: 8,
-      impact: "€1.8M",
-      lastActivity: "1 day ago",
-      avatar: "/placeholder.svg",
-      industry: "Software",
-      founded: "2019",
-      location: "Austin, TX"
-    },
-    {
-      id: 3,
-      name: "Green Harvest Co.",
-      description: "Sustainable agriculture and food production",
-      status: "pending",
-      members: 5,
-      impact: "€0.5M",
-      lastActivity: "3 days ago",
-      avatar: "/placeholder.svg",
-      industry: "Agriculture",
-      founded: "2021",
-      location: "Portland, OR"
+  const { user } = useAuth();
+  const [companies, setCompanies] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      loadUserCompanies();
     }
-  ];
+  }, [user]);
+
+  const loadUserCompanies = async () => {
+    try {
+      setIsLoading(true);
+      const userCompanies = await apiService.getUserCompanies();
+      
+      // Transform the response to match the expected format
+      const companies = userCompanies.map((company: any) => ({
+        id: company.id,
+        name: company.name,
+        description: company.description,
+        industry: company.sector || company.industry,
+        location: company.location,
+        website: company.website,
+        avatar: company.logo_url,
+        status: company.status === 'approved' ? 'active' : company.status,
+        founded: new Date(company.created_at).getFullYear().toString(),
+        members: 1, // Default to 1 member (the owner)
+        impact: '€0', // Default impact
+        lastActivity: 'Recently'
+      }));
+      
+      setCompanies(companies);
+    } catch (error) {
+      console.error('Error loading user companies:', error);
+      setCompanies([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -153,9 +152,20 @@ const MyCompanies = () => {
         </Card>
       </div>
 
+      {/* Loading State */}
+      {isLoading && (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your companies...</p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Companies List */}
-      <div className="space-y-4">
-        {companies.map((company) => (
+      {!isLoading && (
+        <div className="space-y-4">
+          {companies.map((company) => (
           <Card key={company.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
@@ -218,10 +228,11 @@ const MyCompanies = () => {
             </CardContent>
           </Card>
         ))}
-      </div>
+        </div>
+      )}
 
       {/* Empty State */}
-      {companies.length === 0 && (
+      {!isLoading && companies.length === 0 && (
         <Card>
           <CardContent className="p-12 text-center">
             <Building className="w-16 h-16 mx-auto mb-4 text-gray-400" />

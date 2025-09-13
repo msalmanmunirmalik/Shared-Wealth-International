@@ -26,7 +26,7 @@ const Auth: React.FC = () => {
       if (isAdmin && window.location.pathname.includes('/admin')) {
         navigate('/admin');
       } else {
-        navigate('/company-dashboard');
+        navigate('/user-dashboard');
       }
     }
   }, [user, isAdmin, navigate]);

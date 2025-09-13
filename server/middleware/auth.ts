@@ -38,8 +38,11 @@ export const authenticateToken = async (
       return;
     }
 
-    // Security: Validate JWT token
-    const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
+    // Security: Validate JWT token with issuer and audience verification
+    const decoded = jwt.verify(token, JWT_SECRET, {
+      issuer: 'wealth-pioneers-network',
+      audience: 'wealth-pioneers-users'
+    }) as JWTPayload;
     console.log('🔐 Auth Debug - Decoded JWT:', decoded);
     
     if (!decoded || !decoded.userId) {

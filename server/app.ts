@@ -2,15 +2,36 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import path from 'path';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import companyRoutes from './routes/companies.js';
 import adminRoutes from './routes/admin.js';
+import contentRoutes from './routes/content.js';
+import monitoringRoutes from './routes/monitoring.js';
+import fundingRoutes from './routes/funding.js';
 import healthRoutes from './routes/health.js';
+import fileRoutes from './routes/files.js';
+import emailRoutes from './routes/email.js';
+import realtimeRoutes from './routes/realtime.js';
+import dashboardRoutes from './routes/dashboard.js';
+import reactionsRoutes from './routes/reactions.js';
+import connectionsRoutes from './routes/connections.js';
+import sharingRoutes from './routes/sharing.js';
+import companyNewsRoutes from './routes/companyNews.js';
+import unifiedContentRoutes from './routes/unifiedContent.js';
+import unifiedSocialRoutes from './routes/unifiedSocial.js';
+import unifiedDashboardRoutes from './routes/unifiedDashboard.js';
+import unifiedFileRoutes from './routes/unifiedFile.js';
+import unifiedUserRoutes from './routes/unifiedUser.js';
 import { requestLogger, errorLogger, performanceLogger } from './middleware/logger.js';
 import { performanceMonitor } from './middleware/monitoring.js';
 import { healthCheckLimiter } from './middleware/rateLimit.js';
 import { setupSwagger } from './swagger.js';
+import { emailService } from './services/emailService.js';
+import { webSocketService } from './services/webSocketService.js';
+// import { initSentry, sentryMiddleware } from './middleware/sentry.js';
+// import { cache } from './services/cacheService.js';
 
 dotenv.config();
 
@@ -23,19 +44,42 @@ if (!JWT_SECRET) {
 const app: Application = express();
 
 // Security middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+}));
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:8080', 'http://localhost:8081'],
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || [
+    'http://localhost:8080', 
+    'http://localhost:8081', 
+    'http://localhost:8082',
+    'http://localhost:3000',
+    'http://localhost:3001'
+  ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Static file serving for uploads
+app.use('/uploads', express.static('uploads'));
 
 // Logging and monitoring middleware
 app.use(requestLogger);
@@ -45,51 +89,41 @@ app.use(performanceMonitor);
 // API documentation
 setupSwagger(app as any);
 
-// Root route
+// Initialize email service
+const initializeEmailService = async () => {
+  try {
+    const emailConfig = {
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER || '',
+        pass: process.env.SMTP_PASSWORD || ''
+      },
+      from: process.env.SMTP_FROM || 'noreply@sharedwealth.com',
+      replyTo: process.env.SMTP_REPLY_TO
+    };
+
+    if (emailConfig.auth.user && emailConfig.auth.pass) {
+      await emailService.initialize(emailConfig);
+      console.log('✅ Email service initialized successfully');
+    } else {
+      console.log('⚠️ Email service not configured - SMTP credentials missing');
+    }
+  } catch (error) {
+    console.error('❌ Failed to initialize email service:', error);
+  }
+};
+
+// Initialize email service
+initializeEmailService();
+
+// Serve static files from dist directory
+app.use(express.static(path.join(process.cwd(), 'dist')));
+
+// Root route - serve the React app
 app.get('/', (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Shared Wealth International API</title>
-      <style>
-        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
-        .endpoint { background: #ecf0f1; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #3498db; }
-        .endpoint a { color: #2980b9; text-decoration: none; font-weight: bold; }
-        .endpoint a:hover { text-decoration: underline; }
-        .status { background: #d5f4e6; color: #27ae60; padding: 10px; border-radius: 5px; margin: 20px 0; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>🚀 Shared Wealth International API</h1>
-        <div class="status">✅ Server is running successfully on port 8080</div>
-        <h2>Available Endpoints:</h2>
-        <div class="endpoint">
-          <strong>Health Check:</strong> <a href="/api/health" target="_blank">/api/health</a>
-        </div>
-        <div class="endpoint">
-          <strong>API Documentation:</strong> <a href="/api-docs" target="_blank">/api-docs</a>
-        </div>
-        <div class="endpoint">
-          <strong>Authentication:</strong> <a href="/api/auth" target="_blank">/api/auth</a>
-        </div>
-        <div class="endpoint">
-          <strong>Users:</strong> <a href="/api/users" target="_blank">/api/users</a>
-        </div>
-        <div class="endpoint">
-          <strong>Companies:</strong> <a href="/api/companies" target="_blank">/api/companies</a>
-        </div>
-        <div class="endpoint">
-          <strong>Admin:</strong> <a href="/api/admin" target="_blank">/api/admin</a>
-        </div>
-        <p><em>Click any endpoint to test the API functionality.</em></p>
-      </div>
-    </body>
-    </html>
-  `);
+  res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
 });
 
 // Health and monitoring endpoints
@@ -100,17 +134,30 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/content', contentRoutes);
+app.use('/api/admin/monitoring', monitoringRoutes);
+app.use('/api/admin/funding', fundingRoutes);
+app.use('/api/files', fileRoutes);
+app.use('/api/email', emailRoutes);
+app.use('/api/realtime', realtimeRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/reactions', reactionsRoutes);
+app.use('/api/connections', connectionsRoutes);
+app.use('/api/sharing', sharingRoutes);
+app.use('/api', companyNewsRoutes);
+app.use('/api/content', unifiedContentRoutes);
+app.use('/api/social', unifiedSocialRoutes);
+app.use('/api/dashboard', unifiedDashboardRoutes);
+app.use('/api/files', unifiedFileRoutes);
+app.use('/api/users', unifiedUserRoutes);
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.originalUrl} not found`,
-    error: 'Not Found'
-  });
+// Catch all handler - serve React app for client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
 });
 
-// Error handling middleware
+// Error handling middleware (must be last)
+// app.use(sentryMiddleware.errorHandler);
 app.use(errorLogger);
 app.use((error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Unhandled error:', error);
@@ -120,6 +167,19 @@ app.use((error: Error, req: express.Request, res: express.Response, next: expres
     message: 'Internal server error',
     error: process.env.NODE_ENV === 'production' ? 'Something went wrong' : error.message
   });
+});
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, shutting down gracefully...');
+  // await cache.close();
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  console.log('SIGINT received, shutting down gracefully...');
+  // await cache.close();
+  process.exit(0);
 });
 
 export default app;

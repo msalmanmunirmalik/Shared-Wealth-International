@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Data Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Admin Data Loading Test</h1>
+    
+    <div class="test-section info">
+        <h3>Test Instructions</h3>
+        <p>1. First, sign in with admin credentials</p>
+        <p>2. Then test the admin API endpoints</p>
+        <p>3. Check if data is loading properly</p>
+    </div>
+
+    <div class="test-section">
+        <h3>Step 1: Sign In</h3>
+        <input type="email" id="email" placeholder="Email" value="test@example.com" style="padding: 8px; margin: 5px; width: 200px;">
+        <input type="password" id="password" placeholder="Password" value="123456" style="padding: 8px; margin: 5px; width: 200px;">
+        <button onclick="signIn()">Sign In</button>
+        <div id="signin-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Step 2: Test Admin APIs</h3>
+        <button onclick="testAdminStats()">Test Admin Stats</button>
+        <button onclick="testAdminUsers()">Test Admin Users</button>
+        <button onclick="testCompanies()">Test Companies</button>
+        <div id="api-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Step 3: Check Local Storage</h3>
+        <button onclick="checkLocalStorage()">Check Local Storage</button>
+        <div id="localstorage-result"></div>
+    </div>
+
+    <script>
+        let authToken = null;
+
+        async function signIn() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('signin-result');
+
+            try {
+                const response = await fetch('http://localhost:3001/api/auth/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.session) {
+                    authToken = data.session.access_token;
+                    localStorage.setItem('session', JSON.stringify(data.session));
+                    localStorage.setItem('user', JSON.stringify(data.session.user));
+                    localStorage.setItem('isAdmin', 'true');
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Sign In Successful!</h4>
+                            <p><strong>User:</strong> ${data.session.user.email}</p>
+                            <p><strong>Role:</strong> ${data.session.user.role}</p>
+                            <p><strong>Token:</strong> ${authToken.substring(0, 20)}...</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Sign In Failed</h4>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Error</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testAdminStats() {
+            await testAPI('/admin/stats', 'Admin Stats');
+        }
+
+        async function testAdminUsers() {
+            await testAPI('/admin/users', 'Admin Users');
+        }
+
+        async function testCompanies() {
+            await testAPI('/companies', 'Companies');
+        }
+
+        async function testAPI(endpoint, name) {
+            const resultDiv = document.getElementById('api-results');
+            
+            if (!authToken) {
+                resultDiv.innerHTML += `
+                    <div class="error">
+                        <h4>❌ No Auth Token</h4>
+                        <p>Please sign in first</p>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3001/api${endpoint}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML += `
+                        <div class="success">
+                            <h4>✅ ${name} API Success</h4>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Data Count:</strong> ${Array.isArray(data) ? data.length : 'N/A'}</p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML += `
+                        <div class="error">
+                            <h4>❌ ${name} API Failed</h4>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML += `
+                    <div class="error">
+                        <h4>❌ ${name} Error</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function checkLocalStorage() {
+            const resultDiv = document.getElementById('localstorage-result');
+            
+            const session = localStorage.getItem('session');
+            const user = localStorage.getItem('user');
+            const isAdmin = localStorage.getItem('isAdmin');
+            
+            resultDiv.innerHTML = `
+                <div class="info">
+                    <h4>📦 Local Storage Contents</h4>
+                    <p><strong>Session:</strong> ${session ? 'Present' : 'Missing'}</p>
+                    <p><strong>User:</strong> ${user ? 'Present' : 'Missing'}</p>
+                    <p><strong>Is Admin:</strong> ${isAdmin || 'Not set'}</p>
+                    ${session ? `<pre>${JSON.stringify(JSON.parse(session), null, 2)}</pre>` : ''}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

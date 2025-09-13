@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 4px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Admin Login Test</h1>
+        <p>Test the admin authentication flow to identify issues.</p>
+        
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" value="test@example.com" placeholder="Enter email">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" value="123456" placeholder="Enter password">
+        </div>
+        
+        <button onclick="testLogin()">Test Admin Login</button>
+        <button onclick="testAdminCheck()">Test Admin Check</button>
+        <button onclick="clearStorage()">Clear Storage</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+        
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+        
+        function clearStorage() {
+            localStorage.clear();
+            showResult('✅ Local storage cleared', 'success');
+        }
+        
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                showResult('🔄 Testing login...', 'info');
+                
+                const response = await fetch(`${API_BASE_URL}/auth/signin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.session) {
+                    // Store session
+                    localStorage.setItem('session', JSON.stringify(data.session));
+                    localStorage.setItem('user', JSON.stringify(data.session.user));
+                    
+                    showResult(`
+                        ✅ Login successful!<br>
+                        <strong>User:</strong> ${data.session.user.email}<br>
+                        <strong>Role:</strong> ${data.session.user.role}<br>
+                        <strong>User ID:</strong> ${data.session.user.id}<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `, 'success');
+                } else {
+                    showResult(`
+                        ❌ Login failed<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `, 'error');
+                }
+            } catch (error) {
+                showResult(`
+                    ❌ Login error<br>
+                    <pre>${error.message}</pre>
+                `, 'error');
+            }
+        }
+        
+        async function testAdminCheck() {
+            try {
+                const session = localStorage.getItem('session');
+                if (!session) {
+                    showResult('❌ No session found. Please login first.', 'error');
+                    return;
+                }
+                
+                const sessionData = JSON.parse(session);
+                const userId = sessionData.user.id;
+                const token = sessionData.access_token;
+                
+                showResult('🔄 Testing admin check...', 'info');
+                
+                const response = await fetch(`${API_BASE_URL}/auth/admin/check/${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`
+                        ✅ Admin check successful!<br>
+                        <strong>Is Admin:</strong> ${data.isAdmin}<br>
+                        <strong>Success:</strong> ${data.success}<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `, 'success');
+                } else {
+                    showResult(`
+                        ❌ Admin check failed<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `, 'error');
+                }
+            } catch (error) {
+                showResult(`
+                    ❌ Admin check error<br>
+                    <pre>${error.message}</pre>
+                `, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

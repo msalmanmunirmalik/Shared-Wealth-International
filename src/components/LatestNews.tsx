@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, TrendingUp, Users, Handshake, Target, Award } from 'lucide-react';
 
-// Simplified dummy data
-const dummyActivities = [
+// Sample data for showcasing the concept (replace with real API data)
+const sampleActivities = [
   {
     id: '1',
     activity_type: 'meeting',
@@ -131,8 +131,8 @@ const LatestNews: React.FC = () => {
     }
   };
 
-  const featuredActivities = dummyActivities.filter(activity => activity.is_featured);
-  const recentActivities = dummyActivities.filter(activity => !activity.is_featured).slice(0, 3);
+  const featuredActivities = sampleActivities.filter(activity => activity.is_featured);
+  const recentActivities = sampleActivities.filter(activity => !activity.is_featured).slice(0, 3);
 
   return (
     <section className="py-16 bg-gradient-to-br from-green-50 to-blue-50">

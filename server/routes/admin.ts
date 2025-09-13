@@ -54,6 +54,18 @@ router.put('/users/:id/role',
 );
 
 /**
+ * @route   PUT /api/admin/users/:id
+ * @desc    Update user information
+ * @access  Private (Super Admin)
+ */
+router.put('/users/:id', 
+  requireSuperAdmin,
+  adminLimiter,
+  userValidation.getById,
+  AdminController.updateUser
+);
+
+/**
  * @route   DELETE /api/admin/users/:id
  * @desc    Delete user
  * @access  Private (Super Admin)
@@ -83,6 +95,26 @@ router.post('/companies/:id/approve',
 router.post('/companies/:id/reject', 
   adminLimiter,
   AdminController.rejectCompany
+);
+
+/**
+ * @route   GET /api/admin/analytics
+ * @desc    Get comprehensive platform analytics
+ * @access  Private (Admin)
+ */
+router.get('/analytics', 
+  adminLimiter,
+  AdminController.getAnalytics
+);
+
+/**
+ * @route   GET /api/admin/funding-analytics
+ * @desc    Get funding platform analytics
+ * @access  Private (Admin)
+ */
+router.get('/funding-analytics', 
+  adminLimiter,
+  AdminController.getFundingAnalytics
 );
 
 /**

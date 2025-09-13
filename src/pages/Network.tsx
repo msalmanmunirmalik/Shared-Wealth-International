@@ -9,7 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { NetworkService } from "@/services/mockServices";
+import { apiService } from "@/services/api";
 import { NetworkCompany, UserCompany } from "@/types";
+import { useSearchParams } from "react-router-dom";
 import { 
   Building, 
   Users, 
@@ -32,7 +34,9 @@ import {
   Users2,
   Network,
   ArrowRight,
-  RefreshCw
+  RefreshCw,
+  Clock,
+  MapPin as LocationIcon
 } from "lucide-react";
 
 
@@ -40,10 +44,12 @@ import {
 const NetworkPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("my-network");
   const [myNetworkCompanies, setMyNetworkCompanies] = useState<NetworkCompany[]>([]);
   const [allNetworkCompanies, setAllNetworkCompanies] = useState<NetworkCompany[]>([]);
   const [filteredCompanies, setFilteredCompanies] = useState<NetworkCompany[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSector, setSelectedSector] = useState('all');
@@ -57,9 +63,16 @@ const NetworkPage = () => {
   }, [user]);
 
   useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["my-network", "directory", "events"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     if (activeTab === "my-network") {
       filterCompanies(myNetworkCompanies);
-    } else {
+    } else if (activeTab === "directory") {
       filterCompanies(allNetworkCompanies);
     }
   }, [searchTerm, selectedSector, selectedCountry, selectedStatus, myNetworkCompanies, allNetworkCompanies, activeTab]);
@@ -68,15 +81,70 @@ const NetworkPage = () => {
     try {
       setIsLoading(true);
       
-      // Load user's personal network companies
+      // Load user's personal network companies using real API
       if (user) {
-        const userNetworkCompanies = await NetworkService.getUserNetworkCompanies(user.id);
-        setMyNetworkCompanies(userNetworkCompanies);
+        const userCompanies = await apiService.getUserCompanies() as any[];
+        const myNetworkCompanies = userCompanies.map((company: any) => ({
+          id: company.id,
+          name: company.name,
+          description: company.description,
+          industry: company.sector || company.industry,
+          size: company.size || 'medium',
+          location: company.location,
+          website: company.website,
+          status: company.status,
+          created_at: company.created_at,
+          updated_at: company.updated_at,
+          connection_strength: 85,
+          shared_projects: 0,
+          collaboration_score: 75,
+          // Additional properties for display
+          sector: company.sector || company.industry,
+          country: company.location,
+          role: company.role,
+          is_shared_wealth_licensed: company.is_shared_wealth_licensed,
+          joined_date: company.created_at,
+          employees: company.employees,
+          impact_score: company.impact_score
+        }));
+        setMyNetworkCompanies(myNetworkCompanies);
       }
 
-      // Load all public network companies
-      const networkCompanies = await NetworkService.getAllNetworkCompanies();
+      // Load all public network companies using real API
+      const allCompanies = await apiService.getCompanies() as any[];
+      const networkCompanies = allCompanies.map((company: any) => ({
+        id: company.id,
+        name: company.name,
+        description: company.description,
+        industry: company.sector || company.industry,
+        size: company.size || 'medium',
+        location: company.location,
+        website: company.website,
+        status: company.status,
+        created_at: company.created_at,
+        updated_at: company.updated_at,
+        connection_strength: 60,
+        shared_projects: 0,
+        collaboration_score: 65,
+        // Additional properties for display
+        sector: company.sector || company.industry,
+        country: company.location,
+        role: company.role,
+        is_shared_wealth_licensed: company.is_shared_wealth_licensed,
+        joined_date: company.created_at,
+        employees: company.employees,
+        impact_score: company.impact_score
+      }));
       setAllNetworkCompanies(networkCompanies);
+
+      // Load events data
+      try {
+        const eventsData = await apiService.getEvents();
+        setEvents(Array.isArray(eventsData) ? eventsData : []);
+      } catch (error) {
+        console.error('Error loading events:', error);
+        setEvents([]);
+      }
     } catch (error) {
       console.error('Error loading network data:', error);
       toast({
@@ -97,18 +165,18 @@ const NetworkPage = () => {
       filtered = filtered.filter(company =>
         company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         company.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.sector.toLowerCase().includes(searchTerm.toLowerCase())
+        company.industry.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Sector filter
     if (selectedSector !== 'all') {
-      filtered = filtered.filter(company => company.sector === selectedSector);
+      filtered = filtered.filter(company => company.industry === selectedSector);
     }
 
     // Country filter
     if (selectedCountry !== 'all') {
-      filtered = filtered.filter(company => company.country === selectedCountry);
+      filtered = filtered.filter(company => company.location === selectedCountry);
     }
 
     // Status filter
@@ -120,12 +188,12 @@ const NetworkPage = () => {
   };
 
   const getSectors = (companies: NetworkCompany[]) => {
-    const sectors = [...new Set(companies.map(company => company.sector))];
+    const sectors = [...new Set(companies.map(company => company.industry))];
     return sectors.sort();
   };
 
   const getCountries = (companies: NetworkCompany[]) => {
-    const countries = [...new Set(companies.map(company => company.country))];
+    const countries = [...new Set(companies.map(company => company.location))];
     return countries.sort();
   };
 
@@ -188,14 +256,18 @@ const NetworkPage = () => {
 
         {/* Network Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="my-network" className="flex items-center space-x-2">
               <Users2 className="w-4 h-4" />
-              <span>My Shared Wealth Network</span>
+              <span>My Network</span>
             </TabsTrigger>
             <TabsTrigger value="directory" className="flex items-center space-x-2">
               <Globe className="w-4 h-4" />
-              <span>Shared Wealth Companies Directory</span>
+              <span>Companies Directory</span>
+            </TabsTrigger>
+            <TabsTrigger value="events" className="flex items-center space-x-2">
+              <Calendar className="w-4 h-4" />
+              <span>Events</span>
             </TabsTrigger>
           </TabsList>
 
@@ -236,17 +308,17 @@ const NetworkPage = () => {
                           <div>
                             <CardTitle className="text-lg">{company.name}</CardTitle>
                             <CardDescription className="flex items-center space-x-2">
-                              <span>{company.sector}</span>
+                              <span>{(company as any).sector}</span>
                               <span>•</span>
-                              <span>{company.country}</span>
+                              <span>{(company as any).country}</span>
                             </CardDescription>
                           </div>
                         </div>
                         <div className="flex flex-col items-end space-y-1">
                           <Badge variant="default" className="text-xs">
-                            {company.role || 'Owner'}
+                            {(company as any).role || 'Owner'}
                           </Badge>
-                          {company.is_shared_wealth_licensed && (
+                          {(company as any).is_shared_wealth_licensed && (
                             <Badge variant="secondary" className="text-xs">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               Licensed
@@ -269,7 +341,7 @@ const NetworkPage = () => {
                         </div>
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-gray-500">Joined:</span>
-                          <span>{new Date(company.joined_date).toLocaleDateString()}</span>
+                          <span>{new Date((company as any).joined_date).toLocaleDateString()}</span>
                         </div>
                       </div>
 
@@ -387,18 +459,18 @@ const NetworkPage = () => {
                         <div>
                           <CardTitle className="text-lg">{company.name}</CardTitle>
                           <CardDescription className="flex items-center space-x-2">
-                            <span>{company.sector}</span>
+                            <span>{(company as any).sector}</span>
                             <span>•</span>
-                            <span>{company.country}</span>
+                            <span>{(company as any).country}</span>
                           </CardDescription>
                         </div>
                       </div>
                       <div className="flex flex-col items-end space-y-1">
                         <div className="flex items-center space-x-1">
                           <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                          <span className="text-sm font-medium">{company.impact_score || 'N/A'}</span>
+                          <span className="text-sm font-medium">{(company as any).impact_score || 'N/A'}</span>
                         </div>
-                        {company.is_shared_wealth_licensed && (
+                        {(company as any).is_shared_wealth_licensed && (
                           <Badge variant="secondary" className="text-xs">
                             <CheckCircle className="w-3 h-3 mr-1" />
                             Licensed
@@ -415,7 +487,7 @@ const NetworkPage = () => {
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-500">Employees:</span>
-                        <span>{company.employees || 'N/A'}</span>
+                        <span>{(company as any).employees || 'N/A'}</span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-500">Location:</span>
@@ -423,7 +495,7 @@ const NetworkPage = () => {
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-500">Joined:</span>
-                        <span>{new Date(company.joined_date).toLocaleDateString()}</span>
+                        <span>{new Date((company as any).joined_date).toLocaleDateString()}</span>
                       </div>
                     </div>
 
@@ -468,6 +540,96 @@ const NetworkPage = () => {
                   </Button>
                 </CardContent>
               </Card>
+            )}
+          </TabsContent>
+
+          {/* Events Tab */}
+          <TabsContent value="events" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Network Events</h2>
+                <p className="text-gray-600">Discover and join upcoming events in the Shared Wealth network</p>
+              </div>
+              <Badge variant="secondary" className="text-sm">
+                {events.length} Events
+              </Badge>
+            </div>
+
+            {events.length === 0 ? (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Events Scheduled</h3>
+                  <p className="text-gray-600 mb-6">
+                    Check back soon for upcoming networking events, workshops, and conferences.
+                  </p>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Event
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {events.map((event) => (
+                  <Card key={event.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg mb-2">{event.title}</CardTitle>
+                          <CardDescription className="text-sm text-gray-600 line-clamp-2">
+                            {event.description}
+                          </CardDescription>
+                        </div>
+                        <Badge variant={event.status === 'upcoming' ? 'default' : 'secondary'}>
+                          {event.status}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Calendar className="w-4 h-4 mr-2" />
+                          <span>{new Date(event.start_date).toLocaleDateString()}</span>
+                        </div>
+                        
+                        {event.location && (
+                          <div className="flex items-center text-sm text-gray-600">
+                            <LocationIcon className="w-4 h-4 mr-2" />
+                            <span>{event.location}</span>
+                          </div>
+                        )}
+
+                        {event.end_date && (
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Clock className="w-4 h-4 mr-2" />
+                            <span>
+                              {new Date(event.start_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - 
+                              {new Date(event.end_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between">
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm">
+                            <MessageCircle className="w-4 h-4 mr-2" />
+                            RSVP
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Share2 className="w-4 h-4 mr-2" />
+                            Share
+                          </Button>
+                        </div>
+                        <Button variant="ghost" size="sm">
+                          <ArrowRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             )}
           </TabsContent>
         </Tabs>

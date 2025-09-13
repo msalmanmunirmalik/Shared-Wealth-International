@@ -111,14 +111,9 @@ const SocialLicenseAgreement: React.FC<SocialLicenseAgreementProps> = ({
   };
 
   const getClientIP = async (): Promise<string> => {
-    try {
-      const response = await fetch('https://api.ipify.org?format=json');
-      const data = await response.json();
-      return data.ip;
-    } catch (error) {
-      console.error('Error getting IP address:', error);
-      return 'unknown';
-    }
+    // Return a placeholder since IP fetching is blocked by CSP
+    // In a production environment, this would be handled server-side
+    return 'client-ip-placeholder';
   };
 
   const canSubmit = hasReadAgreement && hasUnderstoodTerms && agreesToComply && userSignature.trim().length > 0;

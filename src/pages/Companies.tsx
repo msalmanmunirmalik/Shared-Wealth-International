@@ -77,8 +77,14 @@ const Companies = () => {
     website: "",
     size: "", // Match database schema
     role: "",
-    position: ""
+    position: "",
+    logo: null as File | null,
+    logo_url: "",
+    countries: [] as string[] // Added countries array
   });
+
+  // Current country input state
+  const [currentCountry, setCurrentCountry] = useState("");
 
   useEffect(() => {
     loadUserCompanies();
@@ -89,56 +95,28 @@ const Companies = () => {
     if (!user) return;
     
     try {
-      // For now, use mock data until we implement the full API
-      const mockUserCompanies: UserCompany[] = [
-        {
-          id: "1",
-          user_id: user.id,
-          company_name: "Acme Corp",
-          role: "Founder",
-          position: "CEO",
-          status: "approved",
-          created_at: new Date().toISOString()
-        }
-      ];
-      setUserCompanies(mockUserCompanies);
+      // Load real user companies from API (no need to pass user.id - API uses JWT token)
+      const response = await apiService.getUserCompanies();
+      setUserCompanies(response || []);
     } catch (error) {
       console.error("Error loading user companies:", error);
+      setUserCompanies([]); // Set empty array on error
     }
   };
 
   const loadNetworkCompanies = async () => {
     try {
       const response = await apiService.getCompanies();
-      if (response && typeof response === 'object' && 'data' in response) {
+      if (response && Array.isArray(response)) {
+        setNetworkCompanies(response);
+      } else if (response && typeof response === 'object' && 'data' in response) {
         setNetworkCompanies(Array.isArray(response.data) ? response.data : []);
+      } else {
+        setNetworkCompanies([]);
       }
     } catch (error) {
       console.error("Error loading network companies:", error);
-      // Fallback to mock data
-      const mockCompanies: Company[] = [
-        {
-          id: "1",
-          name: "Tech Innovators Inc",
-          industry: "Technology",
-          location: "San Francisco, CA",
-          description: "Leading technology solutions provider",
-          size: "medium",
-          status: "approved",
-          created_at: new Date().toISOString()
-        },
-        {
-          id: "2",
-          name: "Green Energy Solutions",
-          industry: "Renewable Energy",
-          location: "Austin, TX",
-          description: "Sustainable energy solutions for the future",
-          size: "startup",
-          status: "approved",
-          created_at: new Date().toISOString()
-        }
-      ];
-      setNetworkCompanies(mockCompanies);
+      setNetworkCompanies([]);
     } finally {
       setIsLoading(false);
     }
@@ -160,38 +138,53 @@ const Companies = () => {
     setAddCompanyError("");
     
     try {
-      // Create the company first
-      const companyResponse = await apiService.createCompany({
+      // Submit company application to admin system for approval
+      const companyApplicationData = {
         name: newCompany.name,
         industry: newCompany.industry,
         location: newCompany.location,
-        description: newCompany.description,
-        website: newCompany.website,
+          description: newCompany.description,
+          website: newCompany.website,
         size: newCompany.size,
-        status: 'pending'
-      });
+        status: 'pending', // Submit as pending for admin approval
+        // Additional applicant information
+          applicant_role: newCompany.role,
+          applicant_position: newCompany.position,
+        applicant_user_id: user.id,
+        // Logo data
+        logo_file: newCompany.logo,
+        logo_url: newCompany.logo_url,
+        // Countries data
+        countries: newCompany.countries
+      };
+
+      const companyResponse = await apiService.createCompany(companyApplicationData);
 
       if (companyResponse && typeof companyResponse === 'object' && 'id' in companyResponse) {
-        // Add user association (for now, just show success)
-        alert('Your company has been created and is pending review.');
+        // Show success message
+        alert('Your company application has been submitted and is pending admin review.');
         
         // Reset form
-        setNewCompany({
-          name: "",
+      setNewCompany({
+        name: "",
           industry: "",
           location: "",
-          description: "",
-          website: "",
+        description: "",
+        website: "",
           size: "",
-          role: "",
-          position: ""
+        role: "",
+          position: "",
+          logo: null,
+          logo_url: "",
+          countries: []
         });
+        setCurrentCountry("");
         
         setShowAddDialog(false);
         await loadNetworkCompanies();
       }
     } catch (error: any) {
-      setAddCompanyError(error.message || 'Failed to submit application.');
+      setAddCompanyError(error.message || 'Failed to submit company application.');
     } finally {
       setIsAddingCompany(false);
     }
@@ -231,13 +224,14 @@ const Companies = () => {
                 Add Company
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
+            <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+              <DialogHeader className="flex-shrink-0">
                 <DialogTitle>Add Company Association</DialogTitle>
                 <DialogDescription>
                   Connect with an existing network company or add a new one
                 </DialogDescription>
               </DialogHeader>
+              <div className="flex-1 overflow-y-auto px-1">
 
               <div className="space-y-6">
                 {/* Company Type Selection */}
@@ -364,13 +358,71 @@ const Companies = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="location">Location</Label>
+                        <Label htmlFor="countries">Countries of Operation *</Label>
+                        <div className="flex items-center space-x-2">
                         <Input
-                          id="location"
-                          value={newCompany.location}
-                          onChange={(e) => setNewCompany({...newCompany, location: e.target.value})}
-                          placeholder="Enter country"
-                        />
+                            id="countries"
+                            value={currentCountry}
+                            onChange={(e) => setCurrentCountry(e.target.value)}
+                            placeholder="Enter country name"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                if (currentCountry.trim() && !newCompany.countries.includes(currentCountry.trim())) {
+                                  setNewCompany({
+                                    ...newCompany,
+                                    countries: [...newCompany.countries, currentCountry.trim()]
+                                  });
+                                  setCurrentCountry('');
+                                }
+                              }
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => {
+                              if (currentCountry.trim() && !newCompany.countries.includes(currentCountry.trim())) {
+                                setNewCompany({
+                                  ...newCompany,
+                                  countries: [...newCompany.countries, currentCountry.trim()]
+                                });
+                                setCurrentCountry('');
+                              }
+                            }}
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        {newCompany.countries.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {newCompany.countries.map((country, index) => (
+                              <Badge
+                                key={index}
+                                variant="secondary"
+                                className="bg-blue-100 text-blue-800 hover:bg-blue-200"
+                              >
+                                {country}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setNewCompany({
+                                      ...newCompany,
+                                      countries: newCompany.countries.filter((_, i) => i !== index)
+                                    });
+                                  }}
+                                  className="ml-2 hover:text-red-600"
+                                >
+                                  <XCircle className="w-3 h-3" />
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-500 mt-1">
+                          Press Enter or click + to add countries. Click × to remove.
+                        </p>
                       </div>
                       <div>
                         <Label htmlFor="website">Website</Label>
@@ -392,6 +444,40 @@ const Companies = () => {
                         placeholder="Brief description of the company..."
                         rows={3}
                       />
+                    </div>
+
+                    {/* Company Logo Upload */}
+                    <div>
+                      <Label htmlFor="logo">Company Logo</Label>
+                      <div className="flex items-center space-x-4">
+                        <div className="flex-1">
+                      <Input
+                            id="logo"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const previewUrl = URL.createObjectURL(file);
+                                setNewCompany({...newCompany, logo: file, logo_url: previewUrl});
+                              }
+                            }}
+                            className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                          />
+                        </div>
+                        {newCompany.logo_url && (
+                          <div className="max-w-32 max-h-32 border-2 border-gray-200 rounded-lg overflow-hidden">
+                            <img 
+                              src={newCompany.logo_url} 
+                              alt="Logo preview" 
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Recommended size: 200x200px. Supported formats: JPG, PNG, GIF
+                      </p>
                     </div>
 
                     <div>
@@ -486,8 +572,9 @@ const Companies = () => {
                   </Alert>
                 )}
               </div>
+              </div>
 
-              <DialogFooter>
+              <DialogFooter className="flex-shrink-0">
                 <Button variant="outline" onClick={() => setShowAddDialog(false)}>
                   Cancel
                 </Button>
@@ -540,7 +627,7 @@ const Companies = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      
+
                       <div className="text-sm text-muted-foreground">
                         Added {new Date(userCompany.created_at).toLocaleDateString()}
                       </div>

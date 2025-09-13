@@ -13,7 +13,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { CompanyDashboardService } from "@/services/mockServices";
+import { apiService } from "@/services/api";
 import SocialLicenseAgreement from "@/components/SocialLicenseAgreement";
+
+// Import Social Features
+import { ReactionButton } from "@/components/social/ReactionButton";
+import { FollowButton } from "@/components/social/FollowButton";
+import { ShareButton } from "@/components/social/ShareButton";
+import { FileUpload } from "@/components/files/FileUpload";
 import { 
   Users, 
   TrendingUp, 
@@ -54,7 +61,9 @@ import {
   CheckCircle2,
   Clock4,
   AlertTriangle,
-  LogOut
+  LogOut,
+  Play,
+  Heart
 } from "lucide-react";
 
 interface CompanyApplication {
@@ -125,6 +134,11 @@ interface DashboardStats {
   activeProjects: number;
   pendingApplications: number;
   approvedCompanies: number;
+  // Social Metrics
+  totalReactions: number;
+  totalShares: number;
+  totalConnections: number;
+  socialEngagement: number;
 }
 
 interface Activity {
@@ -138,8 +152,8 @@ interface Activity {
   status: 'completed' | 'pending' | 'failed';
 }
 
-const CompanyDashboard = () => {
-  const { user, isAdmin, signOut } = useAuth();
+const UserDashboard = () => {
+  const { user, isAdmin, signOut, isDemoMode } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [companies, setCompanies] = useState<NetworkCompany[]>([]);
@@ -153,7 +167,12 @@ const CompanyDashboard = () => {
     growthRate: 0,
     activeProjects: 0,
     pendingApplications: 0,
-    approvedCompanies: 0
+    approvedCompanies: 0,
+    // Social Metrics
+    totalReactions: 0,
+    totalShares: 0,
+    totalConnections: 0,
+    socialEngagement: 0
   });
   const [isLoading, setIsLoading] = useState(true);
   const [showAddCompany, setShowAddCompany] = useState(false);
@@ -168,7 +187,7 @@ const CompanyDashboard = () => {
   const [newCompany, setNewCompany] = useState({
     name: "",
     sector: "",
-    country: "",
+    countries: [] as string[], // Changed from single country to array
     description: "",
     employees: "",
     website: "",
@@ -177,8 +196,13 @@ const CompanyDashboard = () => {
     license_number: "",
     license_date: "",
     applicant_role: "",
-    applicant_position: ""
+    applicant_position: "",
+    logo: null as File | null,
+    logo_url: ""
   });
+
+  // Current country input state
+  const [currentCountry, setCurrentCountry] = useState("");
 
   // Social License Agreement State
   const [agreementData, setAgreementData] = useState<any>(null);
@@ -187,18 +211,63 @@ const CompanyDashboard = () => {
     if (user) {
       loadUserData();
       loadActivities();
+      loadSocialMetrics();
     }
   }, [user]);
+
+  const loadSocialMetrics = async () => {
+    try {
+      if (!user?.id) return;
+
+      // Load user's reaction history
+      const reactionsResponse = await apiService.getUserReactions(100);
+      if (reactionsResponse.success) {
+        setStats(prev => ({ ...prev, totalReactions: reactionsResponse.data.length }));
+      }
+
+      // Load user's sharing history
+      const sharesResponse = await apiService.getUserShares(100);
+      if (sharesResponse.success) {
+        setStats(prev => ({ ...prev, totalShares: sharesResponse.data.length }));
+      }
+
+      // Load user's connections
+      const connectionsResponse = await apiService.getConnectionStats(user.id);
+      if (connectionsResponse.success) {
+        const connectionStats = connectionsResponse.data;
+        setStats(prev => ({ 
+          ...prev, 
+          totalConnections: connectionStats.followersCount + connectionStats.followingCount,
+          socialEngagement: Math.round((connectionStats.followersCount + connectionStats.followingCount) * 0.8)
+        }));
+      }
+
+    } catch (error) {
+      console.error('Error loading social metrics:', error);
+    }
+  };
 
   const loadUserData = async () => {
     try {
       setIsLoading(true);
       
-      // Load dashboard data using the service
-      const dashboardData = await CompanyDashboardService.getCompanyDashboardData(user?.id || '');
+      // Load user companies using real API
+      const userCompaniesData = await apiService.getUserCompanies();
+      const dashboardData = {
+        userCompanies: userCompaniesData,
+        networkCompanies: await apiService.getCompanies()
+      };
       
-      setUserCompanies(dashboardData.userCompanies);
-      setNetworkCompanies(dashboardData.networkCompanies);
+      setUserCompanies(dashboardData.userCompanies.map((company: any) => ({
+        ...company,
+        highlights: company.highlights || company.description || 'No highlights available',
+        location: company.location || company.country || 'Location not specified'
+      })));
+      setNetworkCompanies(dashboardData.networkCompanies.map((company: any) => ({
+        ...company,
+        highlights: company.highlights || company.description || 'No highlights available',
+        location: company.location || company.country || 'Location not specified'
+      })));
       
       // Combine companies for display
       const allCompanies: NetworkCompany[] = [
@@ -217,15 +286,19 @@ const CompanyDashboard = () => {
           created_at: uc.created_at || new Date().toISOString(),
           updated_at: uc.updated_at || new Date().toISOString(),
           impact_score: 0,
+          highlights: uc.description ? [uc.description] : ['No highlights available'],
+          location: uc.country || 'Location not specified',
           shared_value: 0,
           joined_date: uc.created_at || new Date().toISOString(),
           logo: '',
           contact_email: '',
-          contact_phone: '',
-          highlights: [],
-          location: uc.country || 'United Kingdom'
+          contact_phone: ''
         })),
-        ...(dashboardData.networkCompanies || [])
+        ...(dashboardData.networkCompanies || []).map((nc: any) => ({
+          ...nc,
+          highlights: nc.highlights || nc.description ? [nc.description] : ['No highlights available'],
+          location: nc.location || nc.country || 'Location not specified'
+        }))
       ];
       
       setCompanies(allCompanies);
@@ -271,21 +344,21 @@ const CompanyDashboard = () => {
 
   const handleAddCompany = async () => {
     try {
-      if (!newCompany.name || !newCompany.sector || !newCompany.country || !newCompany.applicant_role || !newCompany.applicant_position) {
-        toast({
+      if (!newCompany.name || !newCompany.sector || newCompany.countries.length === 0 || !newCompany.applicant_role || !newCompany.applicant_position) {
+      toast({
           title: "Validation Error",
           description: "Please fill in all required fields",
-          variant: "destructive"
-        });
-        return;
-      }
+        variant: "destructive"
+      });
+      return;
+    }
 
       // Show social license agreement
       setShowSocialLicense(true);
-
+    
     } catch (error) {
       console.error('Error preparing company application:', error);
-      toast({
+    toast({
         title: "Error",
         description: "Failed to prepare company application",
         variant: "destructive"
@@ -295,78 +368,106 @@ const CompanyDashboard = () => {
 
   const handleAgreementSigned = async (agreementData: any) => {
     try {
-      // For now, simulate the database operations since tables don't exist yet
-      // In production, this would insert into the actual database tables
-      
-      // Simulate creating company application
-      const mockApplicationId = Date.now().toString();
-      
-      // Simulate creating social license agreement record
-      console.log('Social License Agreement signed:', {
-        user_id: user?.id,
-        company_application_id: mockApplicationId,
-        agreement_version: agreementData.agreementVersion,
-        agreement_text: 'Shared Wealth International Social Licence Agreement v1.0',
-        user_signature: agreementData.userSignature,
-        signed_at: agreementData.signedAt,
-        ip_address: agreementData.ipAddress,
-        user_agent: agreementData.userAgent,
-        company_name: agreementData.companyName,
-        representative_name: agreementData.representativeName
-      });
-
-      toast({
-        title: "Success",
-        description: "Company application submitted successfully. Pending admin approval.",
-      });
-
-      setShowSocialLicense(false);
-      setShowAddCompany(false);
-      setNewCompany({
-        name: "",
-        sector: "",
-        country: "",
-        description: "",
-        employees: "",
-        website: "",
-        location: "",
-        is_shared_wealth_licensed: false,
-        license_number: "",
-        license_date: "",
-        applicant_role: "",
-        applicant_position: ""
-      });
-
-      // Add to local state for demonstration
-      const newApplication: CompanyApplication = {
-        id: mockApplicationId,
-        company_name: newCompany.name,
-        sector: newCompany.sector,
-        country: newCompany.country,
+      // Submit company application to admin system for approval
+      const companyApplicationData = {
+        name: newCompany.name,
         description: newCompany.description,
-        website: newCompany.website,
-        employees: newCompany.employees ? parseInt(newCompany.employees) : null,
+        industry: newCompany.sector, // Map sector to industry for API
         location: newCompany.location,
+        website: newCompany.website,
+        size: newCompany.employees ? (parseInt(newCompany.employees) < 50 ? 'small' : parseInt(newCompany.employees) < 200 ? 'medium' : 'large') : 'small',
+        status: 'pending', // Submit as pending for admin approval
+        // Additional fields from the form
+        countries: newCompany.countries,
+        employees: newCompany.employees ? parseInt(newCompany.employees) : null,
         is_shared_wealth_licensed: newCompany.is_shared_wealth_licensed,
         license_number: newCompany.license_number || null,
         license_date: newCompany.license_date || null,
         applicant_role: newCompany.applicant_role,
         applicant_position: newCompany.applicant_position,
-        status: 'pending',
-        admin_notes: null,
-        admin_id: null,
-        reviewed_at: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        // Agreement data
+        agreement_data: {
+          agreement_version: agreementData.agreementVersion,
+          user_signature: agreementData.userSignature,
+          signed_at: agreementData.signedAt,
+          ip_address: agreementData.ipAddress,
+          user_agent: agreementData.userAgent,
+          company_name: agreementData.companyName,
+          representative_name: agreementData.representativeName
+        },
+        // Logo data
+        logo_file: newCompany.logo,
+        logo_url: newCompany.logo_url
       };
 
-      setApplications(prev => [newApplication, ...prev]);
+      // Submit to admin system via API
+      const response = await apiService.createCompany(companyApplicationData);
+      
+      if (response && response.success !== false) {
+      toast({
+          title: "Success",
+          description: "Company application submitted successfully. Pending admin approval.",
+        });
+
+        setShowSocialLicense(false);
+        setShowAddCompany(false);
+        setNewCompany({
+          name: "",
+          sector: "",
+          countries: [],
+          description: "",
+          employees: "",
+          website: "",
+          location: "",
+          is_shared_wealth_licensed: false,
+          license_number: "",
+          license_date: "",
+          applicant_role: "",
+          applicant_position: "",
+          logo: null,
+          logo_url: ""
+        });
+        setCurrentCountry("");
+
+        // Add to local state for demonstration
+        const newApplication: CompanyApplication = {
+          id: response.id || Date.now().toString(),
+          company_name: newCompany.name,
+          sector: newCompany.sector,
+          countries: newCompany.countries,
+          description: newCompany.description,
+          website: newCompany.website,
+          employees: newCompany.employees ? parseInt(newCompany.employees) : null,
+          location: newCompany.location,
+          is_shared_wealth_licensed: newCompany.is_shared_wealth_licensed,
+          license_number: newCompany.license_number || null,
+          license_date: newCompany.license_date || null,
+          applicant_role: newCompany.applicant_role,
+          applicant_position: newCompany.applicant_position,
+          status: 'pending',
+          admin_notes: null,
+          admin_id: null,
+          reviewed_at: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+
+        setApplications(prev => [newApplication, ...prev]);
+        
+        // Update stats
+        setStats(prev => ({
+          ...prev,
+          pendingApplications: prev.pendingApplications + 1
+        }));
+      } else {
+        throw new Error('Failed to submit company application');
+      }
 
     } catch (error) {
-      console.error('Error adding company:', error);
+      console.error('Error submitting company application:', error);
       toast({
         title: "Error",
-        description: "Failed to add company",
+        description: "Failed to submit company application. Please try again.",
         variant: "destructive"
       });
     }
@@ -420,13 +521,13 @@ const CompanyDashboard = () => {
   };
 
   if (isLoading) {
-    return (
+  return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
           <p className="text-gray-600">Loading Dashboard...</p>
-        </div>
-      </div>
+              </div>
+          </div>
     );
   }
 
@@ -436,10 +537,10 @@ const CompanyDashboard = () => {
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Company Dashboard</h1>
+                <div>
+              <h1 className="text-3xl font-bold text-gray-900">User Dashboard</h1>
               <p className="text-lg text-gray-600">Manage your companies and network connections</p>
-            </div>
+                    </div>
             <div className="flex space-x-3">
               <Button onClick={loadUserData} variant="outline">
                 <RefreshCw className="w-4 h-4 mr-2" />
@@ -459,19 +560,44 @@ const CompanyDashboard = () => {
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
               </Button>
-            </div>
           </div>
-          
         </div>
+
+      </div>
+
+        {/* Demo Mode Banner */}
+        {isDemoMode && (
+          <div className="mb-6 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg shadow-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center mr-3">
+                  <Play className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">Demo Mode Active</h3>
+                  <p className="text-green-100 text-sm">You're exploring the platform with sample data. Sign up for a real account to access all features.</p>
+                    </div>
+                </div>
+              <Button 
+                onClick={() => window.location.href = '/auth'} 
+                variant="outline" 
+                className="bg-white text-green-600 hover:bg-green-50 border-white"
+              >
+                Sign Up
+              </Button>
+        </div>
+      </div>
+        )}
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 border shadow-lg" style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }}>
+          <TabsList className="grid w-full grid-cols-6 border shadow-lg" style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }}>
             <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Overview</TabsTrigger>
             <TabsTrigger value="my-companies" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">My Companies</TabsTrigger>
             <TabsTrigger value="analytics" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Analytics</TabsTrigger>
             <TabsTrigger value="activities" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Activities</TabsTrigger>
             <TabsTrigger value="applications" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Applications</TabsTrigger>
+            <TabsTrigger value="social" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Social</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -481,27 +607,27 @@ const CompanyDashboard = () => {
                 <div className="flex items-center space-x-3">
                   <div className="p-3 bg-slate-100 rounded-xl">
                     <Building className="w-6 h-6 text-slate-600" />
-                  </div>
-                  <div>
+            </div>
+          <div>
                     <p className="text-sm font-medium text-slate-600">Total Companies</p>
                     <p className="text-2xl font-bold text-slate-900">
                       {stats.totalCompanies > 0 ? stats.totalCompanies : 0}
-                    </p>
-                  </div>
+            </p>
+          </div>
                 </div>
               </Card>
 
               <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
-                <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3">
                   <div className="p-3 bg-slate-100 rounded-xl">
                     <Users className="w-6 h-6 text-slate-600" />
-                  </div>
+        </div>
                   <div>
                     <p className="text-sm font-medium text-slate-600">Network Partners</p>
                     <p className="text-2xl font-bold text-slate-900">
                       {stats.networkPartners > 0 ? stats.networkPartners : 0}
                     </p>
-                  </div>
+      </div>
                 </div>
               </Card>
 
@@ -509,82 +635,139 @@ const CompanyDashboard = () => {
                 <div className="flex items-center space-x-3">
                   <div className="p-3 bg-slate-100 rounded-xl">
                     <TrendingUp className="w-6 h-6 text-slate-600" />
-                  </div>
-                  <div>
+                      </div>
+          <div>
                     <p className="text-sm font-medium text-slate-600">Growth Rate</p>
                     <p className="text-2xl font-bold text-slate-900">
                       {stats.growthRate > 0 ? `${stats.growthRate}%` : '0%'}
-                    </p>
-                  </div>
-                </div>
-              </Card>
+            </p>
+          </div>
+                    </div>
+                </Card>
 
               <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
-                <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3">
                   <div className="p-3 bg-slate-100 rounded-xl">
                     <Activity className="w-6 h-6 text-slate-600" />
-                  </div>
-                  <div>
+          </div>
+                      <div>
                     <p className="text-sm font-medium text-slate-600">Active Projects</p>
                     <p className="text-2xl font-bold text-slate-900">
                       {stats.activeProjects > 0 ? stats.activeProjects : 0}
                     </p>
-                  </div>
-                </div>
-              </Card>
+                      </div>
+                    </div>
+                </Card>
 
               <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center space-x-3">
                   <div className="p-3 bg-slate-100 rounded-xl">
                     <Clock className="w-6 h-6 text-slate-600" />
-                  </div>
-                  <div>
+                      </div>
+                      <div>
                     <p className="text-sm font-medium text-slate-600">Pending Applications</p>
                     <p className="text-2xl font-bold text-slate-900">
                       {stats.pendingApplications > 0 ? stats.pendingApplications : 0}
                     </p>
-                  </div>
-                </div>
-              </Card>
+                      </div>
+                    </div>
+                </Card>
 
               <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center space-x-3">
                   <div className="p-3 bg-slate-100 rounded-xl">
                     <CheckCircle className="w-6 h-6 text-slate-600" />
-                  </div>
-                  <div>
+                      </div>
+                      <div>
                     <p className="text-sm font-medium text-slate-600">Approved Companies</p>
                     <p className="text-2xl font-bold text-slate-900">
                       {stats.approvedCompanies > 0 ? stats.approvedCompanies : 0}
                     </p>
+                      </div>
+                    </div>
+                </Card>
+
+              {/* Social Metrics Cards */}
+              <Card className="p-6 border border-blue-200 bg-blue-50 hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-blue-100 rounded-xl">
+                    <Heart className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div>
+                    <p className="text-sm font-medium text-blue-600">Total Reactions</p>
+                    <p className="text-2xl font-bold text-blue-900">
+                      {stats.totalReactions || 0}
+                    </p>
+                      </div>
+                    </div>
+                </Card>
+
+              <Card className="p-6 border border-green-200 bg-green-50 hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-green-100 rounded-xl">
+                    <Share2 className="w-6 h-6 text-green-600" />
+                      </div>
+                      <div>
+                    <p className="text-sm font-medium text-green-600">Content Shares</p>
+                    <p className="text-2xl font-bold text-green-900">
+                      {stats.totalShares || 0}
+                    </p>
+                      </div>
+                    </div>
+                </Card>
+
+              <Card className="p-6 border border-purple-200 bg-purple-50 hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-purple-100 rounded-xl">
+                    <Users className="w-6 h-6 text-purple-600" />
+              </div>
+                  <div>
+                    <p className="text-sm font-medium text-purple-600">Social Connections</p>
+                    <p className="text-2xl font-bold text-purple-900">
+                      {stats.totalConnections || 0}
+                    </p>
                   </div>
                 </div>
               </Card>
-            </div>
+
+              <Card className="p-6 border border-orange-200 bg-orange-50 hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-orange-100 rounded-xl">
+                    <TrendingUp className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-orange-600">Social Engagement</p>
+                    <p className="text-2xl font-bold text-orange-900">
+                      {stats.socialEngagement || 0}%
+                    </p>
+                  </div>
+                </div>
+              </Card>
+              </div>
 
             {/* Recent Activities Preview */}
             <Card>
-              <CardHeader>
+                  <CardHeader>
                 <CardTitle>Recent Activities</CardTitle>
                 <CardDescription>Your latest network activities</CardDescription>
-              </CardHeader>
-              <CardContent>
+                  </CardHeader>
+                  <CardContent>
                 {activities.length > 0 ? (
-                  <div className="space-y-4">
+                    <div className="space-y-4">
                     {activities.slice(0, 3).map((activity) => (
                       <div key={activity.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
                         <div className={`w-2 h-2 rounded-full ${
                           activity.status === 'completed' ? 'bg-green-500' : 
                           activity.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
                         }`} />
-                        <div className="flex-1">
+                            <div className="flex-1">
                           <p className="font-medium text-gray-900">{activity.title}</p>
                           <p className="text-sm text-gray-600">{activity.description}</p>
-                        </div>
+                            </div>
                         <span className="text-xs text-gray-500">
                           {new Date(activity.timestamp).toLocaleDateString()}
                         </span>
-                      </div>
+                          </div>
                     ))}
                     <div className="mt-4">
                       <Button variant="outline" onClick={() => setActiveTab("activities")}>
@@ -600,8 +783,8 @@ const CompanyDashboard = () => {
                     <p className="text-sm text-gray-400">Your network activities will appear here</p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
           </TabsContent>
 
           {/* Companies Tab */}
@@ -615,7 +798,7 @@ const CompanyDashboard = () => {
                 <Plus className="w-4 h-4 mr-2" />
                 Add Company
               </Button>
-            </div>
+                            </div>
 
             {/* Search and Filters */}
             <div className="flex flex-col sm:flex-row gap-4">
@@ -627,7 +810,7 @@ const CompanyDashboard = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
-              </div>
+                          </div>
               <Select value={filterSector} onValueChange={setFilterSector}>
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="Filter by sector" />
@@ -650,7 +833,7 @@ const CompanyDashboard = () => {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+                    </div>
 
             {filteredCompanies.length === 0 ? (
               <Card>
@@ -674,8 +857,8 @@ const CompanyDashboard = () => {
                       Add Your First Company
                     </Button>
                   )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredCompanies.map((company) => (
@@ -684,7 +867,7 @@ const CompanyDashboard = () => {
                     className="hover:shadow-lg transition-shadow cursor-pointer group"
                     onClick={() => handleCompanyClick(company)}
                   >
-                    <CardHeader>
+                  <CardHeader>
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
                           {company.name}
@@ -694,15 +877,15 @@ const CompanyDashboard = () => {
                           <Badge variant={company.status === 'active' ? 'default' : 'secondary'}>
                             {company.status}
                           </Badge>
-                        </div>
-                      </div>
+              </div>
+            </div>
                       <CardDescription className="flex items-center space-x-2">
                         <span>{company.sector}</span>
                         <span>•</span>
                         <span>{company.country}</span>
                       </CardDescription>
-                    </CardHeader>
-                    <CardContent>
+                  </CardHeader>
+                  <CardContent>
                       <p className="text-gray-600 text-sm mb-4 line-clamp-2">
                         {company.description || 'No description available'}
                       </p>
@@ -710,25 +893,50 @@ const CompanyDashboard = () => {
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-gray-500">Employees</span>
                           <span className="font-medium">{company.employees || 'N/A'}</span>
-                        </div>
+                          </div>
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-gray-500">Impact Score</span>
                           <div className="flex items-center space-x-1">
                             <Star className="w-4 h-4 text-yellow-500 fill-current" />
                             <span className="font-medium">{company.impact_score || 'N/A'}</span>
+                            </div>
                           </div>
-                        </div>
                         {company.is_shared_wealth_licensed && (
                           <div className="flex items-center space-x-2 text-sm">
                             <CheckCircle className="w-4 h-4 text-green-500" />
                             <span className="text-green-600">Licensed</span>
-                          </div>
+                        </div>
                         )}
+                      </div>
+
+                      {/* Social Features */}
+                      <div className="mt-4 pt-4 border-t border-gray-100">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <ReactionButton
+                              postId={company.id}
+                              postType="company_post"
+                              className="text-sm"
+                            />
+                            <ShareButton
+                              contentId={company.id}
+                              contentType="company_post"
+                              contentTitle={company.name}
+                              className="text-sm"
+                            />
+                          </div>
+                          <FollowButton
+                            targetUserId={company.id}
+                            targetUserName={company.name}
+                            connectionType="colleague"
+                            className="text-sm"
+                          />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
+                      ))}
+                    </div>
             )}
           </TabsContent>
 
@@ -750,13 +958,13 @@ const CompanyDashboard = () => {
                     Start by submitting your first company application
                   </p>
                   <Button onClick={() => setShowAddCompany(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
+                              <Plus className="w-4 h-4 mr-2" />
                     Submit Application
-                  </Button>
-                </CardContent>
-              </Card>
+                            </Button>
+                  </CardContent>
+                </Card>
             ) : (
-              <div className="space-y-4">
+                            <div className="space-y-4">
                 {applications.map((application) => (
                   <Card key={application.id} className="hover:shadow-lg transition-shadow">
                     <CardContent className="p-6">
@@ -770,33 +978,33 @@ const CompanyDashboard = () => {
                             <Badge className={getStatusColor(application.status)}>
                               {application.status.charAt(0).toUpperCase() + application.status.slice(1).replace('_', ' ')}
                             </Badge>
-                          </div>
+              </div>
                           
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                            <div>
+                              <div>
                               <Label className="text-sm font-medium text-gray-700">Sector</Label>
                               <p className="text-sm text-gray-600 mt-1">{application.sector}</p>
-                            </div>
+                              </div>
                             
-                            <div>
+                              <div>
                               <Label className="text-sm font-medium text-gray-700">Country</Label>
                               <p className="text-sm text-gray-600 mt-1">{application.country}</p>
-                            </div>
+                              </div>
                             
-                            <div>
+                              <div>
                               <Label className="text-sm font-medium text-gray-700">Your Role</Label>
                               <p className="text-sm text-gray-600 mt-1">
                                 {application.applicant_role} • {application.applicant_position}
                               </p>
+                              </div>
                             </div>
-                          </div>
 
                           {application.description && (
                             <div className="mb-4">
                               <Label className="text-sm font-medium text-gray-700">Description</Label>
                               <p className="text-sm text-gray-600 mt-1">{application.description}</p>
-                            </div>
-                          )}
+            </div>
+          )}
 
                           {application.admin_notes && (
                             <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -809,7 +1017,7 @@ const CompanyDashboard = () => {
                             <Button variant="outline" size="sm">
                               <Eye className="w-4 h-4 mr-2" />
                               View Details
-                            </Button>
+                              </Button>
                             {application.status === 'pending' && (
                               <Button variant="outline" size="sm">
                                 <Edit className="w-4 h-4 mr-2" />
@@ -819,8 +1027,8 @@ const CompanyDashboard = () => {
                           </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
                 ))}
               </div>
             )}
@@ -829,30 +1037,30 @@ const CompanyDashboard = () => {
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
             <Card>
-              <CardHeader>
+                      <CardHeader>
                 <CardTitle>Impact Analytics</CardTitle>
                 <CardDescription>Track your companies' impact over time</CardDescription>
-              </CardHeader>
-              <CardContent>
+                      </CardHeader>
+                      <CardContent>
                 <div className="h-64 flex items-center justify-center text-gray-500">
                   <div className="text-center">
                     <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <p>Impact charts and analytics will be displayed here</p>
                     <p className="text-sm">Coming soon with real-time data visualization</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
           </TabsContent>
 
           {/* Activities Tab */}
           <TabsContent value="activities" className="space-y-6">
             <Card>
-              <CardHeader>
+                      <CardHeader>
                 <CardTitle>Recent Activities</CardTitle>
                 <CardDescription>Your latest network activities and updates</CardDescription>
-              </CardHeader>
-              <CardContent>
+                      </CardHeader>
+                      <CardContent>
                 <div className="space-y-4">
                   {activities.map((activity) => (
                     <div key={activity.id} className="flex items-center space-x-3 p-4 rounded-lg border hover:bg-gray-50">
@@ -860,7 +1068,7 @@ const CompanyDashboard = () => {
                         activity.status === 'completed' ? 'bg-green-500' : 
                         activity.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
                       }`} />
-                      <div className="flex-1">
+                              <div className="flex-1">
                         <p className="font-medium text-gray-900">{activity.title}</p>
                         <p className="text-sm text-gray-600">{activity.description}</p>
                         {activity.company_name && (
@@ -874,26 +1082,203 @@ const CompanyDashboard = () => {
                         <p className="text-xs text-gray-400">
                           {new Date(activity.timestamp).toLocaleTimeString()}
                         </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Social Tab */}
+          <TabsContent value="social" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Social Activity Feed */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <MessageSquare className="w-5 h-5 text-blue-600" />
+                    <span>Social Activity Feed</span>
+                  </CardTitle>
+                  <CardDescription>Recent social interactions and content</CardDescription>
+                </CardHeader>
+                <CardContent>
+                            <div className="space-y-4">
+                    <div className="p-4 border rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          <Avatar className="w-8 h-8">
+                            <AvatarFallback>U</AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium">You reacted to</span>
+                          <span className="text-blue-600">TechCorp Innovation</span>
+                        </div>
+                        <span className="text-sm text-gray-500">2 hours ago</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <ReactionButton
+                          postId="sample-post-1"
+                          postType="company_post"
+                          className="text-sm"
+                        />
+                        <ShareButton
+                          contentId="sample-post-1"
+                          contentType="company_post"
+                          contentTitle="TechCorp Innovation"
+                          className="text-sm"
+                                />
+                              </div>
+                              </div>
+                    
+                    <div className="p-4 border rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          <Avatar className="w-8 h-8">
+                            <AvatarFallback>J</AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium">John Smith</span>
+                          <span>shared</span>
+                          <span className="text-blue-600">GreenTech Solutions</span>
+                        </div>
+                        <span className="text-sm text-gray-500">4 hours ago</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <FollowButton
+                          targetUserId="sample-user-1"
+                          targetUserName="John Smith"
+                          connectionType="colleague"
+                          className="text-sm"
+                                />
+                              </div>
+                            </div>
+                  </div>
+                      </CardContent>
+                    </Card>
+
+              {/* Social Connections */}
+              <Card>
+                      <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Users className="w-5 h-5 text-purple-600" />
+                    <span>Social Connections</span>
+                  </CardTitle>
+                  <CardDescription>Manage your professional network</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="w-10 h-10">
+                          <AvatarFallback>JS</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">Jane Smith</p>
+                          <p className="text-sm text-gray-500">CEO at InnovateCorp</p>
+                          </div>
+                      </div>
+                      <FollowButton
+                        targetUserId="sample-user-2"
+                        targetUserName="Jane Smith"
+                        connectionType="colleague"
+                        className="text-sm"
+                      />
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="w-10 h-10">
+                          <AvatarFallback>MD</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">Mike Davis</p>
+                          <p className="text-sm text-gray-500">CTO at TechStart</p>
+                        </div>
+                      </div>
+                      <FollowButton
+                        targetUserId="sample-user-3"
+                        targetUserName="Mike Davis"
+                        connectionType="mentor"
+                        className="text-sm"
+                      />
+                    </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+              {/* File Upload */}
+              <Card>
+                      <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <FileText className="w-5 h-5 text-green-600" />
+                    <span>File Management</span>
+                  </CardTitle>
+                  <CardDescription>Upload and manage company documents</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                  <FileUpload
+                    onUploadComplete={(files) => {
+                      console.log('Files uploaded:', files);
+                      toast({
+                        title: "Success",
+                        description: `${files.length} file(s) uploaded successfully`,
+                      });
+                    }}
+                    maxFiles={5}
+                    acceptedTypes={['image/*', 'application/pdf', 'text/*']}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Social Analytics */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <BarChart3 className="w-5 h-5 text-orange-600" />
+                    <span>Social Analytics</span>
+                  </CardTitle>
+                  <CardDescription>Your social engagement metrics</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <Heart className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+                      <p className="text-2xl font-bold text-blue-900">{stats.totalReactions || 0}</p>
+                      <p className="text-sm text-blue-600">Total Reactions</p>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <Share2 className="w-8 h-8 mx-auto mb-2 text-green-600" />
+                      <p className="text-2xl font-bold text-green-900">{stats.totalShares || 0}</p>
+                      <p className="text-sm text-green-600">Content Shares</p>
+                    </div>
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <Users className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+                      <p className="text-2xl font-bold text-purple-900">{stats.totalConnections || 0}</p>
+                      <p className="text-sm text-purple-600">Connections</p>
+                    </div>
+                    <div className="text-center p-4 bg-orange-50 rounded-lg">
+                      <TrendingUp className="w-8 h-8 mx-auto mb-2 text-orange-600" />
+                      <p className="text-2xl font-bold text-orange-900">{stats.socialEngagement || 0}%</p>
+                      <p className="text-sm text-orange-600">Engagement</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
 
       {/* Add Company Dialog */}
       <Dialog open={showAddCompany} onOpenChange={setShowAddCompany}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
+                            <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+                              <DialogHeader className="flex-shrink-0">
             <DialogTitle>Add New Company</DialogTitle>
-            <DialogDescription>
+                                <DialogDescription>
               Submit a new company application to join the Shared Wealth International network.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="flex-1 overflow-y-auto px-1">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="company-name">Company Name *</Label>
               <Input
@@ -906,10 +1291,10 @@ const CompanyDashboard = () => {
             <div className="space-y-2">
               <Label htmlFor="sector">Sector *</Label>
               <Select value={newCompany.sector} onValueChange={(value) => setNewCompany({...newCompany, sector: value})}>
-                <SelectTrigger>
+                                      <SelectTrigger>
                   <SelectValue placeholder="Select sector" />
-                </SelectTrigger>
-                <SelectContent>
+                                      </SelectTrigger>
+                                      <SelectContent>
                   <SelectItem value="Technology">Technology</SelectItem>
                   <SelectItem value="Manufacturing">Manufacturing</SelectItem>
                   <SelectItem value="Healthcare">Healthcare</SelectItem>
@@ -918,18 +1303,76 @@ const CompanyDashboard = () => {
                   <SelectItem value="Energy">Energy</SelectItem>
                   <SelectItem value="Retail">Retail</SelectItem>
                   <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
             <div className="space-y-2">
-              <Label htmlFor="country">Country *</Label>
-              <Input
-                id="country"
-                value={newCompany.country}
-                onChange={(e) => setNewCompany({...newCompany, country: e.target.value})}
-                placeholder="Enter country"
-              />
-            </div>
+              <Label htmlFor="countries">Countries of Operation *</Label>
+              <div className="flex items-center space-x-2">
+                <Input
+                  id="countries"
+                  value={currentCountry}
+                  onChange={(e) => setCurrentCountry(e.target.value)}
+                  placeholder="Enter country name"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (currentCountry.trim() && !newCompany.countries.includes(currentCountry.trim())) {
+                        setNewCompany({
+                          ...newCompany,
+                          countries: [...newCompany.countries, currentCountry.trim()]
+                        });
+                        setCurrentCountry('');
+                      }
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => {
+                    if (currentCountry.trim() && !newCompany.countries.includes(currentCountry.trim())) {
+                      setNewCompany({
+                        ...newCompany,
+                        countries: [...newCompany.countries, currentCountry.trim()]
+                      });
+                      setCurrentCountry('');
+                    }
+                  }}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+                                  </div>
+              {newCompany.countries.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {newCompany.countries.map((country, index) => (
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+                    >
+                      {country}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewCompany({
+                            ...newCompany,
+                            countries: newCompany.countries.filter((_, i) => i !== index)
+                          });
+                        }}
+                        className="ml-2 hover:text-red-600"
+                      >
+                        <XCircle className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                                </div>
+              )}
+              <p className="text-xs text-gray-500">
+                Press Enter or click + to add countries. Click × to remove.
+              </p>
+                                </div>
             <div className="space-y-2">
               <Label htmlFor="employees">Number of Employees</Label>
               <Input
@@ -938,8 +1381,8 @@ const CompanyDashboard = () => {
                 value={newCompany.employees}
                 onChange={(e) => setNewCompany({...newCompany, employees: e.target.value})}
                 placeholder="Enter number of employees"
-              />
-            </div>
+                                  />
+                                </div>
             <div className="space-y-2">
               <Label htmlFor="website">Website</Label>
               <Input
@@ -947,8 +1390,8 @@ const CompanyDashboard = () => {
                 value={newCompany.website}
                 onChange={(e) => setNewCompany({...newCompany, website: e.target.value})}
                 placeholder="https://example.com"
-              />
-            </div>
+                                    />
+                                  </div>
             <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
               <Input
@@ -956,8 +1399,8 @@ const CompanyDashboard = () => {
                 value={newCompany.location}
                 onChange={(e) => setNewCompany({...newCompany, location: e.target.value})}
                 placeholder="City, Country"
-              />
-            </div>
+                                    />
+                                  </div>
             <div className="space-y-2">
               <Label htmlFor="applicant-role">Your Role *</Label>
               <Select value={newCompany.applicant_role} onValueChange={(value) => setNewCompany({...newCompany, applicant_role: value})}>
@@ -974,7 +1417,7 @@ const CompanyDashboard = () => {
                   <SelectItem value="investor">Investor</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+                                </div>
             <div className="space-y-2">
               <Label htmlFor="applicant-position">Your Position *</Label>
               <Input
@@ -982,19 +1425,54 @@ const CompanyDashboard = () => {
                 value={newCompany.applicant_position}
                 onChange={(e) => setNewCompany({...newCompany, applicant_position: e.target.value})}
                 placeholder="e.g., CEO, Director, Manager"
-              />
-            </div>
-          </div>
+                                    />
+                                  </div>
+                                  </div>
           <div className="space-y-2">
             <Label htmlFor="description">Company Description</Label>
-            <Textarea
+                                    <Textarea 
               id="description"
               value={newCompany.description}
               onChange={(e) => setNewCompany({...newCompany, description: e.target.value})}
               placeholder="Describe your company's mission, values, and shared wealth approach..."
               rows={4}
             />
-          </div>
+                                </div>
+                                
+          {/* Company Logo Upload */}
+          <div className="space-y-2">
+            <Label htmlFor="logo">Company Logo</Label>
+            <div className="flex items-center space-x-4">
+              <div className="flex-1">
+                <Input
+                  id="logo"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const previewUrl = URL.createObjectURL(file);
+                      setNewCompany({...newCompany, logo: file, logo_url: previewUrl});
+                    }
+                  }}
+                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                />
+                                  </div>
+                    {newCompany.logo_url && (
+                      <div className="max-w-32 max-h-32 border-2 border-gray-200 rounded-lg overflow-hidden">
+                        <img 
+                          src={newCompany.logo_url} 
+                          alt="Logo preview" 
+                          className="w-full h-full object-contain"
+                        />
+                                  </div>
+                    )}
+                                  </div>
+            <p className="text-xs text-gray-500">
+              Recommended size: 200x200px. Supported formats: JPG, PNG, GIF
+            </p>
+                                </div>
+                                
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -1005,7 +1483,7 @@ const CompanyDashboard = () => {
               <Label htmlFor="shared-wealth-licensed">
                 My company is already Shared Wealth licensed
               </Label>
-            </div>
+                                </div>
             {newCompany.is_shared_wealth_licensed && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -1015,8 +1493,8 @@ const CompanyDashboard = () => {
                     value={newCompany.license_number}
                     onChange={(e) => setNewCompany({...newCompany, license_number: e.target.value})}
                     placeholder="Enter license number"
-                  />
-                </div>
+                                  />
+                                </div>
                 <div className="space-y-2">
                   <Label htmlFor="license-date">License Date</Label>
                   <Input
@@ -1024,12 +1502,13 @@ const CompanyDashboard = () => {
                     type="date"
                     value={newCompany.license_date}
                     onChange={(e) => setNewCompany({...newCompany, license_date: e.target.value})}
-                  />
-                </div>
+                                  />
+                              </div>
               </div>
             )}
-          </div>
-          <DialogFooter>
+                                </div>
+                              </div>
+                              <DialogFooter className="flex-shrink-0">
             <Button variant="outline" onClick={() => setShowAddCompany(false)}>
               Cancel
             </Button>
@@ -1038,10 +1517,10 @@ const CompanyDashboard = () => {
               className="bg-emerald-600 hover:bg-emerald-700 text-white border-0"
             >
               Continue to Agreement
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
 
       {/* Social License Agreement Dialog */}
       <Dialog open={showSocialLicense} onOpenChange={setShowSocialLicense}>
@@ -1080,11 +1559,11 @@ const CompanyDashboard = () => {
                     <div className="flex justify-between">
                       <span className="text-gray-600">Sector:</span>
                       <span>{selectedCompany.sector}</span>
-                    </div>
+                        </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Country:</span>
                       <span>{selectedCompany.country}</span>
-                    </div>
+                  </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Employees:</span>
                       <span>{selectedCompany.employees || 'N/A'}</span>
@@ -1123,8 +1602,8 @@ const CompanyDashboard = () => {
                 <div>
                   <h3 className="font-semibold mb-2">Description</h3>
                   <p className="text-gray-600">{selectedCompany.description}</p>
-                </div>
-              )}
+            </div>
+          )}
 
               <div className="flex space-x-2">
                 <Button variant="outline">
@@ -1139,7 +1618,7 @@ const CompanyDashboard = () => {
                   <Share2 className="w-4 h-4 mr-2" />
                   Share
                 </Button>
-              </div>
+      </div>
             </div>
           )}
         </DialogContent>
@@ -1148,4 +1627,4 @@ const CompanyDashboard = () => {
   );
 };
 
-export default CompanyDashboard; 
+export default UserDashboard; 

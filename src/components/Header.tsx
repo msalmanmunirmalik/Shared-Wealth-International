@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, signOut, loading } = useAuth();
+  const { user, signOut, loading, isAdmin } = useAuth();
   const { t, i18n } = useTranslation();
   const location = useLocation();
 
@@ -126,12 +126,21 @@ const Header = () => {
                   {isMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
                       <Link
-                        to="/company-dashboard"
+                        to="/user-dashboard"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         Dashboard
                       </Link>
+                      {isAdmin && (
+                        <Link
+                          to="/admin"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Admin Panel
+                        </Link>
+                      )}
                       <button
                         onClick={handleSignOut}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

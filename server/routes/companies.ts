@@ -47,6 +47,50 @@ router.get('/', generalLimiter, paginationValidation, handleValidationErrors, Co
 
 /**
  * @swagger
+ * /api/companies/user:
+ *   get:
+ *     summary: Get companies for the authenticated user
+ *     tags: [Companies]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User companies retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Company'
+ *       401:
+ *         description: Unauthorized
+ */
+router.get('/user', authenticateToken, generalLimiter, CompanyController.getUserCompanies);
+
+/**
+ * @swagger
+ * /api/companies/applications:
+ *   get:
+ *     summary: Get company applications for the authenticated user
+ *     tags: [Companies]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User company applications retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/CompanyApplication'
+ *       401:
+ *         description: Unauthorized
+ */
+router.get('/applications', authenticateToken, generalLimiter, CompanyController.getUserApplications);
+
+/**
+ * @swagger
  * /api/companies/search:
  *   get:
  *     summary: Search companies by name, description, or industry

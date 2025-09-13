@@ -117,7 +117,7 @@ const Dashboard = () => {
       title: "Create Event",
       description: "Organize a new event",
       icon: Calendar,
-      path: "/resources?tab=events",
+      path: "/network?tab=events",
       color: "from-orange-50 to-amber-100"
     },
     {

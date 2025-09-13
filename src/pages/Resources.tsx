@@ -34,11 +34,11 @@ import { Link } from "react-router-dom";
 
 const Resources = () => {
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState("tools");
+  const [activeTab, setActiveTab] = useState("training");
 
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab && ["tools", "guides", "cases", "webinars", "research", "events", "forum"].includes(tab)) {
+    if (tab && ["tools", "guides", "cases", "webinars", "research", "forum"].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -417,67 +417,11 @@ const Resources = () => {
       <section className="py-16">
         <div className="container mx-auto px-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="tools">Interactive Tools</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="training">Training Courses</TabsTrigger>
-              <TabsTrigger value="events">Events</TabsTrigger>
+              <TabsTrigger value="tools">Interactive Tools</TabsTrigger>
             </TabsList>
 
-            {/* Interactive Tools */}
-            <TabsContent value="tools" className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4 text-gray-900">Interactive Tools</h2>
-                <p className="text-lg max-w-2xl mx-auto text-gray-600">
-                  Use our interactive tools to assess, calculate, and design your shared wealth implementation.
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {interactiveTools.map((tool, index) => {
-                  const Icon = tool.icon;
-                  return (
-                    <Card key={index} className="hover:shadow-lg transition-shadow">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <div className={`w-16 h-16 bg-gradient-to-br ${tool.color} rounded-lg flex items-center justify-center`}>
-                            <Icon className="w-8 h-8 text-gray-700" />
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
-                              {tool.status}
-                            </Badge>
-                            <div className="flex items-center text-xs text-gray-500">
-                              <Clock className="w-3 h-3 mr-1" />
-                              {tool.time}
-                            </div>
-                          </div>
-                        </div>
-                        <CardTitle className="text-gray-900">{tool.title}</CardTitle>
-                        <CardDescription className="text-gray-600">{tool.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="mb-4">
-                          <div className="text-xs font-semibold mb-2 text-gray-900">Features:</div>
-                          <div className="flex flex-wrap gap-1">
-                            {tool.features.map((feature, featureIndex) => (
-                              <Badge key={featureIndex} variant="outline" className="text-xs border-gray-200 text-gray-600">
-                                {feature}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        <Button asChild className="w-full">
-                          <Link to={tool.path}>
-                            Launch Tool
-                            <ArrowRight className="w-4 h-4 ml-2" />
-                          </Link>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </TabsContent>
 
             {/* Training Courses */}
             <TabsContent value="training" className="space-y-8">
@@ -541,120 +485,59 @@ const Resources = () => {
               </div>
             </TabsContent>
 
-            {/* Events */}
-            <TabsContent value="events" className="space-y-8">
+            {/* Interactive Tools */}
+            <TabsContent value="tools" className="space-y-8">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4 text-gray-900">Events & Networking</h2>
+                <h2 className="text-3xl font-bold mb-4 text-gray-900">Interactive Tools</h2>
                 <p className="text-lg max-w-2xl mx-auto text-gray-600">
-                  Join our community events, workshops, and networking opportunities.
+                  Use our interactive tools to assess, calculate, and design your shared wealth implementation.
                 </p>
               </div>
               
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge variant="secondary">Workshop</Badge>
-                      <div className="flex items-center text-xs text-gray-500">
-                        <Clock className="w-3 h-3 mr-1" />
-                        Mar 15, 2024
-                      </div>
-                    </div>
-                    <CardTitle className="text-gray-900 text-lg">Shared Wealth Implementation Workshop</CardTitle>
-                    <CardDescription className="text-gray-600">Hands-on workshop for implementing shared wealth practices</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="mb-4">
-                      <div className="text-sm text-gray-500 mb-2">
-                        Location: Virtual / London
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Implementation</Badge>
-                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Workshop</Badge>
-                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Networking</Badge>
-                      </div>
-                    </div>
-                    <Button asChild className="w-full">
-                      <Link to="/events">
-                        View Details
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge variant="secondary">Conference</Badge>
-                      <div className="flex items-center text-xs text-gray-500">
-                        <Clock className="w-3 h-3 mr-1" />
-                        Apr 22, 2024
-                      </div>
-                    </div>
-                    <CardTitle className="text-gray-900 text-lg">Annual Shared Wealth Summit</CardTitle>
-                    <CardDescription className="text-gray-600">Join industry leaders and practitioners for our annual conference</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="mb-4">
-                      <div className="text-sm text-gray-500 mb-2">
-                        Location: Manchester, UK
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Conference</Badge>
-                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Networking</Badge>
-                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Keynotes</Badge>
-                      </div>
-                    </div>
-                    <Button asChild className="w-full">
-                      <Link to="/events">
-                        View Details
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge variant="secondary">Networking</Badge>
-                      <div className="flex items-center text-xs text-gray-500">
-                        <Clock className="w-3 h-3 mr-1" />
-                        May 10, 2024
-                      </div>
-                    </div>
-                    <CardTitle className="text-gray-900 text-lg">Community Meetup</CardTitle>
-                    <CardDescription className="text-gray-600">Connect with fellow shared wealth practitioners</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="mb-4">
-                      <div className="text-sm text-gray-500 mb-2">
-                        Location: Various Cities
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Networking</Badge>
-                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Community</Badge>
-                        <Badge variant="outline" className="text-xs border-gray-200 text-gray-600">Local</Badge>
-                      </div>
-                    </div>
-                    <Button asChild className="w-full">
-                      <Link to="/events">
-                        View Details
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="text-center">
-                <Button asChild size="lg">
-                  <Link to="/events">
-                    View All Events
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
-                </Button>
+              <div className="grid md:grid-cols-2 gap-6">
+                {interactiveTools.map((tool, index) => {
+                  const Icon = tool.icon;
+                  return (
+                    <Card key={index} className="hover:shadow-lg transition-shadow">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div className={`w-16 h-16 bg-gradient-to-br ${tool.color} rounded-lg flex items-center justify-center`}>
+                            <Icon className="w-8 h-8 text-gray-700" />
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                              {tool.status}
+                            </Badge>
+                            <div className="flex items-center text-xs text-gray-500">
+                              <Clock className="w-3 h-3 mr-1" />
+                              {tool.time}
+                            </div>
+                          </div>
+                        </div>
+                        <CardTitle className="text-gray-900">{tool.title}</CardTitle>
+                        <CardDescription className="text-gray-600">{tool.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="mb-4">
+                          <div className="text-xs font-semibold mb-2 text-gray-900">Features:</div>
+                          <div className="flex flex-wrap gap-1">
+                            {tool.features.map((feature, featureIndex) => (
+                              <Badge key={featureIndex} variant="outline" className="text-xs border-gray-200 text-gray-600">
+                                {feature}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        <Button asChild className="w-full">
+                          <Link to={tool.path}>
+                            Launch Tool
+                            <ArrowRight className="w-4 h-4 ml-2" />
+                          </Link>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </TabsContent>
 

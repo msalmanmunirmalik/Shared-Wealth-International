@@ -15,7 +15,10 @@ import {
   Handshake, 
   DollarSign, 
   Shield,
-  ArrowRight
+  ArrowRight,
+  Heart,
+  BookOpen,
+  Quote
 } from "lucide-react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -25,30 +28,59 @@ const Model = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const principles = [
+  // The Three Pillars of Shared Wealth
+  const threePillars = [
+    {
+      icon: Heart,
+      title: "Values",
+      description: "Organizations define and live by clear values that reflect both business sense and a commitment to society and the environment.",
+      details: "Clear values that guide decision-making and create alignment between business objectives and social impact.",
+      color: "from-blue-500 to-blue-600"
+    },
     {
       icon: Users,
-      title: "Stakeholder Ownership",
-      description: "All stakeholders - employees, customers, communities - have ownership stakes in the business",
+      title: "Inclusive Decision-Making",
+      description: "Decisions are made transparently and fairly, with input from all relevant stakeholders.",
+      details: "Modern organizations with multiple communication channels, teamwork cultures, and agile structures need decision-making that's both efficient and fair.",
+      color: "from-green-500 to-green-600"
+    },
+    {
+      icon: TrendingUp,
+      title: "Sharing Wealth",
+      description: "Businesses choose appropriate ways to share the wealth they create, whether through shares, profit-sharing, intellectual property, or other innovative mechanisms.",
+      details: "Flexible approaches that go beyond traditional equity sharing to include IP sharing, community investment, and other creative mechanisms.",
+      color: "from-yellow-500 to-yellow-600"
+    }
+  ];
+
+  // Real examples from the Shared Wealth story
+  const realExamples = [
+    {
+      company: "LocoSoco",
+      ceo: "James Perry",
+      model: "Phantom Shares & Democratic Governance",
+      quote: "Shared Wealth built loyal customers, motivated employees, incentivised investors, and strengthened our social brand.",
+      results: ["Loyal customers", "Motivated employees", "Incentivised investors", "Strengthened social brand"],
+      icon: Building,
       color: "from-blue-50 to-indigo-100"
     },
     {
-      icon: Target,
-      title: "Equitable Distribution",
-      description: "Wealth is distributed fairly among all contributors to value creation",
+      company: "Solar Ear",
+      founder: "Howard Weinstein",
+      model: "Intellectual Property Sharing",
+      quote: "Wealth can be shared in many different ways — not just through equity. We share our intellectual property to empower others.",
+      results: ["IP sharing innovation", "Empowered communities", "Flexible wealth sharing", "Global impact"],
+      icon: Lightbulb,
       color: "from-green-50 to-emerald-100"
     },
     {
-      icon: Shield,
-      title: "Democratic Governance",
-      description: "Inclusive decision-making processes that give voice to all stakeholders",
+      company: "SEi Network",
+      description: "Global Network",
+      model: "Social Licence Agreement",
+      quote: "Companies open to sharing wealth are also open to sharing resources and ideas with like-minded people.",
+      results: ["40+ countries", "Resource sharing", "Collaboration focus", "Collective impact"],
+      icon: Globe,
       color: "from-purple-50 to-violet-100"
-    },
-    {
-      icon: Lightbulb,
-      title: "Community Impact",
-      description: "Business success directly benefits the communities where we operate",
-      color: "from-orange-50 to-amber-100"
     }
   ];
 
@@ -154,35 +186,39 @@ const Model = () => {
           <div className="text-center">
             <h1 className="text-5xl font-bold mb-6 text-white">Shared Wealth Model</h1>
             <p className="text-xl max-w-3xl mx-auto text-white/90">
-              Discover our proven framework for creating sustainable businesses that share wealth equitably 
-              among all stakeholders while driving innovation and growth.
+              Born from decades of social enterprise innovation, our Shared Wealth model evolved from 
+              FairShares to create flexible frameworks for equitable wealth distribution. Built on three 
+              pillars that make business sense while creating sustainable value for all stakeholders.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Core Principles */}
+      {/* Three Pillars Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4" style={{ color: '#07264e' }}>Core Principles</h2>
+            <h2 className="text-3xl font-bold mb-4" style={{ color: '#07264e' }}>The Three Pillars of Shared Wealth</h2>
             <p className="text-lg max-w-2xl mx-auto" style={{ color: '#086075' }}>
-              The foundation of our shared wealth model is built on these four key principles.
+              Our model is built on three pillars that evolved from decades of practice and learning.
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {principles.map((principle, index) => {
-              const Icon = principle.icon;
+          <div className="grid md:grid-cols-3 gap-8">
+            {threePillars.map((pillar, index) => {
+              const Icon = pillar.icon;
               return (
                 <Card key={index} className="text-center hover:shadow-lg transition-shadow" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
                   <CardHeader>
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'linear-gradient(135deg, #eabc27 0%, #34a63b 100%)' }}>
-                      <Icon className="w-8 h-8 text-white" />
+                    <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-gradient-to-br ${pillar.color}`}>
+                      <Icon className="w-10 h-10 text-white" />
                     </div>
-                    <CardTitle style={{ color: '#07264e' }}>{principle.title}</CardTitle>
+                    <CardTitle style={{ color: '#07264e' }}>{pillar.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <CardDescription style={{ color: '#086075' }}>{principle.description}</CardDescription>
+                    <CardDescription style={{ color: '#086075' }} className="mb-4">{pillar.description}</CardDescription>
+                    <div className="bg-gradient-subtle p-3 rounded-lg">
+                      <p className="text-sm text-muted-foreground">{pillar.details}</p>
+                    </div>
                   </CardContent>
                 </Card>
               );
@@ -307,65 +343,52 @@ const Model = () => {
         </div>
       </section>
 
-      {/* Success Stories */}
+      {/* Real Examples from Shared Wealth Story */}
       <section className="py-20">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-navy mb-4">Success Stories</h2>
+            <h2 className="text-3xl font-bold text-navy mb-4">Real Examples from Our Network</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Real examples of companies that have successfully implemented our shared wealth model.
+              Authentic stories from companies that have shaped and proven our Shared Wealth model.
             </p>
           </div>
-          <div className="grid lg:grid-cols-2 gap-8">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-navy">Terratai Ltd</CardTitle>
-                  <Badge variant="secondary">Manufacturing</Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Implemented phantom shares and democratic governance, resulting in 40% increase 
-                  in employee engagement and £120K annually shared with stakeholders.
-                </p>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <div className="font-bold text-green-600">40%</div>
-                    <div className="text-muted-foreground">Engagement Increase</div>
-                  </div>
-                  <div>
-                    <div className="font-bold text-green-600">£120K</div>
-                    <div className="text-muted-foreground">Annual Shared Value</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-navy">GreenEnergy Co</CardTitle>
-                  <Badge variant="secondary">Renewable Energy</Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Achieved 15% profit sharing with employees and community investment programs, 
-                  creating sustainable local development and strong stakeholder relationships.
-                </p>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <div className="font-bold text-green-600">15%</div>
-                    <div className="text-muted-foreground">Profit Sharing</div>
-                  </div>
-                  <div>
-                    <div className="font-bold text-green-600">95%</div>
-                    <div className="text-muted-foreground">Satisfaction Rate</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="grid lg:grid-cols-3 gap-8">
+            {realExamples.map((example, index) => {
+              const Icon = example.icon;
+              return (
+                <Card key={index} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center space-x-4 mb-4">
+                      <div className={`w-12 h-12 rounded-lg flex items-center justify-center bg-gradient-to-br ${example.color}`}>
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-navy">{example.company}</CardTitle>
+                        <Badge variant="secondary" className="text-xs">{example.model}</Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="mb-4 p-4 bg-gradient-subtle rounded-lg border-l-4 border-gold">
+                      <Quote className="w-4 h-4 text-gold mb-2" />
+                      <p className="text-sm font-medium text-navy italic">"{example.quote}"</p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        - {example.ceo || example.founder || example.description}
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold text-navy">Key Results:</p>
+                      {example.results.map((result, resultIndex) => (
+                        <div key={resultIndex} className="flex items-center space-x-2">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <span className="text-sm text-muted-foreground">{result}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>

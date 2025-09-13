@@ -8,7 +8,7 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requireAdmin = false }) => {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading, isAdmin, isDemoMode } = useAuth();
 
   if (loading) {
     return (
@@ -30,8 +30,13 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requireAdmin = fa
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Admin Access Required</h1>
-          <p className="text-gray-600 mb-6">You don't have permission to access this page.</p>
-          <Navigate to="/company-dashboard" replace />
+          <p className="text-gray-600 mb-6">
+            {isDemoMode 
+              ? "Demo mode doesn't include admin access. Please sign up for a real account to access admin features."
+              : "You don't have permission to access this page."
+            }
+          </p>
+          <Navigate to="/user-dashboard" replace />
         </div>
       </div>
     );

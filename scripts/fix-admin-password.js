@@ -12,7 +12,7 @@ async function fixAdminPassword() {
     console.log('');
     console.log('Now run this SQL command in your database:');
     console.log('');
-    console.log(`UPDATE users SET password_hash = '${passwordHash}' WHERE email = 'admin@sharedwealth.com';`);
+    console.log(`UPDATE users SET password_hash = '${passwordHash}' WHERE email = 'r';`);
     console.log('');
     console.log('Then you can sign in with:');
     console.log('Email: admin@sharedwealth.com');

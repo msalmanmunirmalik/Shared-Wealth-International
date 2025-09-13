@@ -47,20 +47,7 @@ export const mockAuthService = {
 export const mockCompanyService = {
   getCompanies: async () => {
     await new Promise(resolve => setTimeout(resolve, 1000));
-    return [
-      {
-        id: '1',
-        name: 'Letstern Limited',
-        description: 'Innovative technology solutions for sustainable development',
-        industry: 'Technology',
-        size: 'medium',
-        location: 'London, UK',
-        website: 'https://letstern.com',
-        status: 'approved',
-        created_at: '2024-01-15T10:00:00Z',
-        updated_at: '2024-01-15T10:00:00Z'
-      }
-    ];
+    return []; // Return empty array - no mock companies
   },
 
   createCompany: async (companyData: any) => {
@@ -72,23 +59,7 @@ export const mockCompanyService = {
 export const mockNetworkService = {
   getNetworkCompanies: async () => {
     await new Promise(resolve => setTimeout(resolve, 1000));
-    return [
-      {
-        id: '1',
-        name: 'Letstern Limited',
-        description: 'Innovative technology solutions for sustainable development',
-        industry: 'Technology',
-        size: 'medium',
-        location: 'London, UK',
-        website: 'https://letstern.com',
-        status: 'approved',
-        created_at: '2024-01-15T10:00:00Z',
-        updated_at: '2024-01-15T10:00:00Z',
-        connection_strength: 85,
-        shared_projects: 3,
-        collaboration_score: 92
-      }
-    ];
+    return []; // Return empty array - no mock companies
   }
 };
 
@@ -137,46 +108,8 @@ export const CompanyDashboardService = {
   getCompanyDashboardData: async (userId: string) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     return {
-      userCompanies: [
-        {
-          id: '1',
-          company_name: 'Letstern Limited',
-          sector: 'Technology',
-          country: 'United Kingdom',
-          description: 'Innovative technology solutions for sustainable development',
-          website: 'https://letstern.com',
-          employees: 50,
-          is_shared_wealth_licensed: true,
-          license_number: 'SWL-2024-001',
-          license_date: '2024-01-15',
-          status: 'active',
-          created_at: '2024-01-15T10:00:00Z',
-          updated_at: '2024-01-15T10:00:00Z'
-        }
-      ],
-      networkCompanies: [
-        {
-          id: '2',
-          name: 'EcoTech Solutions',
-          sector: 'Clean Energy',
-          country: 'Germany',
-          description: 'Sustainable energy solutions for urban development',
-          website: 'https://ecotech.de',
-          employees: 25,
-          is_shared_wealth_licensed: true,
-          license_number: 'SWL-2024-002',
-          license_date: '2024-01-20',
-          status: 'active',
-          created_at: '2024-01-20T10:00:00Z',
-          updated_at: '2024-01-20T10:00:00Z',
-          impact_score: 85,
-          shared_value: 'High',
-          joined_date: '2024-01-20T10:00:00Z',
-          logo: '',
-          contact_email: 'contact@ecotech.de',
-          contact_phone: '+49 30 1234567'
-        }
-      ]
+      userCompanies: [], // Return empty array - no mock companies
+      networkCompanies: [] // Return empty array - no mock companies
     };
   }
 };
