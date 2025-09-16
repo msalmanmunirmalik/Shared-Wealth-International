@@ -40,7 +40,7 @@ router.post('/database', async (req, res) => {
     console.log('🏗️  Starting database setup...');
     
     // Read schema file
-    const schemaPath = path.join(__dirname, '../../database/schema.sql');
+    const schemaPath = path.join(__dirname, '../../scripts/schema.sql');
     console.log('📖 Reading schema file:', schemaPath);
     
     if (!fs.existsSync(schemaPath)) {
