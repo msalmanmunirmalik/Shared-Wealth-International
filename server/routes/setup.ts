@@ -65,7 +65,7 @@ router.post('/database', async (req, res) => {
           console.log(`✅ Executed: ${statement.substring(0, 50)}...`);
         } catch (error) {
           console.log(`⚠️  Statement failed (may already exist): ${statement.substring(0, 50)}...`);
-          console.log(`   Error: ${error.message}`);
+          console.log(`   Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
     }
