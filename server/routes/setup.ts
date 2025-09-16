@@ -2,12 +2,12 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { DatabaseService } from '../services/databaseService.js';
+import { DatabaseService } from '../../src/integrations/postgresql/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const router = express.Router();
+const router: express.Router = express.Router();
 
 /**
  * @swagger
@@ -95,7 +95,7 @@ router.post('/database', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Database setup failed',
-      error: error.message
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -148,7 +148,7 @@ router.get('/status', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error checking database status',
-      error: error.message
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
