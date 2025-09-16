@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import session from 'express-session';
 import dotenv from 'dotenv';
 import path from 'path';
 import authRoutes from './routes/auth.js';
@@ -24,14 +25,23 @@ import unifiedSocialRoutes from './routes/unifiedSocial.js';
 import unifiedDashboardRoutes from './routes/unifiedDashboard.js';
 import unifiedFileRoutes from './routes/unifiedFile.js';
 import unifiedUserRoutes from './routes/unifiedUser.js';
+import setupRoutes from './routes/setup.js';
 import { requestLogger, errorLogger, performanceLogger } from './middleware/logger.js';
 import { performanceMonitor } from './middleware/monitoring.js';
 import { healthCheckLimiter } from './middleware/rateLimit.js';
+import { csrfProtection } from './middleware/csrf.js';
+import InputValidation from './middleware/inputValidation.js';
+// Phase 2 imports (commented out for now - will be enabled after Redis setup)
+// import { httpsMiddleware } from './middleware/httpsMiddleware.js';
+// import CacheMiddleware from './middleware/cacheMiddleware.js';
+// import { createCacheService } from './services/cacheService.js';
+// import { MonitoringService } from './services/monitoringService.js';
+// import { DatabaseService } from './services/databaseService.js';
+
 import { setupSwagger } from './swagger.js';
 import { emailService } from './services/emailService.js';
 import { webSocketService } from './services/webSocketService.js';
 // import { initSentry, sentryMiddleware } from './middleware/sentry.js';
-// import { cache } from './services/cacheService.js';
 
 dotenv.config();
 
@@ -42,6 +52,28 @@ if (!JWT_SECRET) {
 }
 
 const app: Application = express();
+
+// Phase 2 services (commented out for now - will be enabled after Redis setup)
+// let cacheService: any;
+// let monitoringService: any;
+// let cacheMiddleware: any;
+// const dbService = new DatabaseService();
+// 
+// try {
+//   cacheService = createCacheService(dbService);
+//   await cacheService.initialize();
+//   cacheMiddleware = new CacheMiddleware(cacheService);
+//   console.log('✅ Cache service initialized');
+// } catch (error) {
+//   console.warn('⚠️ Cache service not available:', error instanceof Error ? error.message : String(error));
+// }
+// 
+// try {
+//   monitoringService = MonitoringService;
+//   console.log('✅ Monitoring service initialized');
+// } catch (error) {
+//   console.warn('⚠️ Monitoring service not available:', error instanceof Error ? error.message : String(error));
+// }
 
 // Security middleware
 app.use(helmet({
@@ -71,12 +103,51 @@ app.use(cors({
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token']
+}));
+
+// Session configuration for CSRF protection
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'wealth-pioneers-session-secret-2024',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
+  },
+  name: 'wealth-pioneers-session'
 }));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Input validation and sanitization middleware
+app.use(InputValidation.sanitizeRequest);
+app.use(InputValidation.validateRequestSize(10 * 1024 * 1024)); // 10MB limit
+
+// CSRF protection middleware (temporarily disabled for API endpoints)
+// app.use(csrfProtection.middleware());
+
+// Phase 2 middleware (commented out for now - will be enabled after Redis setup)
+// app.use(httpsMiddleware.enforceHTTPS());
+// app.use(httpsMiddleware.configureSSL());
+// app.use(httpsMiddleware.validateCertificate());
+// 
+// if (monitoringService) {
+//   app.use((req, res, next) => {
+//     monitoringService.recordRequest(req, res);
+//     next();
+//   });
+// }
+// 
+// if (cacheMiddleware) {
+//   app.use('/api/companies', cacheMiddleware.cacheGet({ ttl: 300 }));
+//   app.use('/api/admin/stats', cacheMiddleware.cacheAdminData({ ttl: 600 }));
+//   app.use('/api/users/profile', cacheMiddleware.cacheUserData({ ttl: 1800 }));
+// }
 
 // Static file serving for uploads
 app.use('/uploads', express.static('uploads'));
@@ -129,6 +200,13 @@ app.get('/', (req, res) => {
 // Health and monitoring endpoints
 app.use('/api/health', healthRoutes);
 
+// CSRF token endpoint
+app.get('/api/csrf-token', csrfProtection.tokenEndpoint());
+
+// Phase 2 endpoints (commented out for now - will be enabled after Redis setup)
+// Monitoring endpoints
+// Cache management endpoints
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -150,6 +228,7 @@ app.use('/api/social', unifiedSocialRoutes);
 app.use('/api/dashboard', unifiedDashboardRoutes);
 app.use('/api/files', unifiedFileRoutes);
 app.use('/api/users', unifiedUserRoutes);
+app.use('/api/setup', setupRoutes);
 
 // Catch all handler - serve React app for client-side routing
 app.get('*', (req, res) => {
@@ -172,13 +251,11 @@ app.use((error: Error, req: express.Request, res: express.Response, next: expres
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully...');
-  // await cache.close();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   console.log('SIGINT received, shutting down gracefully...');
-  // await cache.close();
   process.exit(0);
 });
 
