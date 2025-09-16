@@ -24,6 +24,9 @@ const dbConfig = {
   database: process.env.DB_NAME || 'shared_wealth_international',
   password: process.env.DB_PASSWORD || '',
   port: parseInt(process.env.DB_PORT || '5432'),
+  ssl: process.env.DB_HOST && process.env.DB_HOST.includes('render.com') ? {
+    rejectUnauthorized: false
+  } : false,
 };
 
 console.log('🚀 Starting database setup...');
