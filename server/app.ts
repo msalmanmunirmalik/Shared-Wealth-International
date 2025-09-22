@@ -25,6 +25,7 @@ import unifiedSocialRoutes from './routes/unifiedSocial.js';
 import unifiedDashboardRoutes from './routes/unifiedDashboard.js';
 import unifiedFileRoutes from './routes/unifiedFile.js';
 import unifiedUserRoutes from './routes/unifiedUser.js';
+import userProfileRoutes from './routes/userProfile.js';
 import setupRoutes from './routes/setup.js';
 import { requestLogger, errorLogger, performanceLogger } from './middleware/logger.js';
 import { performanceMonitor } from './middleware/monitoring.js';
@@ -228,6 +229,7 @@ app.use('/api/social', unifiedSocialRoutes);
 app.use('/api/dashboard', unifiedDashboardRoutes);
 app.use('/api/files', unifiedFileRoutes);
 app.use('/api/users', unifiedUserRoutes);
+app.use('/api/users', userProfileRoutes);
 app.use('/api/setup', setupRoutes);
 
 // Catch all handler - serve React app for client-side routing

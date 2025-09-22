@@ -225,6 +225,25 @@ class ApiService {
     });
   }
 
+  async getUserProfile() {
+    return await this.request('/users/profile', {
+      method: 'GET',
+    });
+  }
+
+  async updateUserProfile(profileData: any) {
+    return await this.request('/users/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+  }
+
+  async getUserCompanies() {
+    return await this.request('/users/companies', {
+      method: 'GET',
+    });
+  }
+
 
   async isAdmin(userId: string): Promise<boolean> {
     try {

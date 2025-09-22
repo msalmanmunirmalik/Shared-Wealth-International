@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { apiService } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   User, 
   Building, 
@@ -24,14 +25,18 @@ import {
   Calendar,
   MessageSquare,
   Activity,
-  Settings
+  Settings,
+  Upload,
+  Linkedin,
+  Twitter
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Profile {
   id: string;
   email: string;
-  full_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
   bio: string | null;
   avatar_url: string | null;
   company_name: string | null;
@@ -41,7 +46,7 @@ interface Profile {
   website: string | null;
   linkedin: string | null;
   twitter: string | null;
-  role: 'admin' | 'founding_member' | 'media_manager' | 'member' | null;
+  role: 'admin' | 'founding_member' | 'media_manager' | 'member' | 'user' | null;
   is_active: boolean | null;
   created_at: string | null;
   updated_at: string | null;
@@ -71,7 +76,8 @@ const Profile = () => {
   
   // Form state
   const [formData, setFormData] = useState({
-    full_name: '',
+    first_name: '',
+    last_name: '',
     bio: '',
     company_name: '',
     position: '',
@@ -79,8 +85,13 @@ const Profile = () => {
     location: '',
     website: '',
     linkedin: '',
-    twitter: ''
+    twitter: '',
+    role: 'member'
   });
+
+  // Profile image state
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string>('');
 
   useEffect(() => {
     if (user) {
@@ -91,30 +102,31 @@ const Profile = () => {
 
   const loadProfile = async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user?.id)
-        .single();
-
-      if (error) {
-        console.error('Error loading profile:', error);
+      const response = await apiService.getUserProfile();
+      
+      if (response.success && response.data) {
+        const userProfile = response.data;
+        setProfile(userProfile);
+        setFormData({
+          first_name: userProfile.first_name || '',
+          last_name: userProfile.last_name || '',
+          bio: userProfile.bio || '',
+          company_name: userProfile.company_name || '',
+          position: userProfile.position || '',
+          phone: userProfile.phone || '',
+          location: userProfile.location || '',
+          website: userProfile.website || '',
+          linkedin: userProfile.linkedin || '',
+          twitter: userProfile.twitter || '',
+          role: userProfile.role || 'member'
+        });
+        
+        if (userProfile.avatar_url) {
+          setProfileImagePreview(userProfile.avatar_url);
+        }
+      } else {
         setError('Failed to load profile');
-        return;
       }
-
-      setProfile(data);
-      setFormData({
-        full_name: data.full_name || '',
-        bio: data.bio || '',
-        company_name: data.company_name || '',
-        position: data.position || '',
-        phone: data.phone || '',
-        location: data.location || '',
-        website: data.website || '',
-        linkedin: data.linkedin || '',
-        twitter: data.twitter || ''
-      });
     } catch (error) {
       console.error('Profile load error:', error);
       setError('Failed to load profile');
@@ -158,6 +170,19 @@ const Profile = () => {
     }
   };
 
+  // Profile image upload handler
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfileImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = async () => {
     if (!user) return;
 
@@ -165,35 +190,59 @@ const Profile = () => {
     setError('');
 
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          full_name: formData.full_name,
-          bio: formData.bio,
-          company_name: formData.company_name,
-          position: formData.position,
-          phone: formData.phone,
-          location: formData.location,
-          website: formData.website,
-          linkedin: formData.linkedin,
-          twitter: formData.twitter,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
+      // If profile image is provided, upload it first
+      let avatarUrl = '';
+      if (profileImage) {
+        try {
+          const formData = new FormData();
+          formData.append('file', profileImage);
+          formData.append('uploadType', 'profile_image');
+          
+          const uploadResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/files/upload`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('session') ? JSON.parse(localStorage.getItem('session')!).access_token : ''}`,
+            },
+            body: formData,
+          });
 
-      if (error) {
-        console.error('Error updating profile:', error);
-        setError('Failed to update profile');
-        return;
+          if (uploadResponse.ok) {
+            const uploadData = await uploadResponse.json();
+            avatarUrl = uploadData.data?.publicUrl || '';
+          }
+        } catch (uploadError) {
+          console.warn('Profile image upload failed:', uploadError);
+          // Continue without profile image
+        }
       }
 
-      toast({
-        title: "Profile Updated",
-        description: "Your profile has been updated successfully.",
+      // Update profile with backend API
+      const response = await apiService.updateUserProfile({
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        bio: formData.bio,
+        company_name: formData.company_name,
+        position: formData.position,
+        phone: formData.phone,
+        location: formData.location,
+        website: formData.website,
+        linkedin: formData.linkedin,
+        twitter: formData.twitter,
+        role: formData.role,
+        avatar_url: avatarUrl || profile?.avatar_url
       });
 
-      setIsEditing(false);
-      await loadProfile(); // Reload to get updated data
+      if (response.success) {
+        toast({
+          title: "Profile Updated",
+          description: "Your profile has been updated successfully.",
+        });
+
+        setIsEditing(false);
+        await loadProfile(); // Reload to get updated data
+      } else {
+        setError(response.message || 'Failed to update profile');
+      }
     } catch (error) {
       console.error('Profile update error:', error);
       setError('Failed to update profile');
@@ -205,7 +254,8 @@ const Profile = () => {
   const handleCancel = () => {
     if (profile) {
       setFormData({
-        full_name: profile.full_name || '',
+        first_name: profile.first_name || '',
+        last_name: profile.last_name || '',
         bio: profile.bio || '',
         company_name: profile.company_name || '',
         position: profile.position || '',
@@ -213,8 +263,10 @@ const Profile = () => {
         location: profile.location || '',
         website: profile.website || '',
         linkedin: profile.linkedin || '',
-        twitter: profile.twitter || ''
+        twitter: profile.twitter || '',
+        role: profile.role || 'member'
       });
+      setProfileImagePreview(profile.avatar_url || '');
     }
     setIsEditing(false);
     setError('');
