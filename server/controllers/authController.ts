@@ -43,7 +43,7 @@ export class AuthController {
    */
   static async signUp(req: Request, res: Response): Promise<void> {
     try {
-      const userData: SignUpRequest = req.body;
+      const userData = req.body;
       
       // Additional input sanitization
       if (typeof userData.email !== 'string' || typeof userData.password !== 'string') {
@@ -54,13 +54,26 @@ export class AuthController {
         return;
       }
 
-      const result = await AuthService.signUp(userData);
+      // Handle enhanced signup with profile data
+      const enhancedUserData = {
+        email: userData.email,
+        password: userData.password,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        phone: userData.phone,
+        role: userData.role || 'user'
+      };
+
+      const result = await AuthService.signUp(enhancedUserData);
       
       if (result.success) {
         res.status(201).json({
           success: true,
           message: result.message,
-          userId: result.data?.userId
+          data: {
+            userId: result.data?.userId,
+            token: result.data?.token
+          }
         });
       } else {
         res.status(400).json({

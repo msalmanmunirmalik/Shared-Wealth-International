@@ -4,9 +4,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Upload, User, Building, MapPin, Globe, Linkedin, Twitter } from 'lucide-react';
 
 const Auth: React.FC = () => {
   const [activeTab, setActiveTab] = useState('signin');
@@ -16,10 +21,38 @@ const Auth: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
+  
+  // Enhanced signup form state
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [bio, setBio] = useState('');
+  const [position, setPosition] = useState('');
+  const [company, setCompany] = useState('');
+  const [location, setLocation] = useState('');
+  const [website, setWebsite] = useState('');
+  const [linkedin, setLinkedin] = useState('');
+  const [twitter, setTwitter] = useState('');
+  const [role, setRole] = useState('member');
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string>('');
 
   const { signIn, signUp, resetPassword, user, isAdmin } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Profile image upload handler
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfileImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -62,10 +95,10 @@ const Auth: React.FC = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword || !firstName || !lastName) {
       toast({
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Please fill in all required fields",
         variant: "destructive",
       });
       return;
@@ -82,10 +115,28 @@ const Auth: React.FC = () => {
 
     setLoading(true);
     try {
-      await signUp(email, password);
+      // Create account with enhanced profile data
+      const profileData = {
+        email,
+        password,
+        firstName,
+        lastName,
+        phone,
+        bio,
+        position,
+        company,
+        location,
+        website,
+        linkedin,
+        twitter,
+        role,
+        profileImage
+      };
+
+      await signUp(email, password, profileData);
       toast({
         title: "Success",
-        description: "Account created successfully",
+        description: "Account created successfully with complete profile",
       });
       setActiveTab('signin');
     } catch (error) {
@@ -182,10 +233,63 @@ const Auth: React.FC = () => {
                 </form>
               </TabsContent>
 
-              <TabsContent value="signup" className="space-y-4">
-                <form onSubmit={handleSignUp} className="space-y-4">
+              <TabsContent value="signup" className="space-y-6">
+                <form onSubmit={handleSignUp} className="space-y-6">
+                  {/* Profile Picture Upload */}
+                  <div className="space-y-4">
+                    <Label>Profile Picture</Label>
+                    <div className="flex items-center space-x-4">
+                      <Avatar className="w-16 h-16">
+                        <AvatarImage src={profileImagePreview} />
+                        <AvatarFallback>
+                          <User className="w-8 h-8" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleProfileImageChange}
+                          className="hidden"
+                          id="profile-image"
+                        />
+                        <Label htmlFor="profile-image" className="cursor-pointer">
+                          <Button type="button" variant="outline" size="sm">
+                            <Upload className="w-4 h-4 mr-2" />
+                            Upload Photo
+                          </Button>
+                        </Label>
+                        <p className="text-xs text-gray-500 mt-1">JPG, PNG up to 5MB</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Basic Information */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-firstname">First Name *</Label>
+                      <Input
+                        id="signup-firstname"
+                        placeholder="Enter your first name"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-lastname">Last Name *</Label>
+                      <Input
+                        id="signup-lastname"
+                        placeholder="Enter your last name"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email">Email *</Label>
                     <Input
                       id="signup-email"
                       type="email"
@@ -195,30 +299,155 @@ const Auth: React.FC = () => {
                       required
                     />
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-phone">Phone</Label>
                     <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="Create a password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
+                      id="signup-phone"
+                      type="tel"
+                      placeholder="Enter your phone number"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-confirm">Confirm Password</Label>
-                    <Input
-                      id="signup-confirm"
-                      type="password"
-                      placeholder="Confirm your password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                    />
+
+                  {/* Professional Information */}
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Building className="w-5 h-5 text-orange-500" />
+                      <h3 className="text-lg font-semibold">Professional Information</h3>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-position">Position</Label>
+                        <Input
+                          id="signup-position"
+                          placeholder="e.g., CEO, Director, Manager"
+                          value={position}
+                          onChange={(e) => setPosition(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-company">Company</Label>
+                        <Input
+                          id="signup-company"
+                          placeholder="Your company name"
+                          value={company}
+                          onChange={(e) => setCompany(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-bio">Bio</Label>
+                      <Textarea
+                        id="signup-bio"
+                        placeholder="Tell us about yourself and your professional background..."
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-role">Role in Shared Wealth</Label>
+                      <Select value={role} onValueChange={setRole}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="member">Member</SelectItem>
+                          <SelectItem value="founding_member">Founding Member</SelectItem>
+                          <SelectItem value="director">Director</SelectItem>
+                          <SelectItem value="media_manager">Media Manager</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
+
+                  {/* Location and Links */}
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="w-5 h-5 text-orange-500" />
+                      <h3 className="text-lg font-semibold">Location & Links</h3>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-location">Location</Label>
+                      <Input
+                        id="signup-location"
+                        placeholder="City, Country"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-website">Website</Label>
+                        <Input
+                          id="signup-website"
+                          placeholder="https://yourwebsite.com"
+                          value={website}
+                          onChange={(e) => setWebsite(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-linkedin">LinkedIn</Label>
+                        <Input
+                          id="signup-linkedin"
+                          placeholder="https://linkedin.com/in/yourprofile"
+                          value={linkedin}
+                          onChange={(e) => setLinkedin(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-twitter">Twitter/X</Label>
+                      <Input
+                        id="signup-twitter"
+                        placeholder="https://twitter.com/yourhandle"
+                        value={twitter}
+                        onChange={(e) => setTwitter(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password Fields */}
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <User className="w-5 h-5 text-orange-500" />
+                      <h3 className="text-lg font-semibold">Account Security</h3>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-password">Password *</Label>
+                      <Input
+                        id="signup-password"
+                        type="password"
+                        placeholder="Create a strong password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-confirm">Confirm Password *</Label>
+                      <Input
+                        id="signup-confirm"
+                        type="password"
+                        placeholder="Confirm your password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Creating Account...' : 'Create Account'}
+                    {loading ? 'Creating Account...' : 'Create Account with Profile'}
                   </Button>
                 </form>
               </TabsContent>

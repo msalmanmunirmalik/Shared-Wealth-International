@@ -6,9 +6,13 @@
  * Supports both local development and production Render deployment
  */
 
-const { Client } = require('pg');
-const fs = require('fs');
-const path = require('path');
+import { Client } from 'pg';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Database configuration
 const dbConfig = {
@@ -173,11 +177,11 @@ async function setupDatabase() {
 }
 
 // Handle script execution
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   setupDatabase().catch(error => {
     console.error('💥 Fatal error:', error);
     process.exit(1);
   });
 }
 
-module.exports = { setupDatabase };
+export { setupDatabase };

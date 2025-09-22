@@ -13,6 +13,23 @@ export interface Session {
   access_token: string;
 }
 
+interface ProfileData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  bio?: string;
+  position?: string;
+  company?: string;
+  location?: string;
+  website?: string;
+  linkedin?: string;
+  twitter?: string;
+  role?: string;
+  profileImage?: File | null;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -20,7 +37,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isDemoMode: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, profileData?: ProfileData) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   startDemo: () => void;
@@ -118,9 +135,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, profileData?: ProfileData) => {
     try {
-      await apiService.signUp(email, password);
+      if (profileData) {
+        // Enhanced signup with profile data
+        await apiService.signUpWithProfile(profileData);
+      } else {
+        // Basic signup
+        await apiService.signUp(email, password);
+      }
     } catch (error) {
       console.error('Sign up error:', error);
       throw error;

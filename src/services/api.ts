@@ -141,6 +141,84 @@ class ApiService {
     });
   }
 
+  async signUpWithProfile(profileData: any) {
+    try {
+      // First, create the user account
+      const userResponse = await this.request('/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: profileData.email,
+          password: profileData.password,
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          phone: profileData.phone,
+          role: profileData.role || 'user'
+        }),
+      });
+
+      if (!userResponse.success) {
+        throw new Error(userResponse.message || 'Failed to create user account');
+      }
+
+      // If profile image is provided, upload it
+      let avatarUrl = '';
+      if (profileData.profileImage) {
+        try {
+          const formData = new FormData();
+          formData.append('file', profileData.profileImage);
+          formData.append('uploadType', 'profile_image');
+          
+          const uploadResponse = await fetch(`${API_BASE_URL}/files/upload`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${userResponse.data?.token || ''}`,
+            },
+            body: formData,
+          });
+
+          if (uploadResponse.ok) {
+            const uploadData = await uploadResponse.json();
+            avatarUrl = uploadData.data?.publicUrl || '';
+          }
+        } catch (uploadError) {
+          console.warn('Profile image upload failed:', uploadError);
+          // Continue without profile image
+        }
+      }
+
+      // Update user profile with additional information
+      if (avatarUrl || profileData.bio || profileData.position || profileData.company || 
+          profileData.location || profileData.website || profileData.linkedin || profileData.twitter) {
+        try {
+          await this.request('/users/profile', {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${userResponse.data?.token || ''}`,
+            },
+            body: JSON.stringify({
+              bio: profileData.bio,
+              position: profileData.position,
+              company: profileData.company,
+              location: profileData.location,
+              website: profileData.website,
+              linkedin: profileData.linkedin,
+              twitter: profileData.twitter,
+              avatar_url: avatarUrl
+            }),
+          });
+        } catch (profileError) {
+          console.warn('Profile update failed:', profileError);
+          // Continue - user account was created successfully
+        }
+      }
+
+      return userResponse;
+    } catch (error) {
+      console.error('Enhanced signup error:', error);
+      throw error;
+    }
+  }
+
   async signOut() {
     return await this.request('/auth/signout', {
       method: 'POST',

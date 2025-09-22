@@ -6,8 +6,13 @@
  * Preserves your user and company data
  */
 
-const { Client } = require('pg');
-const bcrypt = require('bcryptjs');
+import { Client } from 'pg';
+import bcrypt from 'bcryptjs';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Local database configuration
 const localDbConfig = {
@@ -270,11 +275,11 @@ async function migrateData() {
 }
 
 // Handle script execution
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   migrateData().catch(error => {
     console.error('💥 Fatal error:', error);
     process.exit(1);
   });
 }
 
-module.exports = { migrateData };
+export { migrateData };

@@ -80,9 +80,9 @@ export class AuthService {
   /**
    * Sign up new user
    */
-  static async signUp(userData: SignUpRequest): Promise<ApiResponse<{ userId: string }>> {
+  static async signUp(userData: any): Promise<ApiResponse<{ userId: string; token?: string }>> {
     try {
-      const { email, password } = userData;
+      const { email, password, firstName, lastName, phone, role } = userData;
 
       // Check if user already exists
       const existingUser = await DatabaseService.findOne('users', { where: { email } });
@@ -97,16 +97,26 @@ export class AuthService {
       const saltRounds = 12;
       const passwordHash = await bcrypt.hash(password, saltRounds);
 
-      // Create user
+      // Create user with enhanced data
       const newUser = await DatabaseService.insert('users', {
         email,
         password_hash: passwordHash,
-        role: 'user'
+        first_name: firstName,
+        last_name: lastName,
+        phone: phone,
+        role: role || 'user'
       });
+
+      // Generate JWT token for immediate login
+      const token = jwt.sign(
+        { userId: newUser.id, email: newUser.email, role: newUser.role },
+        process.env.JWT_SECRET || 'fallback-secret',
+        { expiresIn: '7d' }
+      );
 
       return {
         success: true,
-        data: { userId: newUser.id },
+        data: { userId: newUser.id, token },
         message: 'User created successfully'
       };
     } catch (error) {
