@@ -244,6 +244,13 @@ class ApiService {
     });
   }
 
+  async getTeamMembers(role?: string) {
+    const url = role ? `/users/team?role=${role}` : '/users/team';
+    return await this.request(url, {
+      method: 'GET',
+    });
+  }
+
 
   async isAdmin(userId: string): Promise<boolean> {
     try {

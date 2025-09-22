@@ -160,4 +160,59 @@ router.get('/companies',
   UserProfileController.getUserCompanies
 );
 
+/**
+ * @swagger
+ * /api/users/team:
+ *   get:
+ *     summary: Get team members by role
+ *     tags: [User Profile]
+ *     parameters:
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [director, founding_member, media_manager, member, user]
+ *         description: Filter by user role
+ *     responses:
+ *       200:
+ *         description: Team members retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       first_name:
+ *                         type: string
+ *                       last_name:
+ *                         type: string
+ *                       bio:
+ *                         type: string
+ *                       avatar_url:
+ *                         type: string
+ *                       position:
+ *                         type: string
+ *                       company_name:
+ *                         type: string
+ *                       location:
+ *                         type: string
+ *                       role:
+ *                         type: string
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/team',
+  generalLimiter,
+  UserProfileController.getTeamMembers
+);
+
 export default router;

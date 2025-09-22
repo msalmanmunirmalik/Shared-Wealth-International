@@ -156,4 +156,55 @@ export class UserProfileController {
       });
     }
   }
+
+  /**
+   * Get team members by role for About Us page
+   */
+  static async getTeamMembers(req: Request, res: Response<ApiResponse<any>>) {
+    try {
+      const { role } = req.query;
+      
+      let query = `
+        SELECT 
+          id,
+          email,
+          first_name,
+          last_name,
+          bio,
+          avatar_url,
+          position,
+          company_name,
+          location,
+          website,
+          linkedin,
+          twitter,
+          role,
+          created_at
+        FROM users
+        WHERE is_active = true
+      `;
+      
+      const params: any[] = [];
+      
+      if (role) {
+        query += ` AND role = $1`;
+        params.push(role);
+      }
+      
+      query += ` ORDER BY created_at ASC`;
+      
+      const result = await DatabaseService.query(query, params);
+      
+      res.json({
+        success: true,
+        data: result.rows
+      });
+    } catch (error) {
+      console.error('Get team members error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
 }

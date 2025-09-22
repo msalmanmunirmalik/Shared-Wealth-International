@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,9 +22,104 @@ import {
   Shield
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { apiService } from '@/services/api';
+
+interface TeamMember {
+  id: string;
+  first_name: string;
+  last_name: string;
+  bio: string;
+  avatar_url: string;
+  position: string;
+  company_name: string;
+  location: string;
+  website: string;
+  linkedin: string;
+  twitter: string;
+  role: string;
+  email: string;
+}
 
 const AboutUs = () => {
-  const teamMembers = [
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    loadTeamMembers();
+  }, []);
+
+  const loadTeamMembers = async () => {
+    try {
+      setLoading(true);
+      // Load directors and founding members for the About Us page
+      const [directorsResponse, foundingMembersResponse] = await Promise.all([
+        apiService.getTeamMembers('director'),
+        apiService.getTeamMembers('founding_member')
+      ]);
+
+      const directors = directorsResponse.success ? directorsResponse.data || [] : [];
+      const foundingMembers = foundingMembersResponse.success ? foundingMembersResponse.data || [] : [];
+      
+      // Combine and format the data
+      const allMembers = [...directors, ...foundingMembers].map(member => ({
+        ...member,
+        name: `${member.first_name} ${member.last_name}`,
+        featured: member.role === 'director' || member.role === 'founding_member',
+        expertise: member.position ? [member.position] : ['Leadership', 'Strategy'],
+        email: member.email
+      }));
+
+      setTeamMembers(allMembers);
+    } catch (error) {
+      console.error('Error loading team members:', error);
+      setError('Failed to load team members');
+      // Fallback to hardcoded data if API fails
+      setTeamMembers([
+        {
+          id: '1',
+          first_name: 'Cliff',
+          last_name: 'Southcombe',
+          name: 'Cliff Southcombe',
+          role: 'Founder & CEO',
+          bio: 'Pioneering sustainable business models with 25+ years of experience in social enterprise and community development.',
+          avatar_url: '/lovable-uploads/cliff-southcombe.png',
+          position: 'Founder & CEO',
+          company_name: 'Shared Wealth International',
+          expertise: ['Social Enterprise', 'Community Development', 'Sustainable Business'],
+          location: 'Wales, UK',
+          email: 'cliff@sharedwealth.org',
+          linkedin: 'https://linkedin.com/in/cliffsouthcombe',
+          twitter: 'https://twitter.com/cliffsouthcombe',
+          website: '',
+          featured: true
+        },
+        {
+          id: '2',
+          first_name: 'Dr. Salman',
+          last_name: 'Malik',
+          name: 'Dr. Salman Malik',
+          role: 'Chief Technology Officer',
+          bio: 'Technology leader driving digital transformation and innovation in sustainable business practices.',
+          avatar_url: '/lovable-uploads/amad-sami.png',
+          position: 'Chief Technology Officer',
+          company_name: 'Shared Wealth International',
+          expertise: ['Digital Innovation', 'Technology Strategy', 'Sustainable Tech'],
+          location: 'San Francisco, CA',
+          email: 'salman@sharedwealth.org',
+          linkedin: 'https://linkedin.com/in/salmanmalik',
+          twitter: 'https://twitter.com/salmanmalik',
+          website: '',
+          featured: true
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fallback hardcoded team members for when API is not available
+  const fallbackTeamMembers = [
     {
       name: "Cliff Southcombe",
       role: "Founder & CEO",
@@ -375,14 +470,26 @@ const AboutUs = () => {
           Meet Our Team
         </h2>
         
-        {/* Featured Team Members */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-2 text-muted-foreground">Loading team members...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-600 mb-4">{error}</p>
+            <p className="text-gray-600">Showing default team information</p>
+          </div>
+        ) : (
+          <>
+            {/* Featured Team Members */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {teamMembers.filter(member => member.featured).map((member, index) => (
             <Card key={index} className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start space-x-4">
                   <Avatar className="w-20 h-20">
-                    <AvatarImage src={member.avatar} />
+                        <AvatarImage src={member.avatar_url || member.avatar} />
                     <AvatarFallback className="text-xl" style={{ backgroundColor: 'rgb(245, 158, 11)', color: 'white' }}>
                       {member.name.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
@@ -429,7 +536,7 @@ const AboutUs = () => {
             <Card key={index} className="hover:shadow-lg transition-shadow">
               <CardHeader className="text-center">
                 <Avatar className="w-16 h-16 mx-auto mb-3">
-                  <AvatarImage src={member.avatar} />
+                        <AvatarImage src={member.avatar_url || member.avatar} />
                   <AvatarFallback className="text-lg" style={{ backgroundColor: 'rgb(245, 158, 11)', color: 'white' }}>
                     {member.name.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
@@ -458,6 +565,8 @@ const AboutUs = () => {
             </Card>
           ))}
         </div>
+          </>
+        )}
       </div>
 
       {/* Call to Action */}
