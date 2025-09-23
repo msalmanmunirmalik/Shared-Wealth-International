@@ -1,9 +1,18 @@
 {
-  "dependencies": {
-    "i18next": "^25.3.2",
-    "react-i18next": "^15.6.0"
+  "name": "shared-wealth-international",
+  "version": "1.0.0",
+  "description": "Shared Wealth International - Wealth Pioneers Network",
+  "private": true,
+  "scripts": {
+    "dev": "cd wealth-pioneers-network && pnpm run dev",
+    "server:dev": "cd wealth-pioneers-network && pnpm run server:dev",
+    "server:build": "cd wealth-pioneers-network && pnpm run server:build",
+    "server:start": "cd wealth-pioneers-network && pnpm run server:start",
+    "build": "cd wealth-pioneers-network && pnpm run build",
+    "install": "cd wealth-pioneers-network && pnpm install",
+    "start": "cd wealth-pioneers-network && ./start-dev.sh"
   },
-  "devDependencies": {
-    "nodemon": "^3.1.10"
-  }
+  "keywords": ["wealth", "pioneers", "network", "shared-wealth"],
+  "author": "Shared Wealth International",
+  "license": "UNLICENSED"
 }
