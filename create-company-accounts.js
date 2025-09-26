@@ -311,7 +311,7 @@ async function createUserAccount(company) {
         phone, 
         role, 
         is_active, 
-        email_verified
+        is_verified
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
       RETURNING id, email, first_name, last_name`,
       [
@@ -341,29 +341,25 @@ async function createUserAccount(company) {
     } else {
       // Create new company
       const companyResult = await client.query(
-        `INSERT INTO companies (
-          name, 
-          description, 
-          industry, 
-          location, 
-          website, 
-          countries, 
-          status, 
-          applicant_user_id,
-          created_by_admin
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-        RETURNING id, name`,
-        [
-          company.company_name,
-          `Contact: ${company.contact_person}`,
-          'Social Enterprise', // Default industry
-          company.country,
-          company.website === 'NA' ? null : company.website,
-          [company.country], // Array of countries
-          'approved', // Auto-approve company accounts
-          newUser.id,
-          true // Created by admin
-        ]
+      `INSERT INTO companies (
+        name, 
+        description, 
+        industry, 
+        location, 
+        website, 
+        status, 
+        applicant_user_id
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7) 
+      RETURNING id, name`,
+      [
+        company.company_name,
+        `Contact: ${company.contact_person}`,
+        'Social Enterprise', // Default industry
+        company.country,
+        company.website === 'NA' ? null : company.website,
+        'approved', // Auto-approve company accounts
+        newUser.id
+      ]
       );
       companyId = companyResult.rows[0].id;
       console.log(`🏢 Created company: ${company.company_name}`);
@@ -375,15 +371,13 @@ async function createUserAccount(company) {
         user_id, 
         company_id, 
         role, 
-        position, 
-        status
-      ) VALUES ($1, $2, $3, $4, $5)`,
+        is_primary
+      ) VALUES ($1, $2, $3, $4)`,
       [
         newUser.id,
         companyId,
         'Contact Person',
-        'Director',
-        'active'
+        true // is_primary
       ]
     );
 
