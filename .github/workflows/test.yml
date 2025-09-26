@@ -1,0 +1,95 @@
+# GitHub Actions Workflow for Testing
+# Runs tests on every push and pull request
+
+name: Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18, 20]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'pnpm'
+        
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+        
+    - name: Install dependencies
+      run: pnpm install
+      
+    - name: Run type checking
+      run: pnpm run type-check
+      
+    - name: Run linting
+      run: pnpm run lint
+      
+    - name: Run unit tests
+      run: pnpm run test
+      
+    - name: Run backend tests
+      run: pnpm run test:backend
+      
+    - name: Build frontend
+      run: pnpm run build:prod
+      
+    - name: Build backend
+      run: pnpm run server:build
+      
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-node-${{ matrix.node-version }}
+        path: |
+          coverage/
+          test-results/
+          
+    - name: Comment PR with test results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          
+          // Read test results if available
+          let testResults = 'Tests completed successfully! ✅';
+          
+          try {
+            if (fs.existsSync('coverage/lcov-report/index.html')) {
+              testResults = 'Tests completed with coverage report! 📊';
+            }
+          } catch (error) {
+            console.log('No coverage report found');
+          }
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## Test Results for Node.js ${{ matrix.node-version }}
+            
+            ${testResults}
+            
+            **Build Status:** ✅ Successful
+            **Node.js Version:** ${{ matrix.node-version }}
+            **Commit:** ${context.sha.substring(0, 7)}`
+          });

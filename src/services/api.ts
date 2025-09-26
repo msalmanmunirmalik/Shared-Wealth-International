@@ -238,11 +238,6 @@ class ApiService {
     });
   }
 
-  async getUserCompanies() {
-    return await this.request('/users/companies', {
-      method: 'GET',
-    });
-  }
 
   async getTeamMembers(role?: string) {
     const url = role ? `/users/team?role=${role}` : '/users/team';

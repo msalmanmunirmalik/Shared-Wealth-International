@@ -71,7 +71,7 @@ export class UserProfileController {
       } = req.body;
 
       // Update user profile
-      const updatedUser = await DatabaseService.update('users', {
+      const updatedUser = await DatabaseService.update('users', req.user.id, {
         first_name,
         last_name,
         bio,
@@ -85,8 +85,6 @@ export class UserProfileController {
         role,
         avatar_url,
         updated_at: new Date()
-      }, {
-        where: { id: req.user.id }
       });
 
       if (!updatedUser) {

@@ -262,56 +262,14 @@ const UserDashboard = () => {
       })));
       setCompanies(mappedUserCompanies); // Set companies state for display
       
-      // Combine companies for display, ensuring uniqueness by ID
-      const userCompaniesMapped = (dashboardData.userCompanies || []).map(uc => ({
-        id: uc.id,
-        name: uc.name || 'Unknown Company',
-        sector: uc.sector || 'Technology',
-        country: uc.location || 'United Kingdom',
-        description: uc.description || 'Company description',
-        website: uc.website || '',
-        employees: uc.employees || 10,
-        is_shared_wealth_licensed: uc.is_shared_wealth_licensed || false,
-        license_number: uc.license_number || '',
-        license_date: uc.license_date || '',
-        status: uc.status || 'active',
-        created_at: uc.created_at || new Date().toISOString(),
-        updated_at: uc.updated_at || new Date().toISOString(),
-        impact_score: 0,
-        highlights: uc.description ? [uc.description] : ['No highlights available'],
-        location: uc.location || 'Location not specified',
-        shared_value: 0,
-        joined_date: uc.created_at || new Date().toISOString(),
-        logo: '',
-        contact_email: '',
-        contact_phone: ''
-      }));
+      // Keep user companies and network companies separate
+      // User companies are already set above via setCompanies(mappedUserCompanies)
       
-      const networkCompaniesMapped = (dashboardData.networkCompanies || []).map((nc: any) => ({
-        ...nc,
-        highlights: nc.highlights || nc.description ? [nc.description] : ['No highlights available'],
-        location: nc.location || nc.country || 'Location not specified'
-      }));
-      
-      // Create a Map to ensure uniqueness by ID, with user companies taking precedence
-      const companyMap = new Map();
-      
-      // Add network companies first
-      networkCompaniesMapped.forEach(company => {
-        companyMap.set(company.id, company);
-      });
-      
-      // Add user companies (these will override network companies with same ID)
-      userCompaniesMapped.forEach(company => {
-        companyMap.set(company.id, company);
-      });
-      
-      const allCompanies: NetworkCompany[] = Array.from(companyMap.values());
-      
-      setCompanies(allCompanies);
+      console.log('🔍 DEBUG - UserDashboard: Setting user companies only:', mappedUserCompanies.length, 'companies');
+      console.log('🔍 DEBUG - UserDashboard: User companies:', mappedUserCompanies.map(c => c.name));
 
       // Calculate real stats based on actual data
-      const totalCompanies = allCompanies.length;
+      const totalCompanies = mappedUserCompanies.length; // User's companies only
       const networkPartners = dashboardData.networkCompanies?.length || 0;
       
       // Only calculate growth rate if there are companies to compare
@@ -634,9 +592,10 @@ const UserDashboard = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 border shadow-lg" style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }}>
+          <TabsList className="grid w-full grid-cols-7 border shadow-lg" style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }}>
             <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Overview</TabsTrigger>
             <TabsTrigger value="my-companies" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">My Companies</TabsTrigger>
+            <TabsTrigger value="network" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Network</TabsTrigger>
             <TabsTrigger value="analytics" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Analytics</TabsTrigger>
             <TabsTrigger value="activities" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Activities</TabsTrigger>
             <TabsTrigger value="applications" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Applications</TabsTrigger>
@@ -914,6 +873,105 @@ const UserDashboard = () => {
                   </Card>
                           ))}
                         </div>
+            )}
+          </TabsContent>
+
+          {/* Network Tab */}
+          <TabsContent value="network" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900">Network Companies</h2>
+              <Badge variant="secondary" className="text-sm">
+                {networkCompanies.length} Companies
+              </Badge>
+            </div>
+            
+            {/* Search and Filter Controls */}
+            <div className="flex flex-col sm:flex-row gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex-1">
+                <Input
+                  placeholder="Search companies..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Select value={filterSector} onValueChange={setFilterSector}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Sector" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sectors</SelectItem>
+                    {[...new Set(networkCompanies.map(c => c.sector))].map(sector => (
+                      <SelectItem key={sector} value={sector}>{sector}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Network Companies Grid */}
+            {networkCompanies.length === 0 ? (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <Building className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Network Companies</h3>
+                  <p className="text-gray-600 mb-6">
+                    Network companies will appear here once they join the platform
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {networkCompanies.filter(company => {
+                  const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                       company.description?.toLowerCase().includes(searchTerm.toLowerCase());
+                  const matchesSector = filterSector === "all" || company.sector === filterSector;
+                  const matchesStatus = filterStatus === "all" || company.status === filterStatus;
+                  
+                  return matchesSearch && matchesSector && matchesStatus;
+                }).map((company) => (
+                  <Card 
+                    key={company.id} 
+                    className="hover:shadow-lg transition-shadow cursor-pointer group"
+                    onClick={() => handleCompanyClick(company)}
+                  >
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
+                          {company.name}
+                        </CardTitle>
+                        <Badge variant={company.status === 'approved' ? 'default' : 'secondary'}>
+                          {company.status}
+                        </Badge>
+                      </div>
+                      <CardDescription className="text-sm text-gray-600">
+                        {company.sector} • {company.country}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-700 mb-3 line-clamp-2">
+                        {company.description || 'No description available'}
+                      </p>
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>{company.employees || 'Unknown'} employees</span>
+                        <span>Joined {new Date(company.joined_date).toLocaleDateString()}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             )}
           </TabsContent>
 

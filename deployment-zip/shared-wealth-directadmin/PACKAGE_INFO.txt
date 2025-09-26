@@ -1,0 +1,43 @@
+Shared Wealth International - DirectAdmin Deployment Package
+==========================================================
+
+Package Version: 2.0.0 (MIME Type Fixes)
+Created: Thu Sep 25 03:07:11 CEST 2025
+Domain: sharedwealth.net
+
+Contents:
+- Frontend build (React + Vite) with MIME type fixes
+- Backend build (Node.js + Express)
+- Database schema
+- PM2 configuration
+- Deployment scripts
+- Environment templates
+- Web server configurations (.htaccess, nginx.conf, web.config)
+
+MIME Type Fixes Included:
+- .htaccess (Apache)
+- nginx.conf (Nginx)
+- web.config (IIS)
+
+Total Size: 9.9M
+
+Files:
+- public_html/ (Frontend build with MIME type fixes)
+- server/ (Backend build)
+- ecosystem.config.js (PM2 config)
+- .env.production (Environment template)
+- setup-server.sh (Server setup script)
+- setup-database.sql (Database schema)
+- DEPLOYMENT_GUIDE.md (Complete deployment guide)
+- .htaccess (Apache MIME type fixes)
+- nginx.conf (Nginx configuration)
+- web.config (IIS configuration)
+
+Next Steps:
+1. Upload to DirectAdmin
+2. Run setup-server.sh
+3. Configure .env file
+4. Setup database
+5. Start with PM2
+
+Support: Check DEPLOYMENT_GUIDE.md for detailed instructions

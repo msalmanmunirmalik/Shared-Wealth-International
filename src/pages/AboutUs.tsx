@@ -88,9 +88,9 @@ const AboutUs = () => {
           company_name: 'Shared Wealth International',
           expertise: ['Social Enterprise', 'Community Development', 'Sustainable Business'],
           location: 'Wales, UK',
-          email: 'cliff@sharedwealth.org',
-          linkedin: 'https://linkedin.com/in/cliffsouthcombe',
-          twitter: 'https://twitter.com/cliffsouthcombe',
+          email: 'socialenterpriseuk@gmail.com',
+          linkedin: 'https://www.linkedin.com/in/cliff-southcombe-052b8a1/',
+          twitter: '',
           website: '',
           featured: true
         },

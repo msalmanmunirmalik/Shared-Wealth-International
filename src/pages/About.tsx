@@ -97,8 +97,8 @@ const About = () => {
       bio: "Pioneer of the social enterprise movement. Co-founded Social Enterprise Partnership in 1994 with Freer Spreckley, evolving through Social Enterprise Europe to SEi, and now Shared Wealth International. Over 30 years of experience transforming business models.",
       expertise: "Social Enterprise Pioneer, Strategic Planning, Global Movement Building",
       image: "/lovable-uploads/f7f6d7bf-0c80-41f2-885b-a2678b1733ef.png",
-      linkedin: "#",
-      email: "cliff@sharedwealth.org"
+      linkedin: "https://www.linkedin.com/in/cliff-southcombe-052b8a1/",
+      email: "socialenterpriseuk@gmail.com"
     },
     {
       name: "James Perry",
@@ -106,26 +106,27 @@ const About = () => {
       bio: "CEO of LocoSoco and expert in innovative ownership structures. Highlighted how Shared Wealth builds loyal customers, motivated employees, incentivised investors, and strengthens social brands.",
       expertise: "Corporate Governance, Phantom Shares, Inclusive Decision-Making",
       image: "/lovable-uploads/a04db650-e312-4313-9485-632a58b8fbf5.png",
-      linkedin: "#",
-      email: "james@sharedwealth.org"
+      linkedin: "https://www.linkedin.com/in/locosocojames/",
+      email: "james@locoso.co"
     },
+    
     {
-      name: "Dr. Muhammad Salman Munir Malik",
-      role: "Director Global Initiatives and Learning",
-      bio: "Strategic expert leading global partnerships and educational programs to expand Shared Wealth principles worldwide.",
+      name: "Dr. Salman Malik",
+      role: "Founding Member - Leading Global Initiatives and Learning",
+      bio: "Social Entrepreneur in Education & Youth Empowerment, and Health initiatives. Founder of Letstern",
       expertise: "Strategic Planning, Global Partnership Development, Training Programs",
       image: "/lovable-uploads/ab71454c-fd1a-4ed4-995d-21ccae08f423.png",
-      linkedin: "#",
-      email: "salman@sharedwealth.org"
+      linkedin: "https://www.linkedin.com/in/msalmanmunirmalik/",
+      email: "msalmanmunirmalik@outlook.com"
     },
     {
-      name: "Amad Sami",
-      role: "Director, Shared Wealth International",
-      bio: "Entrepreneurial leader advancing equitable wealth distribution through strategic ventures across Europe and the Middle East.",
+      name: "Dr. Gugs Lushai",
+      role: "Founding Member",
+      bio: "Social Entrepreneur and Fractional Executive has mobilised £900M+ into global infrastructure and innovation - transforming bold ideas into investment-ready ventures with risk-managed execution and measurable social impact.",
       expertise: "Entrepreneurship, Strategic Leadership, Emerging Markets",
-      image: "/lovable-uploads/amad-sami.png",
-      linkedin: "#",
-      email: "amad@sharedwealth.org"
+      image: "https://drive.google.com/file/d/1TgpBb9WP2IngD6IyQb9__IO4WdAey-PO/view?usp=sharing",
+      linkedin: "https://www.linkedin.com/in/gugslushaiphd/",
+      email: "gugs@lifesciences-healthcare.com"
     }
   ];
 

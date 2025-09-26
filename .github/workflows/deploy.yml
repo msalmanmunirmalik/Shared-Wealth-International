@@ -1,0 +1,73 @@
+# GitHub Actions Workflow for Render Deployment
+# Automatically deploys to Render when code is pushed to main branch
+
+name: Deploy to Render
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Test job - runs tests before deployment
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'pnpm'
+        
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+        
+    - name: Install dependencies
+      run: pnpm install
+      
+    - name: Run type checking
+      run: pnpm run type-check
+      
+    - name: Run linting
+      run: pnpm run lint
+      
+    - name: Run tests
+      run: pnpm run test
+      
+    - name: Build application
+      run: pnpm run build:prod && pnpm run server:build
+
+  # Deploy job - only runs on main branch
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to Render
+      uses: johnbeynon/render-deploy-action@v0.0.8
+      with:
+        service-id: ${{ secrets.RENDER_SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_API_KEY }}
+        
+    - name: Notify deployment success
+      if: success()
+      run: |
+        echo "✅ Deployment to Render successful!"
+        echo "🌐 Application URL: https://shared-wealth-international.onrender.com"
+        
+    - name: Notify deployment failure
+      if: failure()
+      run: |
+        echo "❌ Deployment to Render failed!"
+        echo "Please check the logs and try again."

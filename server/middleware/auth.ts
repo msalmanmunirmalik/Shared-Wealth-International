@@ -66,7 +66,7 @@ export const authenticateToken = async (
     }
 
     // Security: Validate user role
-    if (!['user', 'admin', 'superadmin'].includes(user.role)) {
+    if (!['user', 'admin', 'superadmin', 'director'].includes(user.role)) {
       res.status(401).json({ 
         success: false,
         message: 'Invalid user role' 
