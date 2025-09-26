@@ -30,6 +30,28 @@ const server = httpServer.listen(PORT, async () => {
   } catch (error) {
     console.error(`❌ Database health check failed:`, error);
   }
+
+  // Setup database schema on startup (only in production)
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      console.log(`🔧 Running database setup on production startup...`);
+      const { spawn } = await import('child_process');
+      const setupProcess = spawn('node', ['scripts/startup-db-setup.js'], {
+        stdio: 'inherit',
+        cwd: process.cwd()
+      });
+      
+      setupProcess.on('close', (code) => {
+        if (code === 0) {
+          console.log(`✅ Database setup completed successfully`);
+        } else {
+          console.log(`⚠️  Database setup completed with warnings (code: ${code})`);
+        }
+      });
+    } catch (error) {
+      console.error(`❌ Database setup failed:`, error);
+    }
+  }
 });
 
 // Security: Graceful shutdown
