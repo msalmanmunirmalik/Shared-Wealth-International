@@ -1,0 +1,56 @@
+# Render Configuration for Shared Wealth International
+# This file defines how Render should build and deploy your application
+
+services:
+  # Main Web Service (Frontend + Backend)
+  - type: web
+    name: shared-wealth-international
+    env: node
+    plan: starter
+    buildCommand: pnpm install && pnpm run build:prod
+    startCommand: pnpm run server:start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: CSRF_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://shared-wealth-international.onrender.com
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+      - key: AUTH_RATE_LIMIT_MAX_REQUESTS
+        value: 5
+      - key: MAX_REQUEST_SIZE
+        value: 10mb
+      - key: DB_MAX_CONNECTIONS
+        value: 20
+      - key: DB_IDLE_TIMEOUT_MS
+        value: 30000
+      - key: DB_CONNECTION_TIMEOUT_MS
+        value: 2000
+
+  # PostgreSQL Database
+  - type: pserv
+    name: shared-wealth-db
+    plan: starter
+    env: postgresql
+    envVars:
+      - key: POSTGRES_DB
+        value: sharedwealth
+      - key: POSTGRES_USER
+        value: sharedwealth
+      - key: POSTGRES_PASSWORD
+        generateValue: true
+
+# Database connection will be automatically configured
+# Render will provide DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT
+# These will be available as environment variables in your web service

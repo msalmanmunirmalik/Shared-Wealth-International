@@ -1,18 +1,19 @@
 {
-  "name": "shared-wealth-international",
+  "name": "shared-wealth-international-deploy",
   "version": "1.0.0",
-  "description": "Shared Wealth International - Wealth Pioneers Network",
-  "private": true,
+  "description": "Shared Wealth International Platform",
   "scripts": {
-    "dev": "cd wealth-pioneers-network && pnpm run dev",
-    "server:dev": "cd wealth-pioneers-network && pnpm run server:dev",
+    "install": "cd wealth-pioneers-network && pnpm install",
+    "build": "cd wealth-pioneers-network && pnpm run build:prod",
+    "build:prod": "cd wealth-pioneers-network && pnpm run build:prod && pnpm run server:build",
     "server:build": "cd wealth-pioneers-network && pnpm run server:build",
     "server:start": "cd wealth-pioneers-network && pnpm run server:start",
-    "build": "cd wealth-pioneers-network && pnpm run build",
-    "install": "cd wealth-pioneers-network && pnpm install",
-    "start": "cd wealth-pioneers-network && ./start-dev.sh"
+    "start": "cd wealth-pioneers-network && pnpm run server:start"
   },
-  "keywords": ["wealth", "pioneers", "network", "shared-wealth"],
-  "author": "Shared Wealth International",
-  "license": "UNLICENSED"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msalmanmunirmalik/shared-wealth-international-deploy.git"
+  },
+  "author": "Salman Malik",
+  "license": "MIT"
 }
