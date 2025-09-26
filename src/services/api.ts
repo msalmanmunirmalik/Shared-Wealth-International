@@ -67,7 +67,7 @@ class ApiService {
     const mockData: Record<string, any> = {
       '/auth/signin': { session: { user: { id: 'demo-user-123', email: 'demo@sharedwealth.com', role: 'user' }, access_token: 'demo-token-123' } },
       '/auth/signup': { message: 'Demo mode - signup simulated' },
-      '/auth/signout': { message: 'Demo mode - signout simulated' },
+      '/users/logout': { message: 'Demo mode - logout simulated' },
       '/auth/reset-password': { message: 'Demo mode - password reset simulated' },
       '/auth/admin/check/demo-user-123': false,
       '/users/profile': { id: 'demo-user-123', email: 'demo@sharedwealth.com', role: 'user', created_at: new Date().toISOString() },
@@ -220,7 +220,7 @@ class ApiService {
   }
 
   async signOut() {
-    return await this.request('/auth/signout', {
+    return await this.request('/users/logout', {
       method: 'POST',
     });
   }

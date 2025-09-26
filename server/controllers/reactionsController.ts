@@ -184,6 +184,14 @@ export class ReactionsController {
       const { postId, postType } = req.params;
       const userId = req.query.userId as string;
 
+      // Validate required parameters
+      if (!postId || !postType || postId === 'undefined' || postType === 'undefined') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid postId or postType parameter'
+        });
+      }
+
       // Get all reactions for this post
       const reactions = await DatabaseService.findAll('post_reactions', {
         where: {
