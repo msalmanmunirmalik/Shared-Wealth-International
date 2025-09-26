@@ -40,7 +40,7 @@ export const authenticateToken = async (
 
     // Security: Validate JWT token with issuer and audience verification
     const decoded = jwt.verify(token, JWT_SECRET, {
-      issuer: 'wealth-pioneers-network',
+      issuer: 'shared-wealth-international',
       audience: 'wealth-pioneers-users'
     }) as JWTPayload;
     console.log('🔐 Auth Debug - Decoded JWT:', decoded);

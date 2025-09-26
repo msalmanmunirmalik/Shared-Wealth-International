@@ -16,7 +16,7 @@ A comprehensive platform for building sustainable businesses through shared weal
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd wealth-pioneers-network
+   cd shared-wealth-international
    ```
 
 2. **Run the deployment script**
@@ -148,7 +148,7 @@ pnpm run type-check            # Run TypeScript type checking
 ### Project Structure
 
 ```
-wealth-pioneers-network/
+shared-wealth-international/
 ├── src/                          # Frontend source code
 │   ├── components/              # React components
 │   ├── pages/                   # Page components

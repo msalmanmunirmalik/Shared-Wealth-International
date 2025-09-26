@@ -151,10 +151,10 @@ cd /home/your-username/domains/api.your-domain.com/public_html
 ```bash
 # Method 1: Git clone (if you have Git installed)
 git clone https://github.com/yourusername/shared-wealth-international.git .
-cd shared-wealth-international/wealth-pioneers-network
+cd shared-wealth-international
 
 # Method 2: Upload via DirectAdmin File Manager
-# Upload the wealth-pioneers-network folder contents to your domain directory
+# Upload the shared-wealth-international folder contents to your domain directory
 ```
 
 ### **4.3 Install Dependencies**

@@ -49,7 +49,7 @@ export class AuthService {
         JWT_SECRET as string,
         { 
           expiresIn: '24h',
-          issuer: 'wealth-pioneers-network',
+          issuer: 'shared-wealth-international',
           audience: 'wealth-pioneers-users'
         }
       );

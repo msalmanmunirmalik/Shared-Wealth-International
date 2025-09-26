@@ -13,7 +13,7 @@ const logFormat = winston.format.combine(
 export const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
   format: logFormat,
-  defaultMeta: { service: 'wealth-pioneers-network' },
+  defaultMeta: { service: 'shared-wealth-international' },
   transports: [
     // Console transport
     new winston.transports.Console({

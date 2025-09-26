@@ -188,7 +188,7 @@ app.post('/api/auth/signin', authLimiter, [
       JWT_SECRET,
       { 
         expiresIn: '24h',
-        issuer: 'wealth-pioneers-network',
+        issuer: 'shared-wealth-international',
         audience: 'wealth-pioneers-users'
       }
     );
