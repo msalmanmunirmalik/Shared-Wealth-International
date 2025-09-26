@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Shared Wealth International Platform",
   "scripts": {
-    "install": "cd wealth-pioneers-network && pnpm install",
+    "postinstall": "cd wealth-pioneers-network && pnpm install",
     "build": "cd wealth-pioneers-network && pnpm run build:prod",
     "build:prod": "cd wealth-pioneers-network && pnpm run build:prod && pnpm run server:build",
     "server:build": "cd wealth-pioneers-network && pnpm run server:build",
