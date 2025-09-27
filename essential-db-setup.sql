@@ -9,13 +9,18 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(50) DEFAULT 'user' CHECK (role IN ('user', 'admin', 'superadmin')),
+    role VARCHAR(50) DEFAULT 'user' CHECK (role IN ('user', 'admin', 'superadmin', 'moderator', 'director')),
     first_name VARCHAR(100),
     last_name VARCHAR(100),
     phone VARCHAR(20),
+    avatar_url VARCHAR(500),
+    bio TEXT,
+    location VARCHAR(255),
     is_active BOOLEAN DEFAULT true,
-    email_verified BOOLEAN DEFAULT false,
+    is_verified BOOLEAN DEFAULT false,
     last_login TIMESTAMP,
+    last_logout TIMESTAMP,
+    login_count INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -51,9 +56,10 @@ CREATE TABLE IF NOT EXISTS user_companies (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
-    role VARCHAR(100) NOT NULL,
-    position VARCHAR(100) NOT NULL,
-    status VARCHAR(50) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'pending')),
+    is_primary BOOLEAN DEFAULT false,
+    company_role VARCHAR(100),
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    left_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, company_id)
@@ -81,6 +87,6 @@ CREATE TRIGGER update_companies_updated_at BEFORE UPDATE ON companies FOR EACH R
 CREATE TRIGGER update_user_companies_updated_at BEFORE UPDATE ON user_companies FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Insert default admin user (password: admin123)
-INSERT INTO users (email, password_hash, role, first_name, last_name, is_active, email_verified) VALUES
+INSERT INTO users (email, password_hash, role, first_name, last_name, is_active, is_verified) VALUES
 ('admin@sharedwealth.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'superadmin', 'Admin', 'User', true, true)
 ON CONFLICT (email) DO NOTHING;
