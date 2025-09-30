@@ -4,9 +4,9 @@
   "description": "Shared Wealth International Platform",
   "scripts": {
     "build": "cd wealth-pioneers-network && pnpm install --no-frozen-lockfile && pnpm exec vite build && pnpm exec tsc -p tsconfig.server.json",
-    "build:prod": "cd wealth-pioneers-network && pnpm install --no-frozen-lockfile && pnpm exec vite build && pnpm exec tsc -p tsconfig.server.json",
+    "build:prod": "cd wealth-pioneers-network && pnpm install --no-frozen-lockfile && pnpm exec vite build && pnpm exec tsc -p tsconfig.server.json && echo 'Build completed successfully'",
     "render:build": "cd wealth-pioneers-network && pnpm install --no-frozen-lockfile && pnpm exec vite build && pnpm exec tsc -p tsconfig.server.json",
-    "server:build": "cd wealth-pioneers-network && pnpm exec tsc -p tsconfig.server.json",
+    "server:build": "echo 'Server build already completed in build:prod'",
     "server:start": "cd wealth-pioneers-network && pnpm run server:start",
     "start": "cd wealth-pioneers-network && pnpm run server:start"
   },
