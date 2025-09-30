@@ -44,7 +44,7 @@ export class DashboardController {
       const networkCompanies = await DatabaseService.query(`
         SELECT COUNT(*) as count
         FROM companies
-        WHERE status = 'approved'
+        WHERE is_active = true AND is_verified = true
       `);
 
       // Get active projects count
@@ -66,7 +66,7 @@ export class DashboardController {
       const approvedCompanies = await DatabaseService.query(`
         SELECT COUNT(*) as count
         FROM companies
-        WHERE status = 'approved'
+        WHERE is_active = true AND is_verified = true
       `);
 
       // Get total users count
@@ -273,7 +273,7 @@ export class DashboardController {
         recentActivities
       ] = await Promise.all([
         DatabaseService.count('users', { where: { is_active: true } }),
-        DatabaseService.count('companies', { where: { status: 'approved' } }),
+        DatabaseService.count('companies', { where: { is_active: true, is_verified: true } }),
         DatabaseService.count('projects', { where: { status: 'active' } }),
         DatabaseService.count('events', { where: { status: 'upcoming' } }),
         DatabaseService.count('forum_topics'),
