@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Company Approved</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #059669; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f9fafb; }
+        .footer { padding: 20px; text-align: center; color: #6b7280; }
+        .button { display: inline-block; padding: 12px 24px; background: #059669; color: white; text-decoration: none; border-radius: 6px; }
+        .success { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 6px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Congratulations!</h1>
+        </div>
+        <div class="content">
+            <h2>Hello {{name}}!</h2>
+            <p>Great news! Your company application for <strong>{{companyName}}</strong> has been approved!</p>
+            <div class="success">
+                <p><strong>Your company is now part of the Shared Wealth International network!</strong></p>
+                <p>This means you can now:</p>
+                <ul>
+                    <li>Access the full company dashboard</li>
+                    <li>Connect with other approved companies</li>
+                    <li>Apply for funding opportunities</li>
+                    <li>Participate in collaborative projects</li>
+                </ul>
+            </div>
+            <p style="text-align: center;">
+                <a href="{{dashboardUrl}}" class="button">Access Your Dashboard</a>
+            </p>
+            <p>Welcome to our community of companies committed to creating shared wealth!</p>
+        </div>
+        <div class="footer">
+            <p>© 2024 Shared Wealth International. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

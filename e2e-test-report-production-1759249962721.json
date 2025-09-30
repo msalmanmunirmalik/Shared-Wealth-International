@@ -1,0 +1,76 @@
+{
+  "summary": {
+    "total": 9,
+    "passed": 5,
+    "failed": 4,
+    "skipped": 0,
+    "passRate": "55.56%"
+  },
+  "tests": [
+    {
+      "name": "Basic Page Load",
+      "status": "passed",
+      "details": "Home page loads successfully",
+      "error": null,
+      "timestamp": "2025-09-30T16:32:25.714Z"
+    },
+    {
+      "name": "Authentication - admin login",
+      "status": "failed",
+      "details": "Login failed: Unknown error",
+      "error": null,
+      "timestamp": "2025-09-30T16:32:29.587Z"
+    },
+    {
+      "name": "Navigation - Menu and routing",
+      "status": "failed",
+      "details": "No navigation items found or working",
+      "error": null,
+      "timestamp": "2025-09-30T16:32:29.594Z"
+    },
+    {
+      "name": "Dashboard - Core functionality",
+      "status": "failed",
+      "details": "Dashboard not properly loaded or missing key elements",
+      "error": null,
+      "timestamp": "2025-09-30T16:32:32.247Z"
+    },
+    {
+      "name": "Companies - List and management",
+      "status": "passed",
+      "details": "Companies page loaded with 2/5 key elements",
+      "error": null,
+      "timestamp": "2025-09-30T16:32:34.906Z"
+    },
+    {
+      "name": "API Endpoints - Backend connectivity",
+      "status": "passed",
+      "details": "2/4 API endpoints responding",
+      "error": null,
+      "timestamp": "2025-09-30T16:32:36.802Z"
+    },
+    {
+      "name": "Responsive Design - Mobile compatibility",
+      "status": "passed",
+      "details": "Mobile responsive design working",
+      "error": null,
+      "timestamp": "2025-09-30T16:32:38.519Z"
+    },
+    {
+      "name": "Auth Page - Sign in/Sign up functionality",
+      "status": "passed",
+      "details": "Auth page loaded with 5/5 key elements",
+      "error": null,
+      "timestamp": "2025-09-30T16:32:41.458Z"
+    },
+    {
+      "name": "Error Handling - 404 and error pages",
+      "status": "failed",
+      "details": "404 error handling not working",
+      "error": null,
+      "timestamp": "2025-09-30T16:32:42.563Z"
+    }
+  ],
+  "environment": "PRODUCTION",
+  "timestamp": "2025-09-30T16:32:22.353Z"
+}

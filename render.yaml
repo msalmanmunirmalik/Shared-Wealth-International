@@ -7,7 +7,7 @@ services:
     name: shared-wealth-international
     env: node
     plan: starter
-    buildCommand: pnpm install && pnpm run build:prod
+    buildCommand: pnpm install && pnpm run build:prod && pnpm run server:build
     startCommand: pnpm run server:start
     healthCheckPath: /api/health
     envVars:

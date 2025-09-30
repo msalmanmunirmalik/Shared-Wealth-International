@@ -1,0 +1,69 @@
+{
+  "summary": {
+    "total": 8,
+    "passed": 3,
+    "failed": 5,
+    "skipped": 0,
+    "passRate": "37.50%"
+  },
+  "tests": [
+    {
+      "name": "Basic Page Load",
+      "status": "passed",
+      "details": "Home page loads successfully",
+      "error": null,
+      "timestamp": "2025-09-30T16:24:00.744Z"
+    },
+    {
+      "name": "Authentication - admin login",
+      "status": "failed",
+      "details": "Login form not found",
+      "error": null,
+      "timestamp": "2025-09-30T16:24:07.802Z"
+    },
+    {
+      "name": "Navigation - Menu and routing",
+      "status": "failed",
+      "details": "Navigation test failed: SyntaxError: Failed to execute 'querySelector' on 'Document': 'a[href=\"/dashboard\"], a:has-text(\"Dashboard\")' is not a valid selector.",
+      "error": null,
+      "timestamp": "2025-09-30T16:24:07.814Z"
+    },
+    {
+      "name": "Dashboard - Core functionality",
+      "status": "failed",
+      "details": "Dashboard test failed: SyntaxError: Failed to execute 'querySelector' on 'Document': 'h1, h2, h3:has-text(\"Dashboard\")' is not a valid selector.",
+      "error": null,
+      "timestamp": "2025-09-30T16:24:10.557Z"
+    },
+    {
+      "name": "Companies - List and management",
+      "status": "failed",
+      "details": "Companies page not properly loaded",
+      "error": null,
+      "timestamp": "2025-09-30T16:24:13.243Z"
+    },
+    {
+      "name": "API Endpoints - Backend connectivity",
+      "status": "passed",
+      "details": "2/4 API endpoints responding",
+      "error": null,
+      "timestamp": "2025-09-30T16:24:15.114Z"
+    },
+    {
+      "name": "Responsive Design - Mobile compatibility",
+      "status": "passed",
+      "details": "Mobile responsive design working",
+      "error": null,
+      "timestamp": "2025-09-30T16:24:16.861Z"
+    },
+    {
+      "name": "Error Handling - 404 and error pages",
+      "status": "failed",
+      "details": "Error handling test failed: SyntaxError: Failed to execute 'querySelector' on 'Document': '.error-404, .not-found, h1:has-text(\"404\")' is not a valid selector.",
+      "error": null,
+      "timestamp": "2025-09-30T16:24:17.593Z"
+    }
+  ],
+  "environment": "PRODUCTION",
+  "timestamp": "2025-09-30T16:23:58.202Z"
+}

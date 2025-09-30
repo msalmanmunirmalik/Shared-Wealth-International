@@ -1,0 +1,19 @@
+🎉 Congratulations!
+
+Hello {{name}}!
+
+Great news! Your company application for {{companyName}} has been approved!
+
+Your company is now part of the Shared Wealth International network!
+
+This means you can now:
+- Access the full company dashboard
+- Connect with other approved companies
+- Apply for funding opportunities
+- Participate in collaborative projects
+
+Access your dashboard: {{dashboardUrl}}
+
+Welcome to our community of companies committed to creating shared wealth!
+
+© 2024 Shared Wealth International. All rights reserved.

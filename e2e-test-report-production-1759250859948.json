@@ -1,0 +1,209 @@
+{
+  "summary": {
+    "total": 28,
+    "passed": 17,
+    "failed": 9,
+    "skipped": 2,
+    "passRate": "60.71%"
+  },
+  "tests": [
+    {
+      "name": "Basic Page Load",
+      "status": "passed",
+      "details": "Home page loads successfully",
+      "error": null,
+      "timestamp": "2025-09-30T16:46:28.865Z"
+    },
+    {
+      "name": "Authentication - admin login",
+      "status": "passed",
+      "details": "Successfully logged in as admin - URL: http://localhost:8080/user-dashboard",
+      "error": null,
+      "timestamp": "2025-09-30T16:46:34.391Z"
+    },
+    {
+      "name": "Navigation - Menu and routing",
+      "status": "failed",
+      "details": "No navigation items found - may need authentication",
+      "error": null,
+      "timestamp": "2025-09-30T16:46:34.416Z"
+    },
+    {
+      "name": "Dashboard - Core functionality",
+      "status": "failed",
+      "details": "Dashboard not properly loaded - found 0 elements, content: false",
+      "error": null,
+      "timestamp": "2025-09-30T16:46:37.558Z"
+    },
+    {
+      "name": "Companies - List and management",
+      "status": "passed",
+      "details": "Companies page loaded with 3/5 key elements",
+      "error": null,
+      "timestamp": "2025-09-30T16:46:39.689Z"
+    },
+    {
+      "name": "API Endpoints - Backend connectivity",
+      "status": "passed",
+      "details": "2/4 API endpoints responding",
+      "error": null,
+      "timestamp": "2025-09-30T16:46:40.586Z"
+    },
+    {
+      "name": "Responsive Design - Mobile compatibility",
+      "status": "passed",
+      "details": "Mobile responsive design working",
+      "error": null,
+      "timestamp": "2025-09-30T16:46:41.708Z"
+    },
+    {
+      "name": "Auth Page - Sign in/Sign up functionality",
+      "status": "failed",
+      "details": "Auth page missing key elements (1/5)",
+      "error": null,
+      "timestamp": "2025-09-30T16:46:44.023Z"
+    },
+    {
+      "name": "Form Validation - Input validation testing",
+      "status": "failed",
+      "details": "Submit button not found for validation testing",
+      "error": null,
+      "timestamp": "2025-09-30T16:46:46.321Z"
+    },
+    {
+      "name": "Page Performance - Load time and metrics",
+      "status": "passed",
+      "details": "Page loaded in 2149ms (DOM ready: 0ms)",
+      "error": null,
+      "timestamp": "2025-09-30T16:46:48.474Z"
+    },
+    {
+      "name": "User Registration - Sign up functionality",
+      "status": "failed",
+      "details": "Signup form missing key elements (0/5)",
+      "error": null,
+      "timestamp": "2025-09-30T16:46:50.618Z"
+    },
+    {
+      "name": "Admin Features - Admin dashboard access",
+      "status": "passed",
+      "details": "Admin dashboard accessible and loaded",
+      "error": null,
+      "timestamp": "2025-09-30T16:46:52.745Z"
+    },
+    {
+      "name": "Accessibility - Basic accessibility checks",
+      "status": "passed",
+      "details": "Accessibility checks passed: 4/6",
+      "error": null,
+      "timestamp": "2025-09-30T16:46:54.913Z"
+    },
+    {
+      "name": "Error Handling - 404 and error pages",
+      "status": "failed",
+      "details": "404 handling unclear - Status: 200, Content: {\"has404Text\":false,\"has404Title\":false,\"hasErrorElements\":false,\"isHomePage\":false}",
+      "error": null,
+      "timestamp": "2025-09-30T16:46:57.053Z"
+    },
+    {
+      "name": "Basic Page Load",
+      "status": "passed",
+      "details": "Home page loads successfully",
+      "error": null,
+      "timestamp": "2025-09-30T16:47:01.326Z"
+    },
+    {
+      "name": "Authentication - admin login",
+      "status": "failed",
+      "details": "Login failed - URL: https://sharedwealth.net/auth, Error: No error message, Loading: Yes",
+      "error": null,
+      "timestamp": "2025-09-30T16:47:08.121Z"
+    },
+    {
+      "name": "Navigation - Menu and routing",
+      "status": "skipped",
+      "details": "Navigation test skipped - user not authenticated",
+      "error": null,
+      "timestamp": "2025-09-30T16:47:08.122Z"
+    },
+    {
+      "name": "Dashboard - Core functionality",
+      "status": "failed",
+      "details": "Dashboard not properly loaded - found 0 elements, content: false",
+      "error": null,
+      "timestamp": "2025-09-30T16:47:12.181Z"
+    },
+    {
+      "name": "Companies - List and management",
+      "status": "passed",
+      "details": "Companies page loaded with 2/5 key elements",
+      "error": null,
+      "timestamp": "2025-09-30T16:47:14.897Z"
+    },
+    {
+      "name": "API Endpoints - Backend connectivity",
+      "status": "passed",
+      "details": "2/4 API endpoints responding",
+      "error": null,
+      "timestamp": "2025-09-30T16:47:16.571Z"
+    },
+    {
+      "name": "Responsive Design - Mobile compatibility",
+      "status": "passed",
+      "details": "Mobile responsive design working",
+      "error": null,
+      "timestamp": "2025-09-30T16:47:18.210Z"
+    },
+    {
+      "name": "Auth Page - Sign in/Sign up functionality",
+      "status": "passed",
+      "details": "Auth page loaded with 5/5 key elements",
+      "error": null,
+      "timestamp": "2025-09-30T16:47:20.925Z"
+    },
+    {
+      "name": "Form Validation - Input validation testing",
+      "status": "passed",
+      "details": "Form validation working - validation messages shown",
+      "error": null,
+      "timestamp": "2025-09-30T16:47:25.070Z"
+    },
+    {
+      "name": "Page Performance - Load time and metrics",
+      "status": "passed",
+      "details": "Page loaded in 2722ms (DOM ready: 0ms)",
+      "error": null,
+      "timestamp": "2025-09-30T16:47:27.796Z"
+    },
+    {
+      "name": "User Registration - Sign up functionality",
+      "status": "passed",
+      "details": "Signup form loaded with 3/5 key elements",
+      "error": null,
+      "timestamp": "2025-09-30T16:47:31.475Z"
+    },
+    {
+      "name": "Admin Features - Admin dashboard access",
+      "status": "skipped",
+      "details": "Admin features test skipped - not logged in as admin",
+      "error": null,
+      "timestamp": "2025-09-30T16:47:31.476Z"
+    },
+    {
+      "name": "Accessibility - Basic accessibility checks",
+      "status": "passed",
+      "details": "Accessibility checks passed: 4/6",
+      "error": null,
+      "timestamp": "2025-09-30T16:47:34.402Z"
+    },
+    {
+      "name": "Error Handling - 404 and error pages",
+      "status": "failed",
+      "details": "404 handling unclear - Status: 200, Content: {\"has404Text\":false,\"has404Title\":false,\"hasErrorElements\":false,\"isHomePage\":false}",
+      "error": null,
+      "timestamp": "2025-09-30T16:47:37.369Z"
+    }
+  ],
+  "environment": "PRODUCTION",
+  "timestamp": "2025-09-30T16:46:26.155Z"
+}

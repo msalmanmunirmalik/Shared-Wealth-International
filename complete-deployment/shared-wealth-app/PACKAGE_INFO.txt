@@ -1,0 +1,45 @@
+Shared Wealth International - Complete Deployment Package
+======================================================
+
+Package Version: 3.0.0 (Complete Frontend + Backend)
+Created: Thu Sep 25 03:47:12 CEST 2025
+Domain: sharedwealth.net
+
+Contents:
+- Complete frontend build (React + Vite) with MIME type fixes
+- Complete backend build (Node.js + Express)
+- Database schema
+- PM2 configuration
+- Deployment scripts
+- Environment templates
+- Web server configurations (.htaccess, nginx.conf, web.config)
+
+MIME Type Fixes Included:
+- .htaccess (Apache)
+- nginx.conf (Nginx)
+- web.config (IIS)
+
+Total Size: 8.1M
+
+Files:
+- package.json (Node.js dependencies)
+- pnpm-lock.yaml (Lock file)
+- server/ (Complete backend build)
+- public_html/ (Complete frontend build with MIME type fixes)
+- ecosystem.config.js (PM2 config)
+- .env.production (Environment template)
+- setup-server.sh (Server setup script)
+- setup-database.sql (Database schema)
+- DEPLOYMENT_GUIDE.md (Complete deployment guide)
+- .htaccess (Apache MIME type fixes)
+- nginx.conf (Nginx configuration)
+- web.config (IIS configuration)
+
+Next Steps:
+1. Upload to DirectAdmin
+2. Run setup-server.sh
+3. Configure .env file
+4. Setup database
+5. Start with PM2
+
+Support: Check DEPLOYMENT_GUIDE.md for detailed instructions

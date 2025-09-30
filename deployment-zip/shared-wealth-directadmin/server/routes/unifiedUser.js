@@ -1,0 +1,22 @@
+import { Router } from 'express';
+import { UnifiedUserController } from '../controllers/unifiedUserController.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { generalLimiter } from '../middleware/rateLimit.js';
+const router = Router();
+router.post('/register', generalLimiter, UnifiedUserController.register);
+router.post('/login', generalLimiter, UnifiedUserController.login);
+router.post('/logout', authenticateToken, generalLimiter, UnifiedUserController.logout);
+router.get('/profile', authenticateToken, generalLimiter, UnifiedUserController.getProfile);
+router.put('/profile', authenticateToken, generalLimiter, UnifiedUserController.updateProfile);
+router.post('/change-password', authenticateToken, generalLimiter, UnifiedUserController.changePassword);
+router.get('/:userId', authenticateToken, generalLimiter, UnifiedUserController.getUser);
+router.get('/', authenticateToken, generalLimiter, UnifiedUserController.getAllUsers);
+router.put('/:userId', authenticateToken, generalLimiter, UnifiedUserController.updateUser);
+router.delete('/:userId', authenticateToken, generalLimiter, UnifiedUserController.deleteUser);
+router.get('/:userId/stats', authenticateToken, generalLimiter, UnifiedUserController.getUserStats);
+router.get('/:userId/activity', authenticateToken, generalLimiter, UnifiedUserController.getUserActivity);
+router.get('/verify-email/:token', generalLimiter, UnifiedUserController.verifyEmail);
+router.post('/request-password-reset', generalLimiter, UnifiedUserController.requestPasswordReset);
+router.post('/reset-password/:token', generalLimiter, UnifiedUserController.resetPassword);
+export default router;
+//# sourceMappingURL=unifiedUser.js.map

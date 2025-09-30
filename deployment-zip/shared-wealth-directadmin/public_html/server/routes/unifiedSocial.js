@@ -1,0 +1,21 @@
+import { Router } from 'express';
+import { UnifiedSocialController } from '../controllers/unifiedSocialController.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { generalLimiter } from '../middleware/rateLimit.js';
+const router = Router();
+router.post('/reactions/:contentId', authenticateToken, generalLimiter, UnifiedSocialController.addReaction);
+router.delete('/reactions/:contentId', authenticateToken, generalLimiter, UnifiedSocialController.removeReaction);
+router.get('/reactions/:contentId', generalLimiter, UnifiedSocialController.getReactions);
+router.post('/follow/:targetUserId', authenticateToken, generalLimiter, UnifiedSocialController.followUser);
+router.delete('/follow/:targetUserId', authenticateToken, generalLimiter, UnifiedSocialController.unfollowUser);
+router.get('/connections/:userId', generalLimiter, UnifiedSocialController.getConnections);
+router.get('/connections/:userId/stats', generalLimiter, UnifiedSocialController.getConnectionStats);
+router.post('/share/:contentId', authenticateToken, generalLimiter, UnifiedSocialController.shareContent);
+router.get('/shares/:userId', generalLimiter, UnifiedSocialController.getSharedContent);
+router.post('/bookmark/:contentId', authenticateToken, generalLimiter, UnifiedSocialController.bookmarkContent);
+router.delete('/bookmark/:contentId', authenticateToken, generalLimiter, UnifiedSocialController.removeBookmark);
+router.get('/bookmarks/:userId', generalLimiter, UnifiedSocialController.getBookmarks);
+router.get('/analytics/:userId', generalLimiter, UnifiedSocialController.getSocialAnalytics);
+router.get('/feed', authenticateToken, generalLimiter, UnifiedSocialController.getSocialFeed);
+export default router;
+//# sourceMappingURL=unifiedSocial.js.map

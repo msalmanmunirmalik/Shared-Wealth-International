@@ -1,0 +1,111 @@
+{
+  "summary": {
+    "total": 14,
+    "passed": 8,
+    "failed": 6,
+    "skipped": 0,
+    "passRate": "57.14%"
+  },
+  "tests": [
+    {
+      "name": "Basic Page Load",
+      "status": "passed",
+      "details": "Home page loads successfully",
+      "error": null,
+      "timestamp": "2025-09-30T16:39:21.730Z"
+    },
+    {
+      "name": "Authentication - admin login",
+      "status": "passed",
+      "details": "Successfully logged in as admin - URL: http://localhost:8080/user-dashboard",
+      "error": null,
+      "timestamp": "2025-09-30T16:39:27.205Z"
+    },
+    {
+      "name": "Navigation - Menu and routing",
+      "status": "failed",
+      "details": "No navigation items found - may need authentication",
+      "error": null,
+      "timestamp": "2025-09-30T16:39:27.226Z"
+    },
+    {
+      "name": "Dashboard - Core functionality",
+      "status": "failed",
+      "details": "Dashboard not properly loaded - found 0 elements, content: false",
+      "error": null,
+      "timestamp": "2025-09-30T16:39:30.364Z"
+    },
+    {
+      "name": "Companies - List and management",
+      "status": "passed",
+      "details": "Companies page loaded with 3/5 key elements",
+      "error": null,
+      "timestamp": "2025-09-30T16:39:32.555Z"
+    },
+    {
+      "name": "API Endpoints - Backend connectivity",
+      "status": "passed",
+      "details": "2/4 API endpoints responding",
+      "error": null,
+      "timestamp": "2025-09-30T16:39:32.985Z"
+    },
+    {
+      "name": "Responsive Design - Mobile compatibility",
+      "status": "passed",
+      "details": "Mobile responsive design working",
+      "error": null,
+      "timestamp": "2025-09-30T16:39:34.101Z"
+    },
+    {
+      "name": "Auth Page - Sign in/Sign up functionality",
+      "status": "failed",
+      "details": "Auth page missing key elements (1/5)",
+      "error": null,
+      "timestamp": "2025-09-30T16:39:36.229Z"
+    },
+    {
+      "name": "Form Validation - Input validation testing",
+      "status": "failed",
+      "details": "Submit button not found for validation testing",
+      "error": null,
+      "timestamp": "2025-09-30T16:39:38.347Z"
+    },
+    {
+      "name": "Page Performance - Load time and metrics",
+      "status": "passed",
+      "details": "Page loaded in 2107ms (DOM ready: 0ms)",
+      "error": null,
+      "timestamp": "2025-09-30T16:39:40.460Z"
+    },
+    {
+      "name": "User Registration - Sign up functionality",
+      "status": "failed",
+      "details": "User registration test failed: SyntaxError: Failed to execute 'querySelector' on 'Document': '[value=\"signup\"], [role=\"tab\"]:has-text(\"Sign Up\"), [role=\"tab\"]:has-text(\"Sign up\")' is not a valid selector.",
+      "error": null,
+      "timestamp": "2025-09-30T16:39:42.587Z"
+    },
+    {
+      "name": "Admin Features - Admin dashboard access",
+      "status": "passed",
+      "details": "Admin dashboard accessible and loaded",
+      "error": null,
+      "timestamp": "2025-09-30T16:39:44.705Z"
+    },
+    {
+      "name": "Accessibility - Basic accessibility checks",
+      "status": "passed",
+      "details": "Accessibility checks passed: 4/6",
+      "error": null,
+      "timestamp": "2025-09-30T16:39:46.835Z"
+    },
+    {
+      "name": "Error Handling - 404 and error pages",
+      "status": "failed",
+      "details": "404 handling unclear - Status: 200, Content: {\"has404Text\":false,\"has404Title\":false,\"hasErrorElements\":false,\"isHomePage\":false}",
+      "error": null,
+      "timestamp": "2025-09-30T16:39:48.958Z"
+    }
+  ],
+  "environment": "LOCAL",
+  "timestamp": "2025-09-30T16:39:19.017Z"
+}

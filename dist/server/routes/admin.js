@@ -1,0 +1,22 @@
+import { Router } from 'express';
+import { AdminController } from '../controllers/adminController.js';
+import { authenticateToken, requireAdmin, requireSuperAdmin } from '../middleware/auth.js';
+import { userValidation, paginationValidation } from '../middleware/validation.js';
+import { adminLimiter } from '../middleware/rateLimit.js';
+const router = Router();
+router.use(authenticateToken);
+router.use(requireAdmin);
+router.get('/stats', adminLimiter, AdminController.getAdminStats);
+router.get('/users', adminLimiter, paginationValidation, AdminController.getUsers);
+router.get('/users/:id', adminLimiter, userValidation.getById, AdminController.getUserById);
+router.put('/users/:id/role', adminLimiter, userValidation.getById, AdminController.updateUserRole);
+router.put('/users/:id', requireSuperAdmin, adminLimiter, userValidation.getById, AdminController.updateUser);
+router.delete('/users/:id', requireSuperAdmin, adminLimiter, userValidation.getById, AdminController.deleteUser);
+router.post('/companies/:id/approve', adminLimiter, AdminController.approveCompany);
+router.post('/companies/:id/reject', adminLimiter, AdminController.rejectCompany);
+router.get('/analytics', adminLimiter, AdminController.getAnalytics);
+router.get('/funding-analytics', adminLimiter, AdminController.getFundingAnalytics);
+router.get('/health', adminLimiter, AdminController.getSystemHealth);
+router.get('/audit-log', adminLimiter, paginationValidation, AdminController.getAuditLog);
+export default router;
+//# sourceMappingURL=admin.js.map

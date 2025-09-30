@@ -1,0 +1,90 @@
+{
+  "summary": {
+    "total": 11,
+    "passed": 5,
+    "failed": 6,
+    "skipped": 0,
+    "passRate": "45.45%"
+  },
+  "tests": [
+    {
+      "name": "Basic Page Load",
+      "status": "passed",
+      "details": "Home page loads successfully",
+      "error": null,
+      "timestamp": "2025-09-30T16:33:46.948Z"
+    },
+    {
+      "name": "Authentication - admin login",
+      "status": "failed",
+      "details": "Login failed: Unknown error",
+      "error": null,
+      "timestamp": "2025-09-30T16:33:50.454Z"
+    },
+    {
+      "name": "Navigation - Menu and routing",
+      "status": "failed",
+      "details": "No navigation items found or working",
+      "error": null,
+      "timestamp": "2025-09-30T16:33:50.458Z"
+    },
+    {
+      "name": "Dashboard - Core functionality",
+      "status": "failed",
+      "details": "Dashboard not properly loaded or missing key elements",
+      "error": null,
+      "timestamp": "2025-09-30T16:33:52.582Z"
+    },
+    {
+      "name": "Companies - List and management",
+      "status": "passed",
+      "details": "Companies page loaded with 3/5 key elements",
+      "error": null,
+      "timestamp": "2025-09-30T16:33:54.737Z"
+    },
+    {
+      "name": "API Endpoints - Backend connectivity",
+      "status": "passed",
+      "details": "2/4 API endpoints responding",
+      "error": null,
+      "timestamp": "2025-09-30T16:33:58.492Z"
+    },
+    {
+      "name": "Responsive Design - Mobile compatibility",
+      "status": "passed",
+      "details": "Mobile responsive design working",
+      "error": null,
+      "timestamp": "2025-09-30T16:34:02.197Z"
+    },
+    {
+      "name": "Auth Page - Sign in/Sign up functionality",
+      "status": "failed",
+      "details": "Auth page missing key elements (1/5)",
+      "error": null,
+      "timestamp": "2025-09-30T16:34:04.558Z"
+    },
+    {
+      "name": "Form Validation - Input validation testing",
+      "status": "failed",
+      "details": "Submit button not found for validation testing",
+      "error": null,
+      "timestamp": "2025-09-30T16:34:06.936Z"
+    },
+    {
+      "name": "Page Performance - Load time and metrics",
+      "status": "passed",
+      "details": "Page loaded in 2205ms (DOM ready: 0.10000002384185791ms)",
+      "error": null,
+      "timestamp": "2025-09-30T16:34:09.158Z"
+    },
+    {
+      "name": "Error Handling - 404 and error pages",
+      "status": "failed",
+      "details": "404 error handling not working",
+      "error": null,
+      "timestamp": "2025-09-30T16:34:09.426Z"
+    }
+  ],
+  "environment": "LOCAL",
+  "timestamp": "2025-09-30T16:33:44.887Z"
+}
