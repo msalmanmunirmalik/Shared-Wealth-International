@@ -8,15 +8,15 @@ export class CompanyService {
                 const { page, limit } = pagination;
                 const offset = (page - 1) * limit;
                 companies = await DatabaseService.findAll('companies', {
-                    where: { status: 'approved' },
+                    where: { is_active: true },
                     limit,
                     offset
                 });
-                total = await DatabaseService.count('companies', { where: { status: 'approved' } });
+                total = await DatabaseService.count('companies', { where: { is_active: true } });
             }
             else {
                 companies = await DatabaseService.findAll('companies', {
-                    where: { status: 'approved' }
+                    where: { is_active: true }
                 });
             }
             if (pagination) {
@@ -78,7 +78,8 @@ export class CompanyService {
                 sector: companyData.industry,
                 location: companyData.location,
                 website: companyData.website,
-                status: 'pending',
+                is_active: true,
+                is_verified: false,
                 applicant_user_id: userId
             });
             return {
@@ -102,7 +103,7 @@ export class CompanyService {
                 mappedData.sector = mappedData.industry;
                 delete mappedData.industry;
             }
-            const allowedColumns = ['name', 'description', 'sector', 'location', 'website', 'logo_url', 'status'];
+            const allowedColumns = ['name', 'description', 'sector', 'location', 'website', 'logo_url', 'is_active', 'is_verified'];
             const filteredData = {};
             Object.keys(mappedData).forEach(key => {
                 if (allowedColumns.includes(key)) {
@@ -189,10 +190,10 @@ export class CompanyService {
             };
         }
     }
-    static async getCompaniesByStatus(status) {
+    static async getCompaniesByStatus(isActive) {
         try {
             const companies = await DatabaseService.findAll('companies', {
-                where: { status }
+                where: { is_active: isActive }
             });
             return {
                 success: true,
@@ -214,13 +215,13 @@ export class CompanyService {
                 companies = await DatabaseService.findAll('companies', {
                     where: {
                         industry: category,
-                        status: 'approved'
+                        is_active: true
                     }
                 });
             }
             else {
                 companies = await DatabaseService.findAll('companies', {
-                    where: { status: 'approved' }
+                    where: { is_active: true }
                 });
             }
             const filteredCompanies = companies.filter(company => company.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -242,16 +243,18 @@ export class CompanyService {
     static async getCompanyStats() {
         try {
             const total = await DatabaseService.count('companies');
-            const pending = await DatabaseService.count('companies', { where: { status: 'pending' } });
-            const approved = await DatabaseService.count('companies', { where: { status: 'approved' } });
-            const rejected = await DatabaseService.count('companies', { where: { status: 'rejected' } });
+            const active = await DatabaseService.count('companies', { where: { is_active: true } });
+            const inactive = await DatabaseService.count('companies', { where: { is_active: false } });
+            const verified = await DatabaseService.count('companies', { where: { is_verified: true } });
+            const unverified = await DatabaseService.count('companies', { where: { is_verified: false } });
             return {
                 success: true,
                 data: {
                     total,
-                    pending,
-                    approved,
-                    rejected
+                    active,
+                    inactive,
+                    verified,
+                    unverified
                 }
             };
         }

@@ -245,12 +245,12 @@ app.get('/api/users/me', authenticateToken, (req, res) => {
 });
 app.get('/api/companies', generalLimiter, async (req, res) => {
     try {
-        const companies = await DatabaseService.findAll('companies');
-        res.json(companies);
+        const companies = await DatabaseService.findAll('companies', { where: { is_active: true } });
+        res.json({ success: true, data: companies });
     }
     catch (error) {
         console.error('Get companies error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ success: false, message: 'Internal server error' });
     }
 });
 app.get('/api/companies/:id', generalLimiter, async (req, res) => {
@@ -272,12 +272,12 @@ app.get('/api/companies/:id', generalLimiter, async (req, res) => {
 });
 app.get('/api/network', generalLimiter, async (req, res) => {
     try {
-        const companies = await DatabaseService.findAll('companies', { where: { status: 'approved' } });
-        res.json(companies);
+        const companies = await DatabaseService.findAll('companies', { where: { is_active: true } });
+        res.json({ success: true, data: companies });
     }
     catch (error) {
         console.error('Get network error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ success: false, message: 'Internal server error' });
     }
 });
 app.get('/api/funding', generalLimiter, async (req, res) => {

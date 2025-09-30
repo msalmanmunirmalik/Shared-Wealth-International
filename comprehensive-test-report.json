@@ -1,210 +1,144 @@
 {
-  "reportMetadata": {
-    "generatedAt": "2025-09-30T16:24:00.000Z",
-    "testFramework": "Puppeteer",
-    "environmentsTested": ["local", "production"],
-    "totalTests": 16,
-    "overallStatus": "PARTIAL_SUCCESS"
-  },
+  "timestamp": "2025-09-30T22:48:48.721Z",
   "summary": {
-    "totalTests": 16,
-    "passed": 6,
-    "failed": 10,
-    "skipped": 0,
-    "successRate": "37.5%"
+    "total": 19,
+    "passed": 9,
+    "failed": 2,
+    "skipped": 8
   },
-  "environments": {
-    "local": {
-      "baseUrl": "http://localhost:8080",
-      "status": "RUNNING",
-      "testsPassed": 3,
-      "testsFailed": 5,
-      "successRate": "37.5%",
-      "reportFile": "e2e-test-report-local-1759249413750.json"
-    },
-    "production": {
-      "baseUrl": "https://sharedwealth.net",
-      "status": "RUNNING",
-      "testsPassed": 3,
-      "testsFailed": 5,
-      "successRate": "37.5%",
-      "reportFile": "e2e-test-report-production-1759249457852.json"
-    }
-  },
-  "testResults": {
-    "passing": [
-      {
-        "category": "Basic Page Load",
-        "local": "PASSED",
-        "production": "PASSED",
-        "description": "Home page loads successfully in both environments"
-      },
-      {
-        "category": "API Endpoints",
-        "local": "PASSED (3/4 endpoints)",
-        "production": "PASSED (2/4 endpoints)",
-        "description": "Backend connectivity working with some endpoint variations"
-      },
-      {
-        "category": "Responsive Design",
-        "local": "PASSED",
-        "production": "PASSED",
-        "description": "Mobile compatibility working correctly"
-      }
-    ],
-    "failing": [
-      {
-        "category": "Authentication",
-        "local": "FAILED",
-        "production": "FAILED",
-        "issue": "Login form not found on home page",
-        "priority": "HIGH"
-      },
-      {
-        "category": "Navigation",
-        "local": "FAILED",
-        "production": "FAILED",
-        "issue": "Invalid CSS selector syntax (:has-text())",
-        "priority": "CRITICAL"
-      },
-      {
-        "category": "Dashboard",
-        "local": "FAILED",
-        "production": "FAILED",
-        "issue": "Invalid CSS selector syntax (:has-text())",
-        "priority": "CRITICAL"
-      },
-      {
-        "category": "Companies Page",
-        "local": "FAILED",
-        "production": "FAILED",
-        "issue": "Companies page not properly loaded",
-        "priority": "MEDIUM"
-      },
-      {
-        "category": "Error Handling",
-        "local": "FAILED",
-        "production": "FAILED",
-        "issue": "Invalid CSS selector syntax (:has-text())",
-        "priority": "CRITICAL"
-      }
-    ]
-  },
-  "rootCauses": [
+  "tests": [
     {
-      "issue": "CSS Selector Syntax",
-      "severity": "CRITICAL",
-      "description": "Using :has-text() pseudo-selector which is not valid in standard CSS",
-      "affectedTests": 5,
-      "solution": "Replace with valid CSS selectors or use XPath"
+      "name": "Application Load",
+      "status": "PASSED",
+      "details": "Application loaded successfully",
+      "error": null,
+      "timestamp": "2025-09-30T22:48:55.527Z"
     },
     {
-      "issue": "Authentication Flow",
-      "severity": "HIGH",
-      "description": "Login form not found on home page",
-      "affectedTests": 1,
-      "solution": "Update test to navigate to correct login URL"
+      "name": "Authentication Forms",
+      "status": "FAILED",
+      "details": "Authentication testing failed",
+      "error": "page.waitForTimeout is not a function",
+      "timestamp": "2025-09-30T22:48:58.073Z"
     },
     {
-      "issue": "API Endpoint Variations",
-      "severity": "MEDIUM",
-      "description": "Different API response rates between environments",
-      "affectedTests": 1,
-      "solution": "Verify production API endpoint configurations"
-    }
-  ],
-  "recommendations": {
-    "immediate": [
-      {
-        "action": "Fix CSS Selectors",
-        "priority": "HIGH",
-        "description": "Replace all :has-text() pseudo-selectors with valid CSS selectors"
-      },
-      {
-        "action": "Update Authentication Tests",
-        "priority": "HIGH",
-        "description": "Identify correct login page URL and update test navigation"
-      },
-      {
-        "action": "API Endpoint Investigation",
-        "priority": "HIGH",
-        "description": "Verify production API endpoint configurations"
-      }
-    ],
-    "mediumTerm": [
-      {
-        "action": "Navigation Testing",
-        "priority": "MEDIUM",
-        "description": "Update navigation tests to use valid selectors"
-      },
-      {
-        "action": "Dashboard Functionality",
-        "priority": "MEDIUM",
-        "description": "Fix dashboard test selectors and verify functionality"
-      },
-      {
-        "action": "Error Handling",
-        "priority": "MEDIUM",
-        "description": "Fix 404 page test selectors and test error scenarios"
-      }
-    ],
-    "longTerm": [
-      {
-        "action": "Test Framework Enhancement",
-        "priority": "LOW",
-        "description": "Add robust element selection methods and visual regression testing"
-      },
-      {
-        "action": "API Testing",
-        "priority": "LOW",
-        "description": "Add comprehensive API endpoint testing"
-      }
-    ]
-  },
-  "technicalDetails": {
-    "browser": "Chrome (via Puppeteer)",
-    "viewport": {
-      "desktop": "1280x720",
-      "mobile": "375x667"
+      "name": "User Profile Navigation",
+      "status": "SKIPPED",
+      "details": "Profile/settings navigation not found",
+      "error": null,
+      "timestamp": "2025-09-30T22:48:58.082Z"
     },
-    "timeout": "30 seconds per test",
-    "headlessMode": true,
-    "environmentDifferences": {
-      "ssl": {
-        "local": false,
-        "production": true
-      },
-      "apiResponse": {
-        "local": "3/4 endpoints",
-        "production": "2/4 endpoints"
-      }
+    {
+      "name": "Company Navigation",
+      "status": "SKIPPED",
+      "details": "Company navigation not found",
+      "error": null,
+      "timestamp": "2025-09-30T22:48:58.085Z"
+    },
+    {
+      "name": "File Upload Element",
+      "status": "SKIPPED",
+      "details": "No file upload elements found",
+      "error": null,
+      "timestamp": "2025-09-30T22:49:08.100Z"
+    },
+    {
+      "name": "Create Operations",
+      "status": "PASSED",
+      "details": "Create operations tested via forms",
+      "error": null,
+      "timestamp": "2025-09-30T22:49:08.102Z"
+    },
+    {
+      "name": "Read Operations",
+      "status": "PASSED",
+      "details": "Found 0 data elements",
+      "error": null,
+      "timestamp": "2025-09-30T22:49:08.111Z"
+    },
+    {
+      "name": "CRUD Operations",
+      "status": "FAILED",
+      "details": "CRUD operations testing failed",
+      "error": "SyntaxError: Failed to execute 'querySelectorAll' on 'Document': 'button:has-text(\"Edit\"), button:has-text(\"Update\"), button[aria-label*=\"edit\"]' is not a valid selector.",
+      "timestamp": "2025-09-30T22:49:08.113Z"
+    },
+    {
+      "name": "Database Integration",
+      "status": "PASSED",
+      "details": "Found 0 data elements loaded from database",
+      "error": null,
+      "timestamp": "2025-09-30T22:49:12.141Z"
+    },
+    {
+      "name": "Database Errors",
+      "status": "PASSED",
+      "details": "No database error messages found",
+      "error": null,
+      "timestamp": "2025-09-30T22:49:12.143Z"
+    },
+    {
+      "name": "Navigation Links",
+      "status": "PASSED",
+      "details": "Found 0 navigation links",
+      "error": null,
+      "timestamp": "2025-09-30T22:49:12.150Z"
+    },
+    {
+      "name": "Forms Found",
+      "status": "PASSED",
+      "details": "Found 0 forms on the page",
+      "error": null,
+      "timestamp": "2025-09-30T22:49:12.152Z"
+    },
+    {
+      "name": "Interactive Elements",
+      "status": "PASSED",
+      "details": "Found 20 buttons on the page",
+      "error": null,
+      "timestamp": "2025-09-30T22:49:12.166Z"
+    },
+    {
+      "name": "Search Feature",
+      "status": "SKIPPED",
+      "details": "Search feature not found",
+      "error": null,
+      "timestamp": "2025-09-30T22:49:12.167Z"
+    },
+    {
+      "name": "Filter Feature",
+      "status": "SKIPPED",
+      "details": "Filter feature not found",
+      "error": null,
+      "timestamp": "2025-09-30T22:49:12.167Z"
+    },
+    {
+      "name": "Pagination Feature",
+      "status": "SKIPPED",
+      "details": "Pagination feature not found",
+      "error": null,
+      "timestamp": "2025-09-30T22:49:12.167Z"
+    },
+    {
+      "name": "Modal Feature",
+      "status": "SKIPPED",
+      "details": "Modal feature not found",
+      "error": null,
+      "timestamp": "2025-09-30T22:49:12.167Z"
+    },
+    {
+      "name": "Toast/Notifications Feature",
+      "status": "SKIPPED",
+      "details": "Toast/Notifications feature not found",
+      "error": null,
+      "timestamp": "2025-09-30T22:49:12.167Z"
+    },
+    {
+      "name": "Feature Exploration",
+      "status": "PASSED",
+      "details": "Found 0/5 features",
+      "error": null,
+      "timestamp": "2025-09-30T22:49:12.167Z"
     }
-  },
-  "files": {
-    "reports": [
-      "e2e-test-report-local-1759249413750.json",
-      "e2e-test-report-production-1759249457852.json"
-    ],
-    "screenshots": [
-      "test-screenshot.png"
-    ],
-    "scripts": [
-      "e2e-test.js",
-      "run-e2e-tests.js",
-      "simple-test.js"
-    ]
-  },
-  "nextSteps": [
-    "Fix CSS selector issues in e2e-test.js",
-    "Update authentication test flow to use correct login page",
-    "Re-run tests to verify fixes",
-    "Implement additional test cases for comprehensive coverage",
-    "Set up CI/CD integration for automated testing"
-  ],
-  "conclusion": {
-    "status": "PARTIAL_SUCCESS",
-    "message": "The E2E testing framework is successfully installed and running. The main issues are related to CSS selector syntax and authentication flow navigation. Once these are fixed, the test suite will provide valuable insights into the application's functionality across both local and production environments.",
-    "applicationStatus": "FUNCTIONAL",
-    "testSuiteStatus": "NEEDS_REFINEMENT"
-  }
+  ]
 }

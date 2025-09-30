@@ -9,13 +9,14 @@ export declare class CompanyService {
     static deleteCompany(id: string): Promise<ApiResponse<{
         message: string;
     }>>;
-    static getCompaniesByStatus(status: 'pending' | 'approved' | 'rejected'): Promise<ApiResponse<Company[]>>;
+    static getCompaniesByStatus(isActive: boolean): Promise<ApiResponse<Company[]>>;
     static searchCompanies(query: string, category?: string): Promise<ApiResponse<Company[]>>;
     static getCompanyStats(): Promise<ApiResponse<{
         total: number;
-        pending: number;
-        approved: number;
-        rejected: number;
+        active: number;
+        inactive: number;
+        verified: number;
+        unverified: number;
     }>>;
 }
 //# sourceMappingURL=companyService.d.ts.map

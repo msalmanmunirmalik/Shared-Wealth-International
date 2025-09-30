@@ -240,7 +240,8 @@ export class CompanyController {
                 });
                 return;
             }
-            const result = await CompanyService.getCompaniesByStatus(status);
+            const isActive = status === 'approved' || status === 'active';
+            const result = await CompanyService.getCompaniesByStatus(isActive);
             if (result.success) {
                 res.json(result.data);
             }

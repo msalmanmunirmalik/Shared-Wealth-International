@@ -283,7 +283,9 @@ export class CompanyController {
         return;
       }
 
-      const result = await CompanyService.getCompaniesByStatus(status as 'pending' | 'approved' | 'rejected');
+      // Convert status to boolean for is_active
+      const isActive = status === 'approved' || status === 'active';
+      const result = await CompanyService.getCompaniesByStatus(isActive);
       
       if (result.success) {
         res.json(result.data);

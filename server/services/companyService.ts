@@ -14,19 +14,19 @@ export class CompanyService {
         const { page, limit } = pagination;
         const offset = (page - 1) * limit;
         
-        // Only return approved companies for public directory
+        // Only return active companies for public directory
         companies = await DatabaseService.findAll('companies', { 
-          where: { status: 'approved' },
+          where: { is_active: true },
           limit, 
           offset 
         });
         
-        // Count only approved companies
-        total = await DatabaseService.count('companies', { where: { status: 'approved' } });
+        // Count only active companies
+        total = await DatabaseService.count('companies', { where: { is_active: true } });
       } else {
-        // Only return approved companies for public directory
+        // Only return active companies for public directory
         companies = await DatabaseService.findAll('companies', { 
-          where: { status: 'approved' } 
+          where: { is_active: true } 
         });
       }
 
@@ -99,7 +99,8 @@ export class CompanyService {
         sector: companyData.industry, // Map industry to sector
         location: companyData.location,
         website: companyData.website,
-        status: 'pending',
+        is_active: true,
+        is_verified: false,
         applicant_user_id: userId // Link company to the user who created it
       });
 
@@ -132,7 +133,7 @@ export class CompanyService {
       }
       
       // Filter out columns that don't exist in the current database schema
-      const allowedColumns = ['name', 'description', 'sector', 'location', 'website', 'logo_url', 'status'];
+      const allowedColumns = ['name', 'description', 'sector', 'location', 'website', 'logo_url', 'is_active', 'is_verified'];
       const filteredData: any = {};
       Object.keys(mappedData).forEach(key => {
         if (allowedColumns.includes(key)) {
@@ -237,12 +238,12 @@ export class CompanyService {
   }
 
   /**
-   * Get companies by status
+   * Get companies by active status
    */
-  static async getCompaniesByStatus(status: 'pending' | 'approved' | 'rejected'): Promise<ApiResponse<Company[]>> {
+  static async getCompaniesByStatus(isActive: boolean): Promise<ApiResponse<Company[]>> {
     try {
       const companies = await DatabaseService.findAll('companies', { 
-        where: { status } 
+        where: { is_active: isActive } 
       });
 
       return {
@@ -266,17 +267,17 @@ export class CompanyService {
       let companies: Company[];
       
       if (category) {
-        // Only search approved companies with specific category
+        // Only search active companies with specific category
         companies = await DatabaseService.findAll('companies', { 
           where: { 
             industry: category,
-            status: 'approved'
+            is_active: true
           } 
         });
       } else {
-        // Only search approved companies
+        // Only search active companies
         companies = await DatabaseService.findAll('companies', { 
-          where: { status: 'approved' } 
+          where: { is_active: true } 
         });
       }
 
@@ -306,23 +307,26 @@ export class CompanyService {
    */
   static async getCompanyStats(): Promise<ApiResponse<{
     total: number;
-    pending: number;
-    approved: number;
-    rejected: number;
+    active: number;
+    inactive: number;
+    verified: number;
+    unverified: number;
   }>> {
     try {
       const total = await DatabaseService.count('companies');
-      const pending = await DatabaseService.count('companies', { where: { status: 'pending' } });
-      const approved = await DatabaseService.count('companies', { where: { status: 'approved' } });
-      const rejected = await DatabaseService.count('companies', { where: { status: 'rejected' } });
+      const active = await DatabaseService.count('companies', { where: { is_active: true } });
+      const inactive = await DatabaseService.count('companies', { where: { is_active: false } });
+      const verified = await DatabaseService.count('companies', { where: { is_verified: true } });
+      const unverified = await DatabaseService.count('companies', { where: { is_verified: false } });
 
       return {
         success: true,
         data: {
           total,
-          pending,
-          approved,
-          rejected
+          active,
+          inactive,
+          verified,
+          unverified
         }
       };
     } catch (error) {
