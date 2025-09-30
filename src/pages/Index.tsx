@@ -142,6 +142,41 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Quick Access Section */}
+      <section className="py-12 bg-white border-b border-gray-100">
+        <div className="container mx-auto px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-8 border border-blue-100">
+              <h2 className="text-2xl font-bold mb-4 text-navy">Ready to Get Started?</h2>
+              <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
+                Join the shared wealth community and start transforming your business today.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button asChild size="lg" className="text-lg px-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold">
+                  <Link to="/auth">
+                    Sign In
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="text-lg px-8 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold">
+                  <Link to="/auth">
+                    Create Account
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="mt-4 text-sm text-gray-600">
+                <span>New to shared wealth? </span>
+                <Link to="/model" className="text-blue-600 hover:text-blue-700 underline font-medium">
+                  Learn about our model first
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Public Features */}
       <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="container mx-auto px-6">

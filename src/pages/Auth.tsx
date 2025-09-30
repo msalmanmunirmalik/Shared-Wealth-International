@@ -198,9 +198,9 @@ const Auth: React.FC = () => {
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-3 mb-6">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                <TabsTrigger value="reset">Reset</TabsTrigger>
+                <TabsTrigger value="signin" id="signin-tab">Sign In</TabsTrigger>
+                <TabsTrigger value="signup" id="signup-tab">Sign Up</TabsTrigger>
+                <TabsTrigger value="reset" id="reset-tab">Reset</TabsTrigger>
               </TabsList>
 
               <TabsContent value="signin" className="space-y-4">
