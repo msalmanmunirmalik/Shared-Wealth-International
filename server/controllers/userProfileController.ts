@@ -132,10 +132,10 @@ export class UserProfileController {
           c.sector,
           c.website,
           c.location,
-          c.status as approved,
+          c.is_active as approved,
           c.created_at,
-          uc.role,
-          uc.position
+          uc.is_primary,
+          uc.created_at as position
         FROM user_companies uc
         JOIN companies c ON uc.company_id = c.id
         WHERE uc.user_id = $1 AND uc.status = 'active'
