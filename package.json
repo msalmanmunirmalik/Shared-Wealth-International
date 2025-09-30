@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Shared Wealth International Platform",
   "scripts": {
-    "build": "cd wealth-pioneers-network && pnpm install && vite build && tsc -p tsconfig.server.json",
-    "build:prod": "cd wealth-pioneers-network && pnpm install && vite build && tsc -p tsconfig.server.json",
-    "server:build": "cd wealth-pioneers-network && tsc -p tsconfig.server.json",
+    "build": "cd wealth-pioneers-network && pnpm install && pnpm exec vite build && pnpm exec tsc -p tsconfig.server.json",
+    "build:prod": "cd wealth-pioneers-network && pnpm install && pnpm exec vite build && pnpm exec tsc -p tsconfig.server.json",
+    "server:build": "cd wealth-pioneers-network && pnpm exec tsc -p tsconfig.server.json",
     "server:start": "cd wealth-pioneers-network && node dist/server/server.js",
     "start": "cd wealth-pioneers-network && node dist/server/server.js"
   },
