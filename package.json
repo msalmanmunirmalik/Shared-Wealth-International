@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "Shared Wealth International Platform",
   "scripts": {
-    "build": "cd wealth-pioneers-network && pnpm install && pnpm exec vite build && pnpm exec tsc -p tsconfig.server.json",
-    "build:prod": "cd wealth-pioneers-network && pnpm install && pnpm exec vite build && pnpm exec tsc -p tsconfig.server.json",
-    "render:build": "cd wealth-pioneers-network && pnpm install && pnpm run build && pnpm run server:build",
-    "server:build": "cd wealth-pioneers-network && pnpm run server:build",
-    "server:start": "cd wealth-pioneers-network && pnpm run server:start",
-    "start": "cd wealth-pioneers-network && pnpm run server:start"
+    "build": "cd wealth-pioneers-network && npm install && npx vite build && npx tsc -p tsconfig.server.json",
+    "build:prod": "cd wealth-pioneers-network && npm install && npx vite build && npx tsc -p tsconfig.server.json",
+    "render:build": "cd wealth-pioneers-network && npm install && npm run build && npm run server:build",
+    "server:build": "cd wealth-pioneers-network && npm run server:build",
+    "server:start": "cd wealth-pioneers-network && npm run server:start",
+    "start": "cd wealth-pioneers-network && npm run server:start"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,7 @@
   "author": "Salman Malik",
   "license": "MIT",
   "devDependencies": {
-    "puppeteer": "^24.22.3"
+    "puppeteer": "^24.22.3",
+    "pnpm": "^9.0.0"
   }
 }
