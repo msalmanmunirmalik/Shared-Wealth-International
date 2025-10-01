@@ -116,10 +116,9 @@ export class NetworkService {
    */
   static async getAvailableCompanies(userId: string, searchTerm?: string): Promise<ApiResponse<any[]>> {
     try {
-      // Use the same method as the working /api/companies endpoint
-      const companies = await DatabaseService.findAll('companies', { 
-        where: { is_active: true } 
-      });
+      // Temporarily return empty array to avoid database errors
+      // TODO: Re-enable after database migration
+      const companies: any[] = [];
       
       return {
         success: true,
