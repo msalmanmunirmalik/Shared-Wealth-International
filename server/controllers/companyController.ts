@@ -138,11 +138,15 @@ export class CompanyController {
         return;
       }
 
+      console.log('🔍 getUserCompanies - User ID:', userId);
+
       // Get companies the user is associated with through user_companies
       const result = await CompanyService.getUserCompanies(userId);
       
+      console.log('🔍 getUserCompanies - Service result:', result);
+      
       if (result.success) {
-        res.json(result.data);
+        res.json(result);
       } else {
         res.status(500).json({
           success: false,
