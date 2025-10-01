@@ -21,7 +21,7 @@ export class CompanyController {
       const result = await CompanyService.getCompanies(pagination);
       
       if (result.success) {
-        res.json(result.data);
+        res.json(result);
       } else {
         res.status(500).json({
           success: false,

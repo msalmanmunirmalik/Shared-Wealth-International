@@ -14,14 +14,19 @@ export class CompanyService {
         const { page, limit } = pagination;
         const offset = (page - 1) * limit;
         
-        // Temporarily return empty array to avoid database errors
-        // TODO: Re-enable after database migration
-        companies = [];
-        total = 0;
+        companies = await DatabaseService.findAll('companies', { 
+          where: { status: 'approved' },
+          orderBy: { created_at: 'DESC' },
+          limit,
+          offset
+        });
+        total = await DatabaseService.count('companies', { where: { status: 'approved' } });
       } else {
-        // Temporarily return empty array to avoid database errors
-        // TODO: Re-enable after database migration
-        companies = [];
+        companies = await DatabaseService.findAll('companies', { 
+          where: { status: 'approved' },
+          orderBy: { created_at: 'DESC' }
+        });
+        total = companies.length;
       }
 
       if (pagination) {
