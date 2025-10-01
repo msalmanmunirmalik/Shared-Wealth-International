@@ -187,7 +187,7 @@ const Auth: React.FC = () => {
         phone,
         bio,
         position,
-        company: companySelectionType === 'new' ? company : '', // Only use if new company
+        companyName: companySelectionType === 'new' ? company : '', // Only use if new company
         selectedCompanyId: companySelectionType === 'existing' ? selectedCompanyId : null,
         location,
         website,

@@ -63,7 +63,8 @@ export class AuthController {
         phone: userData.phone,
         role: userData.role || 'user',
         selectedCompanyId: userData.selectedCompanyId,
-        position: userData.position
+        position: userData.position,
+        companyName: userData.companyName
       };
 
       const result = await AuthService.signUp(enhancedUserData);

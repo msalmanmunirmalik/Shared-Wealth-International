@@ -82,7 +82,7 @@ export class AuthService {
    */
   static async signUp(userData: any): Promise<ApiResponse<{ userId: string; token?: string }>> {
     try {
-      const { email, password, firstName, lastName, phone, role, selectedCompanyId, position } = userData;
+      const { email, password, firstName, lastName, phone, role, selectedCompanyId, position, companyName } = userData;
 
       // Check if user already exists
       const existingUser = await DatabaseService.findOne('users', { where: { email } });
@@ -107,10 +107,35 @@ export class AuthService {
         role: role || 'user'
       });
 
-      // If user selected an existing company, create user-company relationship
-      if (selectedCompanyId) {
+      // Handle company creation or selection
+      if (companyName) {
         try {
-          // Create user-company relationship (skip validation for now to avoid errors)
+          // Create new company
+          const newCompany = await DatabaseService.insert('companies', {
+            name: companyName,
+            description: `Company created by ${firstName} ${lastName}`,
+            status: 'approved',
+            applicant_user_id: newUser.id,
+            applicant_role: position || 'owner',
+            applicant_position: position || 'Owner'
+          });
+
+          // Create user-company relationship
+          await DatabaseService.insert('user_companies', {
+            user_id: newUser.id,
+            company_id: newCompany.id,
+            role: position || 'owner',
+            position: position || 'Owner',
+            status: 'active'
+          });
+          console.log('✅ New company created and user-company relationship established');
+        } catch (error) {
+          console.error('Error creating company and user-company relationship:', error);
+          // Don't fail the signup if company creation fails
+        }
+      } else if (selectedCompanyId) {
+        try {
+          // Create user-company relationship for existing company
           await DatabaseService.insert('user_companies', {
             user_id: newUser.id,
             company_id: selectedCompanyId,
