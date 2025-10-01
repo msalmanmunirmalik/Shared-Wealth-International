@@ -16,15 +16,13 @@ export class CompanyService {
         
         companies = await DatabaseService.findAll('companies', { 
           where: { status: 'approved' },
-          orderBy: { created_at: 'DESC' },
           limit,
           offset
         });
         total = await DatabaseService.count('companies', { where: { status: 'approved' } });
       } else {
         companies = await DatabaseService.findAll('companies', { 
-          where: { status: 'approved' },
-          orderBy: { created_at: 'DESC' }
+          where: { status: 'approved' }
         });
         total = companies.length;
       }
@@ -171,7 +169,7 @@ export class CompanyService {
         ORDER BY c.created_at DESC
       `;
       
-      const result = await pool.query(query, [userId]);
+      const result = await DatabaseService.query(query, [userId]);
       return {
         success: true,
         data: result.rows
@@ -265,8 +263,7 @@ export class CompanyService {
   static async getCompaniesByStatus(isActive: boolean): Promise<ApiResponse<Company[]>> {
     try {
       const companies = await DatabaseService.findAll('companies', { 
-        where: { status: 'approved' },
-        orderBy: { created_at: 'DESC' }
+        where: { status: 'approved' }
       });
       return {
         success: true,
@@ -290,13 +287,11 @@ export class CompanyService {
       
       if (category) {
         companies = await DatabaseService.findAll('companies', { 
-          where: { status: 'approved', industry: category },
-          orderBy: { created_at: 'DESC' }
+          where: { status: 'approved', industry: category }
         });
       } else {
         companies = await DatabaseService.findAll('companies', { 
-          where: { status: 'approved' },
-          orderBy: { created_at: 'DESC' }
+          where: { status: 'approved' }
         });
       }
 

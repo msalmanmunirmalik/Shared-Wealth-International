@@ -15,7 +15,7 @@ export class NetworkService {
         ORDER BY c.created_at DESC
       `;
       
-      const result = await pool.query(query, [userId]);
+      const result = await DatabaseService.query(query, [userId]);
       return {
         success: true,
         data: result.rows
@@ -139,7 +139,7 @@ export class NetworkService {
       `;
       
       const params = searchTerm ? [userId, `%${searchTerm}%`] : [userId];
-      const result = await pool.query(query, params);
+      const result = await DatabaseService.query(query, params);
       
       return {
         success: true,
