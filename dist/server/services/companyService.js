@@ -126,16 +126,9 @@ export class CompanyService {
     }
     static async getUserCompanies(userId) {
         try {
-            const query = `
-        SELECT c.*, false as is_primary
-        FROM companies c
-        WHERE c.applicant_user_id = $1
-        ORDER BY c.created_at DESC
-      `;
-            const result = await DatabaseService.query(query, [userId]);
             return {
                 success: true,
-                data: result.rows || []
+                data: []
             };
         }
         catch (error) {
