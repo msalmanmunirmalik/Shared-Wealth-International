@@ -3,6 +3,7 @@ import { AuthController } from '../controllers/authController.js';
 import { authValidation, handleValidationErrors } from '../middleware/validation.js';
 import { authLimiter, generalLimiter } from '../middleware/rateLimit.js';
 import { authenticateToken, requireAdmin, AuthenticatedRequest } from '../middleware/auth.js';
+import pool from '../../src/integrations/postgresql/config.js';
 
 const router: ReturnType<typeof Router> = Router();
 
@@ -183,5 +184,22 @@ router.get('/admin/check/:userId', authenticateToken, requireAdmin, async (req: 
   }
 });
 
+// Debug endpoint to check companies table
+router.get('/debug/companies', generalLimiter, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM companies ORDER BY created_at DESC LIMIT 10');
+    res.json({
+      success: true,
+      count: result.rows.length,
+      companies: result.rows
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({
+      success: false,
+      error: errorMessage
+    });
+  }
+});
 
 export default router;
