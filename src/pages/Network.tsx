@@ -81,39 +81,11 @@ const NetworkPage = () => {
     try {
       setIsLoading(true);
       
-      // Load user's personal network companies using real API
-      if (user) {
-        const userCompaniesResponse = await apiService.getUserCompanies() as any;
-        const userCompanies = userCompaniesResponse?.data || [];
-        const myNetworkCompanies = userCompanies.map((company: any) => ({
-          id: company.id,
-          name: company.name,
-          description: company.description,
-          industry: company.sector || company.industry,
-          size: company.size || 'medium',
-          location: company.location,
-          website: company.website,
-          status: company.status,
-          created_at: company.created_at,
-          updated_at: company.updated_at,
-          connection_strength: 85,
-          shared_projects: 0,
-          collaboration_score: 75,
-          // Additional properties for display
-          sector: company.sector || company.industry,
-          country: company.location,
-          role: company.role,
-          is_shared_wealth_licensed: company.is_shared_wealth_licensed,
-          joined_date: company.created_at,
-          employees: company.employees,
-          impact_score: company.impact_score
-        }));
-        setMyNetworkCompanies(myNetworkCompanies);
-      }
-
-      // Load all public network companies using real API
+      // For now, show all companies in both "My Network" and "Directory" tabs
+      // This bypasses the user_companies relationship issue
       const companiesResponse = await apiService.getCompanies() as any;
       const allCompanies = companiesResponse?.data || [];
+      
       const networkCompanies = allCompanies.map((company: any) => ({
         id: company.id,
         name: company.name,
@@ -131,12 +103,15 @@ const NetworkPage = () => {
         // Additional properties for display
         sector: company.sector || company.industry,
         country: company.location,
-        role: company.role,
+        role: 'member', // Default role since we're not using user_companies table
         is_shared_wealth_licensed: company.is_shared_wealth_licensed,
         joined_date: company.created_at,
         employees: company.employees,
         impact_score: company.impact_score
       }));
+      
+      // Set the same companies for both tabs for now
+      setMyNetworkCompanies(networkCompanies);
       setAllNetworkCompanies(networkCompanies);
 
       // Load events data

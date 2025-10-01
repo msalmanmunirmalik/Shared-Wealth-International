@@ -54,7 +54,7 @@ async function testFullNetworkFunctionality() {
     // Get available companies
     console.log('\n📋 Step 2: Get Available Companies');
     const availableResult = await callApi('/networks/available', 'GET', null, token);
-    if (!availableResult.success || availableResult.data.length === 0) {
+    if (!availableResult.success || !availableResult.data || availableResult.data.length === 0) {
       console.log('❌ No available companies');
       return;
     }
