@@ -81,8 +81,7 @@ const NetworkPage = () => {
     try {
       setIsLoading(true);
       
-      // For now, show all companies in both "My Network" and "Directory" tabs
-      // This bypasses the user_companies relationship issue
+      // Load all companies for the "Companies Directory" tab
       const companiesResponse = await apiService.getCompanies() as any;
       const allCompanies = companiesResponse?.data || [];
       
@@ -110,9 +109,42 @@ const NetworkPage = () => {
         impact_score: company.impact_score
       }));
       
-      // Set the same companies for both tabs for now
-      setMyNetworkCompanies(networkCompanies);
+      // Set all companies for the "Companies Directory" tab
       setAllNetworkCompanies(networkCompanies);
+      
+      // For "My Network" tab, try to load user's companies, but fall back to empty array
+      // This will be empty until we fix the user_companies relationship issue
+      try {
+        const userCompaniesResponse = await apiService.getUserCompanies() as any;
+        const userCompanies = userCompaniesResponse?.data || [];
+        const myNetworkCompanies = userCompanies.map((company: any) => ({
+          id: company.id,
+          name: company.name,
+          description: company.description,
+          industry: company.sector || company.industry,
+          size: company.size || 'medium',
+          location: company.location,
+          website: company.website,
+          status: company.status,
+          created_at: company.created_at,
+          updated_at: company.updated_at,
+          connection_strength: 85,
+          shared_projects: 0,
+          collaboration_score: 75,
+          // Additional properties for display
+          sector: company.sector || company.industry,
+          country: company.location,
+          role: company.role || 'member',
+          is_shared_wealth_licensed: company.is_shared_wealth_licensed,
+          joined_date: company.created_at,
+          employees: company.employees,
+          impact_score: company.impact_score
+        }));
+        setMyNetworkCompanies(myNetworkCompanies);
+      } catch (error) {
+        console.log('User companies not available, showing empty network');
+        setMyNetworkCompanies([]);
+      }
 
       // Load events data
       try {

@@ -54,13 +54,17 @@ async function testFullNetworkFunctionality() {
     // Get available companies
     console.log('\n📋 Step 2: Get Available Companies');
     const availableResult = await callApi('/networks/available', 'GET', null, token);
-    if (!availableResult.success || !availableResult.data || availableResult.data.length === 0) {
+    
+    // Handle double-wrapped response structure
+    const companies = availableResult.data?.data || availableResult.data || [];
+    
+    if (!availableResult.success || companies.length === 0) {
       console.log('❌ No available companies');
       return;
     }
 
-    const companyToAdd = availableResult.data[0];
-    console.log(`✅ Found ${availableResult.data.length} available companies`);
+    const companyToAdd = companies[0];
+    console.log(`✅ Found ${companies.length} available companies`);
     console.log(`Selected: ${companyToAdd.name} (${companyToAdd.id})`);
 
     // Add company to network
