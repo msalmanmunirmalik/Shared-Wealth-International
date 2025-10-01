@@ -566,10 +566,10 @@ const NetworkPage = () => {
                           variant="default" 
                           size="sm" 
                           onClick={() => handleAddToNetwork(company)}
-                          className="bg-blue-600 hover:bg-blue-700"
+                          className="bg-blue-600 hover:bg-blue-700 px-2"
+                          title="Add to Network"
                         >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add to Network
+                          <Plus className="w-4 h-4" />
                         </Button>
                         {company.website && (
                           <Button variant="ghost" size="sm" asChild>
