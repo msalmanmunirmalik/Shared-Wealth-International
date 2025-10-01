@@ -64,7 +64,13 @@ export class AuthController {
         role: userData.role || 'user',
         selectedCompanyId: userData.selectedCompanyId,
         position: userData.position,
-        companyName: userData.companyName
+        companyName: userData.companyName,
+        bio: userData.bio,
+        location: userData.location,
+        website: userData.website,
+        linkedin: userData.linkedin,
+        twitter: userData.twitter,
+        profileImage: userData.profileImage
       };
 
       const result = await AuthService.signUp(enhancedUserData);

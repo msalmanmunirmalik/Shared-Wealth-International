@@ -82,7 +82,7 @@ export class AuthService {
    */
   static async signUp(userData: any): Promise<ApiResponse<{ userId: string; token?: string }>> {
     try {
-      const { email, password, firstName, lastName, phone, role, selectedCompanyId, position, companyName } = userData;
+      const { email, password, firstName, lastName, phone, role, selectedCompanyId, position, companyName, bio, location, website, linkedin, twitter, profileImage } = userData;
 
       // Check if user already exists
       const existingUser = await DatabaseService.findOne('users', { where: { email } });
@@ -104,7 +104,13 @@ export class AuthService {
         first_name: firstName,
         last_name: lastName,
         phone: phone,
-        role: role || 'user'
+        role: role || 'user',
+        bio: bio,
+        location: location,
+        website: website,
+        linkedin: linkedin,
+        twitter: twitter,
+        profile_image: profileImage
       });
 
       // Handle company creation or selection

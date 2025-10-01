@@ -75,7 +75,36 @@ export const authValidation = {
       .optional()
       .trim()
       .isLength({ min: 1, max: 100 })
-      .withMessage('Position must be between 1 and 100 characters')
+      .withMessage('Position must be between 1 and 100 characters'),
+    body('bio')
+      .optional()
+      .trim()
+      .isLength({ max: 1000 })
+      .withMessage('Bio must be less than 1000 characters'),
+    body('location')
+      .optional()
+      .trim()
+      .isLength({ max: 200 })
+      .withMessage('Location must be less than 200 characters'),
+    body('website')
+      .optional()
+      .trim()
+      .isURL()
+      .withMessage('Website must be a valid URL'),
+    body('linkedin')
+      .optional()
+      .trim()
+      .isURL()
+      .withMessage('LinkedIn must be a valid URL'),
+    body('twitter')
+      .optional()
+      .trim()
+      .isURL()
+      .withMessage('Twitter must be a valid URL'),
+    body('profileImage')
+      .optional()
+      .isString()
+      .withMessage('Profile image must be a string')
   ],
   
   resetPassword: [
