@@ -3,6 +3,7 @@ import { AuthController } from '../controllers/authController.js';
 import { authValidation, handleValidationErrors } from '../middleware/validation.js';
 import { authLimiter, generalLimiter } from '../middleware/rateLimit.js';
 import { authenticateToken, requireAdmin, AuthenticatedRequest } from '../middleware/auth.js';
+import pool from '../../src/integrations/postgresql/config.js';
 
 const router: ReturnType<typeof Router> = Router();
 
@@ -179,6 +180,96 @@ router.get('/admin/check/:userId', authenticateToken, requireAdmin, async (req: 
     res.status(500).json({
       success: false,
       message: 'Internal server error'
+    });
+  }
+});
+
+// Migration endpoint - temporary for database schema fixes
+router.post('/migration/run', generalLimiter, async (req, res) => {
+  try {
+    console.log('🚀 Running database migration...');
+    
+    const migrationQueries = [
+      // 1. Add missing columns to users table
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT',
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS location VARCHAR(200)',
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS website VARCHAR(500)',
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS linkedin VARCHAR(500)',
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS twitter VARCHAR(500)',
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_image VARCHAR(500)',
+      
+      // 2. Add missing columns to user_companies table
+      'ALTER TABLE user_companies ADD COLUMN IF NOT EXISTS position VARCHAR(100)',
+      'ALTER TABLE user_companies ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT \'active\'',
+      'ALTER TABLE user_companies ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+      'ALTER TABLE user_companies ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+      
+      // 3. Create network_connections table
+      `CREATE TABLE IF NOT EXISTS network_connections (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+        connection_type VARCHAR(50) DEFAULT 'member' CHECK (connection_type IN ('member', 'partner', 'supplier', 'customer')),
+        status VARCHAR(50) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'pending')),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, company_id)
+      )`,
+      
+      // 4. Add status column to companies if it doesn't exist
+      'ALTER TABLE companies ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT \'approved\''
+    ];
+    
+    const results: Array<{ query: string; status: string; error?: string }> = [];
+    
+    for (const query of migrationQueries) {
+      try {
+        console.log(`Executing: ${query.substring(0, 50)}...`);
+        await pool.query(query);
+        results.push({ query: query.substring(0, 50), status: 'success' });
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`Error executing query: ${errorMessage}`);
+        results.push({ query: query.substring(0, 50), status: 'error', error: errorMessage });
+      }
+    }
+    
+    // Verification queries
+    const verificationQueries = [
+      'SELECT column_name, data_type FROM information_schema.columns WHERE table_name = \'users\' AND column_name IN (\'bio\', \'location\', \'website\', \'linkedin\', \'twitter\', \'profile_image\') ORDER BY column_name',
+      'SELECT column_name, data_type FROM information_schema.columns WHERE table_name = \'user_companies\' AND column_name IN (\'position\', \'status\', \'created_at\', \'updated_at\') ORDER BY column_name',
+      'SELECT COUNT(*) as table_exists FROM information_schema.tables WHERE table_name = \'network_connections\'',
+      'SELECT column_name, data_type FROM information_schema.columns WHERE table_name = \'companies\' AND column_name = \'status\''
+    ];
+    
+    const verificationResults: Array<{ query: string; data?: any[]; error?: string }> = [];
+    
+    for (const query of verificationQueries) {
+      try {
+        const result = await pool.query(query);
+        verificationResults.push({ query: query.substring(0, 50), data: result.rows });
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        verificationResults.push({ query: query.substring(0, 50), error: errorMessage });
+      }
+    }
+    
+    console.log('✅ Migration completed successfully');
+    
+    res.json({
+      success: true,
+      message: 'Database migration completed',
+      results,
+      verification: verificationResults
+    });
+    
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('❌ Migration error:', errorMessage);
+    res.status(500).json({
+      success: false,
+      message: 'Migration failed',
+      error: errorMessage
     });
   }
 });
