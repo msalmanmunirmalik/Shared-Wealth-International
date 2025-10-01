@@ -116,8 +116,7 @@ export class AuthService {
             company_id: selectedCompanyId,
             role: position || 'member',
             position: position || 'Member',
-            status: 'active',
-            is_primary: true // This is their primary company affiliation
+            status: 'active'
           });
           console.log('✅ User-company relationship created successfully');
         } catch (error) {

@@ -96,9 +96,12 @@ export class CompanyService {
       const newCompany = await DatabaseService.insert('companies', {
         name: companyData.name,
         description: companyData.description,
+        industry: companyData.industry,
         sector: companyData.industry, // Map industry to sector
+        size: companyData.size,
         location: companyData.location,
         website: companyData.website,
+        status: 'pending', // Set initial status
         is_active: true,
         is_verified: false,
         applicant_user_id: userId // Link company to the user who created it

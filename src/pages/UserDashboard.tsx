@@ -260,7 +260,7 @@ const UserDashboard = () => {
       }));
       
       setUserCompanies(mappedUserCompanies);
-      setNetworkCompanies(dashboardData.networkCompanies.map((company: any) => ({
+      setNetworkCompanies((dashboardData.networkCompanies || []).map((company: any) => ({
         ...company,
         highlights: company.highlights || company.description || 'No highlights available',
         location: company.location || company.country || 'Location not specified'
@@ -672,701 +672,512 @@ const UserDashboard = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-7 border shadow-lg" style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }}>
+          <TabsList className="grid w-full grid-cols-3 border shadow-lg" style={{ background: 'linear-gradient(135deg, hsl(220 50% 20%) 0%, hsl(160 50% 40%) 100%)' }}>
             <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Overview</TabsTrigger>
             <TabsTrigger value="my-companies" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">My Companies</TabsTrigger>
-            <TabsTrigger value="network" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Network</TabsTrigger>
-            <TabsTrigger value="analytics" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Analytics</TabsTrigger>
-            <TabsTrigger value="activities" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Activities</TabsTrigger>
-            <TabsTrigger value="applications" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Applications</TabsTrigger>
-            <TabsTrigger value="social" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Social</TabsTrigger>
+            <TabsTrigger value="tools-learning" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg transition-all duration-200 text-white hover:text-white/80">Tools & Learning</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Key Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-slate-100 rounded-xl">
-                    <Building className="w-6 h-6 text-slate-600" />
+                  <div className="p-3 bg-blue-100 rounded-xl">
+                    <Building className="w-6 h-6 text-blue-600" />
                   </div>
-          <div>
-                    <p className="text-sm font-medium text-slate-600">Total Companies</p>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">My Companies</p>
                     <p className="text-2xl font-bold text-slate-900">
                       {stats.totalCompanies > 0 ? stats.totalCompanies : 0}
-            </p>
-          </div>
+                    </p>
+                  </div>
                 </div>
               </Card>
 
               <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
-          <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-slate-100 rounded-xl">
-                    <Users className="w-6 h-6 text-slate-600" />
-          </div>
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-green-100 rounded-xl">
+                    <Target className="w-6 h-6 text-green-600" />
+                  </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-600">Network Partners</p>
+                    <p className="text-sm font-medium text-slate-600">Impact Score</p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      {stats.totalCompanies > 0 ? '8.7' : '0.0'}/10
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-purple-100 rounded-xl">
+                    <Settings className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Tools Completed</p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      {stats.totalCompanies > 0 ? '3' : '0'}/12
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-orange-100 rounded-xl">
+                    <Users className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Network Connections</p>
                     <p className="text-2xl font-bold text-slate-900">
                       {stats.networkPartners > 0 ? stats.networkPartners : 0}
                     </p>
                   </div>
                 </div>
               </Card>
+            </div>
 
-              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
-                <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-slate-100 rounded-xl">
-                    <TrendingUp className="w-6 h-6 text-slate-600" />
+            {/* Quick Actions */}
+            <Card className="p-6 border border-slate-200 bg-white">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Plus className="w-5 h-5 text-slate-600" />
+                  <span>Quick Actions</span>
+                </CardTitle>
+                <CardDescription>
+                  Common tasks and shortcuts to get things done faster
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <Button 
+                    onClick={() => setShowAddCompany(true)}
+                    className="h-auto p-4 flex flex-col items-center space-y-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+                  >
+                    <Building className="w-6 h-6" />
+                    <span className="text-sm font-medium">Add Company</span>
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => navigate('/business-canvas')}
+                    className="h-auto p-4 flex flex-col items-center space-y-2 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+                  >
+                    <Target className="w-6 h-6" />
+                    <span className="text-sm font-medium">Business Canvas</span>
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => navigate('/impact-analytics')}
+                    className="h-auto p-4 flex flex-col items-center space-y-2 bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
+                  >
+                    <BarChart3 className="w-6 h-6" />
+                    <span className="text-sm font-medium">Impact Analytics</span>
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => navigate('/network')}
+                    className="h-auto p-4 flex flex-col items-center space-y-2 bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200"
+                  >
+                    <Globe className="w-6 h-6" />
+                    <span className="text-sm font-medium">Browse Network</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Activity */}
+            <Card className="p-6 border border-slate-200 bg-white">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Activity className="w-5 h-5 text-slate-600" />
+                  <span>Recent Activity</span>
+                </CardTitle>
+                <CardDescription>
+                  Your latest actions and platform updates
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {activities.length > 0 ? (
+                    activities.slice(0, 5).map((activity) => (
+                      <div key={activity.id} className="flex items-center space-x-3 p-3 rounded-lg bg-slate-50">
+                        <div className="p-2 bg-white rounded-full">
+                          <Activity className="w-4 h-4 text-slate-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-slate-900">{activity.description}</p>
+                          <p className="text-xs text-slate-500">{activity.timestamp}</p>
+                        </div>
+                        <Badge variant={activity.status === 'completed' ? 'default' : 'secondary'}>
+                          {activity.status}
+                        </Badge>
                       </div>
-                      <div>
-                    <p className="text-sm font-medium text-slate-600">Growth Rate</p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {stats.growthRate > 0 ? `${stats.growthRate}%` : '0%'}
-                    </p>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-slate-500">
+                      <Activity className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+                      <p>No recent activity</p>
+                      <p className="text-sm">Start by adding a company or exploring tools</p>
                     </div>
-                </Card>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
-              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
-                <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-slate-100 rounded-xl">
-                    <Activity className="w-6 h-6 text-slate-600" />
+            {/* Platform Announcements */}
+            <Card className="p-6 border border-slate-200 bg-white">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Bell className="w-5 h-5 text-slate-600" />
+                  <span>Platform Updates</span>
+                </CardTitle>
+                <CardDescription>
+                  Latest news and updates from Shared Wealth International
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
+                    <div className="flex items-start space-x-3">
+                      <div className="p-2 bg-blue-100 rounded-full">
+                        <Star className="w-4 h-4 text-blue-600" />
                       </div>
-                      <div>
-                    <p className="text-sm font-medium text-slate-600">Active Projects</p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {stats.activeProjects > 0 ? stats.activeProjects : 0}
-                    </p>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-blue-900">New Business Canvas Tool</h4>
+                        <p className="text-sm text-blue-700 mt-1">
+                          Design and collaborate on shared wealth business models with our enhanced canvas tool.
+                        </p>
+                        <Button size="sm" className="mt-2 bg-blue-600 hover:bg-blue-700">
+                          Try Now
+                        </Button>
                       </div>
-                    </div>
-                </Card>
-
-              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
-                <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-slate-100 rounded-xl">
-                    <Clock className="w-6 h-6 text-slate-600" />
-                      </div>
-                      <div>
-                    <p className="text-sm font-medium text-slate-600">Pending Applications</p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {stats.pendingApplications > 0 ? stats.pendingApplications : 0}
-                    </p>
-                      </div>
-                    </div>
-                </Card>
-
-              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
-                <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-slate-100 rounded-xl">
-                    <CheckCircle className="w-6 h-6 text-slate-600" />
-                      </div>
-                      <div>
-                    <p className="text-sm font-medium text-slate-600">Approved Companies</p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {stats.approvedCompanies > 0 ? stats.approvedCompanies : 0}
-                    </p>
-                      </div>
-                    </div>
-                </Card>
-
-              </div>
-
-            {/* Recent Activities Preview */}
-            <Card>
-                  <CardHeader>
-                <CardTitle>Recent Activities</CardTitle>
-                <CardDescription>Your latest network activities</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                {activities.length > 0 ? (
-                    <div className="space-y-4">
-                    {activities.slice(0, 3).map((activity) => (
-                      <div key={`overview-${activity.id}`} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50">
-                        <div className={`w-2 h-2 rounded-full ${
-                          activity.status === 'completed' ? 'bg-green-500' : 
-                          activity.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
-                        }`} />
-                            <div className="flex-1">
-                          <p className="font-medium text-gray-900">{activity.title}</p>
-                          <p className="text-sm text-gray-600">{activity.description}</p>
-                            </div>
-                        <span className="text-xs text-gray-500">
-                          {new Date(activity.timestamp).toLocaleDateString()}
-                        </span>
-                          </div>
-                    ))}
-                    <div className="mt-4">
-                      <Button variant="outline" onClick={() => setActiveTab("activities")}>
-                        View All Activities
-                        <ChevronRight className="w-4 h-4 ml-2" />
-                      </Button>
                     </div>
                   </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                    <p className="text-gray-500 mb-2">No activities yet</p>
-                    <p className="text-sm text-gray-400">Your network activities will appear here</p>
+                  
+                  <div className="p-4 rounded-lg bg-green-50 border border-green-200">
+                    <div className="flex items-start space-x-3">
+                      <div className="p-2 bg-green-100 rounded-full">
+                        <Users className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-green-900">Network Growth</h4>
+                        <p className="text-sm text-green-700 mt-1">
+                          Welcome 5 new companies to the Shared Wealth network this month.
+                        </p>
+                        <Button size="sm" className="mt-2 bg-green-600 hover:bg-green-700">
+                          View Network
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                )}
-                  </CardContent>
-                </Card>
-          </TabsContent>
+                </div>
+              </CardContent>
+            </Card>
+            </TabsContent>
 
-          {/* Companies Tab */}
+          {/* My Companies Tab */}
           <TabsContent value="my-companies" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">My Companies</h2>
-              <Button 
-                onClick={() => setShowAddCompany(true)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white border-0"
-              >
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900">My Companies</h2>
+                <p className="text-slate-600">Manage your companies and track their progress</p>
+              </div>
+              <Button onClick={() => setShowAddCompany(true)} className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Company
               </Button>
-                            </div>
-
-            {/* Search and Filters */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search companies..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-                          </div>
-              <Select value={filterSector} onValueChange={setFilterSector}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filter by sector" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Sectors</SelectItem>
-                  {sectors.map(sector => (
-                    <SelectItem key={sector} value={sector}>{sector}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  {statuses.map(status => (
-                    <SelectItem key={status} value={status}>{status}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-                    </div>
-
-            {filteredCompanies.length === 0 ? (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <Building className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {companies.length === 0 ? "No Companies Yet" : "No Companies Found"}
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    {companies.length === 0 
-                      ? "Start by adding your first company to the network"
-                      : "Try adjusting your search or filters"
-                    }
-                  </p>
-                  {companies.length === 0 && (
-                    <Button 
-                      onClick={() => setShowAddCompany(true)}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white border-0"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Your First Company
-                    </Button>
-                  )}
-                  </CardContent>
-                </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredCompanies.map((company) => (
-                  <Card 
-                    key={company.id} 
-                    className="hover:shadow-lg transition-shadow cursor-pointer group"
-                    onClick={() => handleCompanyClick(company)}
-                  >
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
-                          {company.name}
-                        </CardTitle>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant="secondary">Owner</Badge>
-                          <Badge variant={company.status === 'active' ? 'default' : 'secondary'}>
-                            {company.status}
-                          </Badge>
-              </div>
             </div>
-                      <CardDescription className="flex items-center space-x-2">
-                        <span>{company.sector}</span>
-                        <span>•</span>
-                        <span>{company.country}</span>
-                      </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                        {company.description || 'No description available'}
-                      </p>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-500">Employees</span>
-                          <span className="font-medium">{company.employees || 'N/A'}</span>
-                              </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-500">Impact Score</span>
-                          <div className="flex items-center space-x-1">
-                            <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                            <span className="font-medium">{company.impact_score || 'N/A'}</span>
-                            </div>
-                        </div>
-                        {company.is_shared_wealth_licensed && (
-                          <div className="flex items-center space-x-2 text-sm">
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span className="text-green-600">Licensed</span>
-                          </div>
-                        )}
-                      </div>
 
-                      {/* Social Features */}
-                      <div className="mt-4 pt-4 border-t border-gray-100">
-                        <div className="flex items-center justify-end">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-sm"
-                            onClick={() => handleCompanyClick(company)}
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
+            {/* Company Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="p-6 border border-slate-200 bg-white">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-blue-100 rounded-xl">
+                    <Building className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Total Companies</p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      {userCompanies.length}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6 border border-slate-200 bg-white">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-green-100 rounded-xl">
+                    <CheckCircle className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Active Companies</p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      {userCompanies.filter(c => c.status === 'active').length}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6 border border-slate-200 bg-white">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-yellow-100 rounded-xl">
+                    <Clock className="w-6 h-6 text-yellow-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Pending Review</p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      {userCompanies.filter(c => c.status === 'pending').length}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Companies List */}
+            <Card className="p-6 border border-slate-200 bg-white">
+              <CardHeader>
+                <CardTitle>Your Companies</CardTitle>
+                <CardDescription>
+                  Manage and track your company applications
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {userCompanies.length > 0 ? (
+                  <div className="space-y-4">
+                    {userCompanies.map((company) => (
+                      <div key={company.id} className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:bg-slate-50">
+                        <div className="flex items-center space-x-4">
+                          <div className="p-3 bg-slate-100 rounded-xl">
+                            <Building className="w-6 h-6 text-slate-600" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-slate-900">{company.name}</h3>
+                            <p className="text-sm text-slate-600">{company.description}</p>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <Badge variant={company.status === 'active' ? 'default' : 'secondary'}>
+                                {company.status}
+                              </Badge>
+                              <span className="text-xs text-slate-500">{company.location}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button size="sm" variant="outline">
                             View Details
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            Edit
                           </Button>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                          ))}
-                        </div>
-            )}
-          </TabsContent>
-
-          {/* Network Tab */}
-          <TabsContent value="network" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">Network Companies</h2>
-              <div className="flex items-center space-x-3">
-                <Badge variant="secondary" className="text-sm">
-                  {networkCompanies.length} Companies
-                </Badge>
-                <Button
-                  onClick={() => {
-                    setShowAddToNetwork(true);
-                    loadAvailableCompanies();
-                  }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add to Network
-                </Button>
-              </div>
-            </div>
-            
-            {/* Search and Filter Controls */}
-            <div className="flex flex-col sm:flex-row gap-4 p-4 bg-gray-50 rounded-lg">
-              <div className="flex-1">
-                <Input
-                  placeholder="Search companies..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Select value={filterSector} onValueChange={setFilterSector}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Sector" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Sectors</SelectItem>
-                    {[...new Set(networkCompanies.map(c => c.sector))].map(sector => (
-                      <SelectItem key={sector} value={sector}>{sector}</SelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Network Companies Grid */}
-            {networkCompanies.length === 0 ? (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <Building className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Network Companies</h3>
-                  <p className="text-gray-600 mb-6">
-                    Network companies will appear here once they join the platform
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {networkCompanies.filter(company => {
-                  const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                       company.description?.toLowerCase().includes(searchTerm.toLowerCase());
-                  const matchesSector = filterSector === "all" || company.sector === filterSector;
-                  const matchesStatus = filterStatus === "all" || company.status === filterStatus;
-                  
-                  return matchesSearch && matchesSector && matchesStatus;
-                }).map((company) => (
-                  <Card 
-                    key={company.id} 
-                    className="hover:shadow-lg transition-shadow cursor-pointer group"
-                    onClick={() => handleCompanyClick(company)}
-                  >
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
-                          {company.name}
-                        </CardTitle>
-                        <Badge variant={company.status === 'approved' ? 'default' : 'secondary'}>
-                          {company.status}
-                        </Badge>
-                      </div>
-                      <CardDescription className="text-sm text-gray-600">
-                        {company.sector} • {company.country}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-gray-700 mb-3 line-clamp-2">
-                        {company.description || 'No description available'}
-                      </p>
-                      <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-                        <span>{company.employees || 'Unknown'} employees</span>
-                        <span>Joined {new Date(company.added_at || company.joined_date).toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex items-center justify-end space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveFromNetwork(company.id);
-                          }}
-                        >
-                          <Trash2 className="w-4 h-4 mr-1" />
-                          Remove
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCompanyClick(company);
-                          }}
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          View
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Applications Tab */}
-          <TabsContent value="applications" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">Company Applications</h2>
-              <Badge variant="secondary" className="text-sm">
-                {applications.length} Applications
-              </Badge>
-            </div>
-
-            {applications.length === 0 ? (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <FileText className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Applications Yet</h3>
-                  <p className="text-gray-600 mb-6">
-                    Start by submitting your first company application
-                  </p>
-                  <Button onClick={() => setShowAddCompany(true)}>
-                              <Plus className="w-4 h-4 mr-2" />
-                    Submit Application
-                            </Button>
-                </CardContent>
-              </Card>
-            ) : (
-                            <div className="space-y-4">
-                {applications.map((application) => (
-                  <Card key={application.id} className="hover:shadow-lg transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-3">
-                            {getStatusIcon(application.status)}
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              {application.company_name}
-                            </h3>
-                            <Badge className={getStatusColor(application.status)}>
-                              {application.status.charAt(0).toUpperCase() + application.status.slice(1).replace('_', ' ')}
-                            </Badge>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                              <div>
-                              <Label className="text-sm font-medium text-gray-700">Sector</Label>
-                              <p className="text-sm text-gray-600 mt-1">{application.sector}</p>
-                              </div>
-                            
-                              <div>
-                              <Label className="text-sm font-medium text-gray-700">Country</Label>
-                              <p className="text-sm text-gray-600 mt-1">{application.country}</p>
-                              </div>
-                            
-                              <div>
-                              <Label className="text-sm font-medium text-gray-700">Your Role</Label>
-                              <p className="text-sm text-gray-600 mt-1">
-                                {application.applicant_role} • {application.applicant_position}
-                              </p>
-                              </div>
-                            </div>
-
-                          {application.description && (
-                            <div className="mb-4">
-                              <Label className="text-sm font-medium text-gray-700">Description</Label>
-                              <p className="text-sm text-gray-600 mt-1">{application.description}</p>
-                            </div>
-                          )}
-
-                          {application.admin_notes && (
-                            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                              <Label className="text-sm font-medium text-yellow-800">Admin Notes</Label>
-                              <p className="text-sm text-yellow-700 mt-1">{application.admin_notes}</p>
-                            </div>
-                          )}
-
-                          <div className="flex space-x-2">
-                            <Button variant="outline" size="sm">
-                              <Eye className="w-4 h-4 mr-2" />
-                              View Details
-                              </Button>
-                            {application.status === 'pending' && (
-                              <Button variant="outline" size="sm">
-                                <Edit className="w-4 h-4 mr-2" />
-                                Edit Application
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      </CardContent>
-                    </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Analytics Tab */}
-          <TabsContent value="analytics" className="space-y-6">
-            <Card>
-                      <CardHeader>
-                <CardTitle>Impact Analytics</CardTitle>
-                <CardDescription>Track your companies' impact over time</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                <div className="h-64 flex items-center justify-center text-gray-500">
-                  <div className="text-center">
-                    <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                    <p>Impact charts and analytics will be displayed here</p>
-                    <p className="text-sm">Coming soon with real-time data visualization</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-          </TabsContent>
-
-          {/* Activities Tab */}
-          <TabsContent value="activities" className="space-y-6">
-            <Card>
-                      <CardHeader>
-                <CardTitle>Recent Activities</CardTitle>
-                <CardDescription>Your latest network activities and updates</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                <div className="space-y-4">
-                  {activities.map((activity) => (
-                    <div key={`activity-${activity.id}`} className="flex items-center space-x-3 p-4 rounded-lg border hover:bg-gray-50">
-                      <div className={`w-3 h-3 rounded-full ${
-                        activity.status === 'completed' ? 'bg-green-500' : 
-                        activity.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
-                      }`} />
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">{activity.title}</p>
-                        <p className="text-sm text-gray-600">{activity.description}</p>
-                        {activity.company_name && (
-                          <p className="text-xs text-blue-600 mt-1">{activity.company_name}</p>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-500">
-                          {new Date(activity.timestamp).toLocaleDateString()}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {new Date(activity.timestamp).toLocaleTimeString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Building className="w-16 h-16 mx-auto mb-4 text-slate-300" />
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">No companies yet</h3>
+                    <p className="text-slate-600 mb-6">Start by adding your first company to the Shared Wealth network</p>
+                    <Button onClick={() => setShowAddCompany(true)} className="bg-blue-600 hover:bg-blue-700">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Your First Company
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Social Tab */}
-          <TabsContent value="social" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Social Activity Feed */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <MessageSquare className="w-5 h-5 text-blue-600" />
-                    <span>Social Activity Feed</span>
-                  </CardTitle>
-                  <CardDescription>Recent social interactions and content</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {activities.length > 0 ? (
-                      activities.map((activity) => (
-                        <div key={`social-${activity.id}`} className="p-4 border rounded-lg hover:bg-gray-50">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center space-x-2">
-                              <Avatar className="w-8 h-8">
-                                <AvatarFallback>{activity.user_name?.charAt(0) || 'U'}</AvatarFallback>
-                              </Avatar>
-                              <span className="font-medium">{activity.user_name || 'User'}</span>
-                              <span>{activity.action}</span>
-                              <span className="text-blue-600">{activity.company_name}</span>
-                            </div>
-                            <span className="text-sm text-gray-500">{activity.timestamp}</span>
-                          </div>
-                          {activity.post_id && (
-                            <div className="flex items-center space-x-2">
-                              <ReactionButton
-                                postId={activity.post_id}
-                                postType="company_post"
-                                className="text-sm"
-                              />
-                              <ShareButton
-                                contentId={activity.post_id}
-                                contentType="company_post"
-                                contentTitle={activity.company_name || 'Company Post'}
-                                className="text-sm"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-8 text-gray-500">
-                        <Activity className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                        <p>No social activity yet</p>
-                        <p className="text-sm">Start interacting with companies to see activity here</p>
-                      </div>
-                    )}
+          {/* Tools & Learning Tab */}
+          <TabsContent value="tools-learning" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900">Tools & Learning</h2>
+                <p className="text-slate-600">Access platform tools and learning resources</p>
+              </div>
+            </div>
+
+            {/* Tools Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/business-canvas')}>
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-3 bg-blue-100 rounded-xl">
+                    <Target className="w-6 h-6 text-blue-600" />
                   </div>
-                </CardContent>
+                  <div>
+                    <h3 className="font-semibold text-slate-900">Business Canvas</h3>
+                    <p className="text-sm text-slate-600">Design shared wealth models</p>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-500 mb-4">
+                  Create and collaborate on business models that generate shared value for all stakeholders.
+                </p>
+                <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700">
+                  Open Tool
+                </Button>
               </Card>
 
-              {/* Social Connections */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Users className="w-5 h-5 text-purple-600" />
-                    <span>Social Connections</span>
-                  </CardTitle>
-                  <CardDescription>Manage your professional network</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {userCompanies.length > 0 ? (
-                      userCompanies.slice(0, 5).map((company) => (
-                        <div key={company.id} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div className="flex items-center space-x-3">
-                            <Avatar className="w-10 h-10">
-                              <AvatarFallback>{company.company_name?.charAt(0) || 'C'}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="font-medium">{company.company_name}</p>
-                              <p className="text-sm text-gray-500">{company.sector} • {company.country}</p>
-                            </div>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-sm"
-                            onClick={() => handleCompanyClick(company)}
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
-                            View Details
-                          </Button>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-8 text-gray-500">
-                        <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                        <p>No connections yet</p>
-                        <p className="text-sm">Add companies to start building your network</p>
-                      </div>
-                    )}
+              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/impact-analytics')}>
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-3 bg-green-100 rounded-xl">
+                    <BarChart3 className="w-6 h-6 text-green-600" />
                   </div>
-                </CardContent>
+                  <div>
+                    <h3 className="font-semibold text-slate-900">Impact Analytics</h3>
+                    <p className="text-sm text-slate-600">Measure your impact</p>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-500 mb-4">
+                  Track and analyze the social, environmental, and economic impact of your initiatives.
+                </p>
+                <Button size="sm" className="w-full bg-green-600 hover:bg-green-700">
+                  Open Tool
+                </Button>
               </Card>
 
-              {/* File Upload */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <FileText className="w-5 h-5 text-green-600" />
-                    <span>File Management</span>
-                  </CardTitle>
-                  <CardDescription>Upload and manage company documents</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <FileUpload
-                    onUploadComplete={(files) => {
-                      console.log('Files uploaded:', files);
-                      toast({
-                        title: "Success",
-                        description: `${files.length} file(s) uploaded successfully`,
-                      });
-                    }}
-                    maxFiles={5}
-                    acceptedTypes={['image/*', 'application/pdf', 'text/*']}
-                  />
-                </CardContent>
+              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/stakeholder-mapping')}>
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-3 bg-purple-100 rounded-xl">
+                    <Users className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-900">Stakeholder Mapping</h3>
+                    <p className="text-sm text-slate-600">Identify key stakeholders</p>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-500 mb-4">
+                  Map and analyze stakeholders to understand their interests and influence.
+                </p>
+                <Button size="sm" className="w-full bg-purple-600 hover:bg-purple-700">
+                  Open Tool
+                </Button>
+              </Card>
+
+              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/value-proposition')}>
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-3 bg-orange-100 rounded-xl">
+                    <Lightbulb className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-900">Value Proposition</h3>
+                    <p className="text-sm text-slate-600">Define shared value</p>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-500 mb-4">
+                  Develop compelling value propositions that create shared wealth for all parties.
+                </p>
+                <Button size="sm" className="w-full bg-orange-600 hover:bg-orange-700">
+                  Open Tool
+                </Button>
+              </Card>
+
+              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/governance-framework')}>
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-3 bg-indigo-100 rounded-xl">
+                    <Settings className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-900">Governance Framework</h3>
+                    <p className="text-sm text-slate-600">Design inclusive governance</p>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-500 mb-4">
+                  Create governance structures that ensure inclusive decision-making and shared ownership.
+                </p>
+                <Button size="sm" className="w-full bg-indigo-600 hover:bg-indigo-700">
+                  Open Tool
+                </Button>
+              </Card>
+
+              <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/financial-modeling')}>
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-3 bg-teal-100 rounded-xl">
+                    <Calculator className="w-6 h-6 text-teal-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-900">Financial Modeling</h3>
+                    <p className="text-sm text-slate-600">Plan sustainable finances</p>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-500 mb-4">
+                  Build financial models that support long-term sustainability and shared wealth creation.
+                </p>
+                <Button size="sm" className="w-full bg-teal-600 hover:bg-teal-700">
+                  Open Tool
+                </Button>
               </Card>
             </div>
+
+            {/* Learning Resources */}
+            <Card className="p-6 border border-slate-200 bg-white">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <BookOpen className="w-5 h-5 text-slate-600" />
+                  <span>Learning Resources</span>
+                </CardTitle>
+                <CardDescription>
+                  Educational content and guides to help you succeed with shared wealth principles
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-slate-900">Getting Started</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
+                        <Play className="w-5 h-5 text-blue-600" />
+                        <div>
+                          <p className="font-medium text-slate-900">Introduction to Shared Wealth</p>
+                          <p className="text-sm text-slate-600">5 min video</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
+                        <FileText className="w-5 h-5 text-green-600" />
+                        <div>
+                          <p className="font-medium text-slate-900">Platform User Guide</p>
+                          <p className="text-sm text-slate-600">15 min read</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
+                        <Users className="w-5 h-5 text-purple-600" />
+                        <div>
+                          <p className="font-medium text-slate-900">Building Your Network</p>
+                          <p className="text-sm text-slate-600">10 min read</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-slate-900">Advanced Topics</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
+                        <Target className="w-5 h-5 text-orange-600" />
+                        <div>
+                          <p className="font-medium text-slate-900">Impact Measurement</p>
+                          <p className="text-sm text-slate-600">20 min read</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
+                        <Settings className="w-5 h-5 text-indigo-600" />
+                        <div>
+                          <p className="font-medium text-slate-900">Governance Best Practices</p>
+                          <p className="text-sm text-slate-600">25 min read</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
+                        <Calculator className="w-5 h-5 text-teal-600" />
+                        <div>
+                          <p className="font-medium text-slate-900">Financial Sustainability</p>
+                          <p className="text-sm text-slate-600">30 min read</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

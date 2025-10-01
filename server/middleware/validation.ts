@@ -42,8 +42,40 @@ export const authValidation = {
       .normalizeEmail()
       .withMessage('Valid email is required'),
     body('password')
-      .isLength({ min: 6 })
-      .withMessage('Password must be at least 6 characters')
+      .isLength({ min: 8 })
+      .withMessage('Password must be at least 8 characters'),
+    body('firstName')
+      .optional()
+      .trim()
+      .isLength({ min: 1, max: 50 })
+      .withMessage('First name must be between 1 and 50 characters')
+      .matches(/^[a-zA-Z\s]+$/)
+      .withMessage('First name can only contain letters and spaces'),
+    body('lastName')
+      .optional()
+      .trim()
+      .isLength({ min: 1, max: 50 })
+      .withMessage('Last name must be between 1 and 50 characters')
+      .matches(/^[a-zA-Z\s]+$/)
+      .withMessage('Last name can only contain letters and spaces'),
+    body('phone')
+      .optional()
+      .trim()
+      .matches(/^[\+]?[1-9][\d]{0,15}$/)
+      .withMessage('Phone number must be valid'),
+    body('role')
+      .optional()
+      .isIn(['user', 'admin', 'superadmin', 'director'])
+      .withMessage('Invalid role'),
+    body('selectedCompanyId')
+      .optional()
+      .isUUID()
+      .withMessage('Invalid company ID format'),
+    body('position')
+      .optional()
+      .trim()
+      .isLength({ min: 1, max: 100 })
+      .withMessage('Position must be between 1 and 100 characters')
   ],
   
   resetPassword: [

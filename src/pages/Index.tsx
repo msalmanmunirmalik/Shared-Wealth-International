@@ -70,21 +70,12 @@ const Index = () => {
       locked: true
     },
     {
-      title: "Discussion Forums",
-      description: "Join conversations with the shared wealth community",
-      icon: Users,
-      color: "bg-green",
-      iconColor: "text-white",
-      href: "/forum",
-      locked: true
-    },
-    {
       title: "News & Updates",
       description: "Stay informed about shared wealth developments",
       icon: Star,
       color: "bg-gold",
       iconColor: "text-navy",
-      href: "/news",
+      href: "/news-updates",
       locked: true
     }
   ];

@@ -64,9 +64,11 @@ const Auth: React.FC = () => {
   const loadAvailableCompanies = async () => {
     setLoadingCompanies(true);
     try {
-      const response = await fetch('/api/companies');
+      const response = await fetch('https://sharedwealth.net/api/companies');
       const data = await response.json();
-      if (data.success) {
+      if (Array.isArray(data)) {
+        setAvailableCompanies(data || []);
+      } else if (data.success && data.data) {
         setAvailableCompanies(data.data || []);
       } else {
         toast({
