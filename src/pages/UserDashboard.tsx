@@ -248,14 +248,19 @@ const UserDashboard = () => {
       setIsLoading(true);
       
       // Load user companies using real API
-      const userCompaniesData = await apiService.getUserCompanies();
-      const networkData = await apiService.getUserNetwork();
+      const userCompaniesResponse = await apiService.getUserCompanies();
+      const networkResponse = await apiService.getUserNetwork();
+      
+      // Extract data from API responses
+      const userCompaniesData = userCompaniesResponse?.data || userCompaniesResponse || [];
+      const networkData = networkResponse?.data || networkResponse || [];
+      
       const dashboardData = {
         userCompanies: userCompaniesData,
         networkCompanies: networkData
       };
       
-      const mappedUserCompanies = dashboardData.userCompanies.map((company: any) => ({
+      const mappedUserCompanies = (Array.isArray(dashboardData.userCompanies) ? dashboardData.userCompanies : []).map((company: any) => ({
         ...company,
         company_name: company.name, // Map name to company_name for consistency
         highlights: company.highlights || company.description || 'No highlights available',
@@ -263,20 +268,8 @@ const UserDashboard = () => {
       }));
       
       setUserCompanies(mappedUserCompanies);
-      // Handle networkCompanies - it might be an object with data property or an array
-      const networkCompaniesData = dashboardData.networkCompanies;
-      let networkCompaniesArray = [];
-      
-      if (Array.isArray(networkCompaniesData)) {
-        networkCompaniesArray = networkCompaniesData;
-      } else if (networkCompaniesData && networkCompaniesData.data && Array.isArray(networkCompaniesData.data)) {
-        networkCompaniesArray = networkCompaniesData.data;
-      } else if (networkCompaniesData && typeof networkCompaniesData === 'object') {
-        // If it's an object but not with data property, try to extract values
-        networkCompaniesArray = Object.values(networkCompaniesData).filter(item => 
-          typeof item === 'object' && item !== null
-        );
-      }
+      // Handle networkCompanies - already extracted above
+      const networkCompaniesArray = Array.isArray(dashboardData.networkCompanies) ? dashboardData.networkCompanies : [];
       
       setNetworkCompanies(networkCompaniesArray.map((company: any) => ({
         ...company,
