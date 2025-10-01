@@ -28,6 +28,7 @@ import unifiedUserRoutes from './routes/unifiedUser.js';
 import userProfileRoutes from './routes/userProfile.js';
 import networkRoutes from './routes/networks.js';
 import setupRoutes from './routes/setup.js';
+import fixRoutes from './routes/fix.js';
 import { requestLogger, errorLogger, performanceLogger } from './middleware/logger.js';
 import { performanceMonitor } from './middleware/monitoring.js';
 import { healthCheckLimiter } from './middleware/rateLimit.js';
@@ -280,6 +281,8 @@ app.use('/api/networks', networkRoutes);
 console.log('✅ /api/networks route registered');
 app.use('/api/setup', setupRoutes);
 console.log('✅ /api/setup route registered');
+app.use('/api/fix', fixRoutes);
+console.log('✅ /api/fix route registered');
 console.log('🎉 All API routes registered successfully');
 
 // Catch all handler - serve React app for client-side routing
