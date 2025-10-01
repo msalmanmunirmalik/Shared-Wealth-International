@@ -64,8 +64,7 @@ export class NetworkService {
         user_id: userId,
         company_id: companyId,
         connection_type: connectionType,
-        status: 'active',
-        notes: notes
+        status: 'active'
       });
 
       return {
