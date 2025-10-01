@@ -1,12 +1,12 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { DatabaseService } from '../../src/integrations/postgresql/database.js';
 import fs from 'fs';
 import path from 'path';
 
-const router = Router();
+const router: Router = Router();
 
 // Temporary endpoint to fix unified_content table
-router.post('/unified-content', async (req, res) => {
+router.post('/unified-content', async (req: Request, res: Response) => {
   try {
     console.log('🔧 Applying unified_content table fix...');
     
@@ -47,7 +47,7 @@ router.post('/unified-content', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to apply unified_content fix',
-      error: error.message
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
