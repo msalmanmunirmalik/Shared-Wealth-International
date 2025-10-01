@@ -127,10 +127,9 @@ export class CompanyService {
     static async getUserCompanies(userId) {
         try {
             const query = `
-        SELECT c.*, uc.is_primary
+        SELECT c.*, false as is_primary
         FROM companies c
-        INNER JOIN user_companies uc ON c.id = uc.company_id
-        WHERE uc.user_id = $1
+        WHERE c.applicant_user_id = $1
         ORDER BY c.created_at DESC
       `;
             const result = await DatabaseService.query(query, [userId]);
