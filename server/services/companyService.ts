@@ -165,7 +165,7 @@ export class CompanyService {
         SELECT c.*, uc.is_primary
         FROM companies c
         INNER JOIN user_companies uc ON c.id = uc.company_id
-        WHERE uc.user_id = $1 AND uc.status = 'active'
+        WHERE uc.user_id = $1
         ORDER BY c.created_at DESC
       `;
       
