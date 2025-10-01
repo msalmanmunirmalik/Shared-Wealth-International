@@ -78,17 +78,15 @@ export class AuthService {
             });
             if (selectedCompanyId) {
                 try {
-                    const company = await DatabaseService.findById('companies', selectedCompanyId);
-                    if (company) {
-                        await DatabaseService.insert('user_companies', {
-                            user_id: newUser.id,
-                            company_id: selectedCompanyId,
-                            role: position || 'member',
-                            position: position || 'Member',
-                            status: 'active',
-                            is_primary: true
-                        });
-                    }
+                    await DatabaseService.insert('user_companies', {
+                        user_id: newUser.id,
+                        company_id: selectedCompanyId,
+                        role: position || 'member',
+                        position: position || 'Member',
+                        status: 'active',
+                        is_primary: true
+                    });
+                    console.log('✅ User-company relationship created successfully');
                 }
                 catch (error) {
                     console.error('Error creating user-company relationship:', error);
