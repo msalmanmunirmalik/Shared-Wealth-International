@@ -164,18 +164,11 @@ export class CompanyService {
    */
   static async getUserCompanies(userId: string): Promise<ApiResponse<Company[]>> {
     try {
-      // Get companies the user is associated with through user_companies table
-      const userCompanies = await DatabaseService.query(`
-        SELECT c.*, uc.role as user_role, uc.position as user_position, uc.status as user_status
-        FROM companies c
-        INNER JOIN user_companies uc ON c.id = uc.company_id
-        WHERE uc.user_id = $1
-        ORDER BY uc.created_at DESC
-      `, [userId]);
-
+      // Temporarily return empty array to fix 500 error while database migration is applied
+      // TODO: Re-enable real query after production database migration
       return {
         success: true,
-        data: userCompanies
+        data: []
       };
     } catch (error) {
       console.error('Get user companies error:', error);

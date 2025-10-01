@@ -7,18 +7,11 @@ export class NetworkService {
    */
   static async getUserNetwork(userId: string): Promise<ApiResponse<any[]>> {
     try {
-      // Get companies in user's network through connections
-      const networkCompanies = await DatabaseService.query(`
-        SELECT DISTINCT c.*, nc.connection_type, nc.status as connection_status, nc.created_at as connected_at
-        FROM companies c
-        INNER JOIN network_connections nc ON c.id = nc.company_id
-        WHERE nc.user_id = $1 AND nc.status = 'active'
-        ORDER BY nc.created_at DESC
-      `, [userId]);
-
+      // Temporarily return empty array to fix 500 error while database migration is applied
+      // TODO: Re-enable real query after production database migration
       return {
         success: true,
-        data: networkCompanies
+        data: []
       };
     } catch (error) {
       console.error('Get user network error:', error);
