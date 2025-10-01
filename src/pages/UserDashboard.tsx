@@ -183,6 +183,10 @@ const UserDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSector, setFilterSector] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [showAddToNetwork, setShowAddToNetwork] = useState(false);
+  const [availableCompanies, setAvailableCompanies] = useState<any[]>([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
+  const [connectionType, setConnectionType] = useState<string>("member");
 
   // Add Company Form State
   const [newCompany, setNewCompany] = useState({
@@ -242,9 +246,10 @@ const UserDashboard = () => {
       
       // Load user companies using real API
       const userCompaniesData = await apiService.getUserCompanies();
+      const networkData = await apiService.getUserNetwork();
       const dashboardData = {
         userCompanies: userCompaniesData,
-        networkCompanies: await apiService.getCompanies()
+        networkCompanies: networkData
       };
       
       const mappedUserCompanies = dashboardData.userCompanies.map((company: any) => ({
@@ -477,6 +482,81 @@ const UserDashboard = () => {
 
   const handleCompanyClick = (company: NetworkCompany) => {
     navigate(`/company/${company.id}`);
+  };
+
+  // Network management functions
+  const loadAvailableCompanies = async (search?: string) => {
+    try {
+      const companies = await apiService.getAvailableCompanies(search);
+      setAvailableCompanies(companies);
+    } catch (error) {
+      console.error('Failed to load available companies:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load available companies",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAddToNetwork = async () => {
+    if (!selectedCompanyId) {
+      toast({
+        title: "Error",
+        description: "Please select a company to add to your network",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await apiService.addToNetwork(selectedCompanyId, connectionType);
+      toast({
+        title: "Success",
+        description: "Company added to your network successfully",
+      });
+      setShowAddToNetwork(false);
+      setSelectedCompanyId("");
+      setConnectionType("member");
+      // Reload network data
+      const networkData = await apiService.getUserNetwork();
+      setNetworkCompanies(networkData.map((company: any) => ({
+        ...company,
+        highlights: company.highlights || company.description || 'No highlights available',
+        location: company.location || company.country || 'Location not specified'
+      })));
+    } catch (error) {
+      console.error('Failed to add company to network:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add company to network",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRemoveFromNetwork = async (companyId: string) => {
+    try {
+      await apiService.removeFromNetwork(companyId);
+      toast({
+        title: "Success",
+        description: "Company removed from your network successfully",
+      });
+      // Reload network data
+      const networkData = await apiService.getUserNetwork();
+      setNetworkCompanies(networkData.map((company: any) => ({
+        ...company,
+        highlights: company.highlights || company.description || 'No highlights available',
+        location: company.location || company.country || 'Location not specified'
+      })));
+    } catch (error) {
+      console.error('Failed to remove company from network:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove company from network",
+        variant: "destructive",
+      });
+    }
   };
 
   const filteredCompanies = companies.filter(company => {
@@ -880,9 +960,21 @@ const UserDashboard = () => {
           <TabsContent value="network" className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-900">Network Companies</h2>
-              <Badge variant="secondary" className="text-sm">
-                {networkCompanies.length} Companies
-              </Badge>
+              <div className="flex items-center space-x-3">
+                <Badge variant="secondary" className="text-sm">
+                  {networkCompanies.length} Companies
+                </Badge>
+                <Button
+                  onClick={() => {
+                    setShowAddToNetwork(true);
+                    loadAvailableCompanies();
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add to Network
+                </Button>
+              </div>
             </div>
             
             {/* Search and Filter Controls */}
@@ -964,9 +1056,34 @@ const UserDashboard = () => {
                       <p className="text-sm text-gray-700 mb-3 line-clamp-2">
                         {company.description || 'No description available'}
                       </p>
-                      <div className="flex items-center justify-between text-xs text-gray-500">
+                      <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
                         <span>{company.employees || 'Unknown'} employees</span>
-                        <span>Joined {new Date(company.joined_date).toLocaleDateString()}</span>
+                        <span>Joined {new Date(company.added_at || company.joined_date).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex items-center justify-end space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveFromNetwork(company.id);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Remove
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCompanyClick(company);
+                          }}
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          View
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -1607,6 +1724,79 @@ const UserDashboard = () => {
       </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Add to Network Dialog */}
+      <Dialog open={showAddToNetwork} onOpenChange={setShowAddToNetwork}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Add Company to Network</DialogTitle>
+            <DialogDescription>
+              Select a company to add to your network and choose the connection type.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="company-select">Select Company</Label>
+              <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a company..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableCompanies.map((company) => (
+                    <SelectItem key={company.id} value={company.id}>
+                      {company.name} - {company.sector}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="connection-type">Connection Type</Label>
+              <Select value={connectionType} onValueChange={setConnectionType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose connection type..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="member">Member</SelectItem>
+                  <SelectItem value="partner">Partner</SelectItem>
+                  <SelectItem value="supplier">Supplier</SelectItem>
+                  <SelectItem value="customer">Customer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedCompanyId && (
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-medium mb-2">Selected Company Details:</h4>
+                {(() => {
+                  const company = availableCompanies.find(c => c.id === selectedCompanyId);
+                  return company ? (
+                    <div className="text-sm text-gray-600">
+                      <p><strong>Name:</strong> {company.name}</p>
+                      <p><strong>Sector:</strong> {company.sector}</p>
+                      <p><strong>Location:</strong> {company.location}</p>
+                      {company.description && (
+                        <p><strong>Description:</strong> {company.description}</p>
+                      )}
+                    </div>
+                  ) : null;
+                })()}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddToNetwork(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddToNetwork} disabled={!selectedCompanyId}>
+              Add to Network
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

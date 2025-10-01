@@ -157,7 +157,7 @@ export class CompanyService {
   }
 
   /**
-   * Get companies for a specific user
+   * Get companies for a specific user (companies they own/created)
    */
   static async getUserCompanies(userId: string): Promise<ApiResponse<Company[]>> {
     try {
@@ -165,7 +165,7 @@ export class CompanyService {
         SELECT c.*, uc.is_primary
         FROM companies c
         INNER JOIN user_companies uc ON c.id = uc.company_id
-        WHERE uc.user_id = $1
+        WHERE uc.user_id = $1 AND uc.status = 'active'
         ORDER BY c.created_at DESC
       `;
       
@@ -177,6 +177,33 @@ export class CompanyService {
       };
     } catch (error) {
       console.error('Get user companies error:', error);
+      return {
+        success: false,
+        message: 'Internal server error'
+      };
+    }
+  }
+
+  /**
+   * Get companies created by a specific user (as applicant)
+   */
+  static async getUserCreatedCompanies(userId: string): Promise<ApiResponse<Company[]>> {
+    try {
+      const query = `
+        SELECT c.*
+        FROM companies c
+        WHERE c.applicant_user_id = $1
+        ORDER BY c.created_at DESC
+      `;
+      
+      const result = await DatabaseService.query(query, [userId]);
+      
+      return {
+        success: true,
+        data: result.rows || []
+      };
+    } catch (error) {
+      console.error('Get user created companies error:', error);
       return {
         success: false,
         message: 'Internal server error'

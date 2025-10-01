@@ -310,6 +310,34 @@ class ApiService {
     return await this.request('/companies/applications');
   }
 
+  // Network methods
+  async getUserNetwork() {
+    return await this.request('/networks/user');
+  }
+
+  async addToNetwork(companyId: string, connectionType: string = 'member', notes?: string) {
+    return await this.request('/networks/add', {
+      method: 'POST',
+      body: JSON.stringify({ 
+        company_id: companyId, 
+        connection_type: connectionType,
+        notes: notes 
+      })
+    });
+  }
+
+  async removeFromNetwork(companyId: string) {
+    return await this.request('/networks/remove', {
+      method: 'DELETE',
+      body: JSON.stringify({ company_id: companyId })
+    });
+  }
+
+  async getAvailableCompanies(searchTerm?: string) {
+    const url = searchTerm ? `/networks/available?search=${encodeURIComponent(searchTerm)}` : '/networks/available';
+    return await this.request(url);
+  }
+
   async getCompany(companyId: string) {
     return await this.request(`/companies/${companyId}`);
   }
