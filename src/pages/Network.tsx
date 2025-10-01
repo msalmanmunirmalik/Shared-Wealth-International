@@ -113,10 +113,20 @@ const NetworkPage = () => {
       setAllNetworkCompanies(networkCompanies);
       
       // For "My Network" tab, try to load user's companies, but fall back to empty array
-      // This will be empty until we fix the user_companies relationship issue
       try {
         const userCompaniesResponse = await apiService.getUserCompanies() as any;
-        const userCompanies = userCompaniesResponse?.data || [];
+        console.log('🔍 Network Debug - getUserCompanies response:', userCompaniesResponse);
+        
+        // Handle different response formats
+        let userCompanies = [];
+        if (userCompaniesResponse?.success && userCompaniesResponse?.data) {
+          userCompanies = userCompaniesResponse.data;
+        } else if (Array.isArray(userCompaniesResponse)) {
+          userCompanies = userCompaniesResponse;
+        } else if (userCompaniesResponse?.data && Array.isArray(userCompaniesResponse.data)) {
+          userCompanies = userCompaniesResponse.data;
+        }
+        
         const myNetworkCompanies = userCompanies.map((company: any) => ({
           id: company.id,
           name: company.name,
@@ -141,8 +151,9 @@ const NetworkPage = () => {
           impact_score: company.impact_score
         }));
         setMyNetworkCompanies(myNetworkCompanies);
+        console.log('🔍 Network Debug - My Network companies:', myNetworkCompanies.length);
       } catch (error) {
-        console.log('User companies not available, showing empty network');
+        console.log('User companies not available, showing empty network:', error);
         setMyNetworkCompanies([]);
       }
 
@@ -231,6 +242,37 @@ const NetworkPage = () => {
       toast({
         title: "Link Copied",
         description: "Company link copied to clipboard",
+      });
+    }
+  };
+
+  const handleAddToNetwork = async (company: NetworkCompany) => {
+    try {
+      console.log('🔗 Adding company to network:', company.name, company.id);
+      
+      const result = await apiService.addCompanyToNetwork(company.id, 'member');
+      
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: `${company.name} has been added to your network`,
+        });
+        
+        // Refresh the network data to show the new company
+        await loadNetworkData();
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "Failed to add company to network",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error adding company to network:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add company to network",
+        variant: "destructive",
       });
     }
   };
@@ -519,13 +561,24 @@ const NetworkPage = () => {
                           Share
                         </Button>
                       </div>
-                      {company.website && (
-                        <Button variant="ghost" size="sm" asChild>
-                          <a href={company.website} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="default" 
+                          size="sm" 
+                          onClick={() => handleAddToNetwork(company)}
+                          className="bg-blue-600 hover:bg-blue-700"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add to Network
                         </Button>
-                      )}
+                        {company.website && (
+                          <Button variant="ghost" size="sm" asChild>
+                            <a href={company.website} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

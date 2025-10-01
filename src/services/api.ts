@@ -789,10 +789,14 @@ class ApiService {
     return await this.request('/network');
   }
 
-  async addCompanyToNetwork(companyId: string) {
-    return await this.request('/network', {
+  async addCompanyToNetwork(companyId: string, connectionType: string = 'member', notes?: string) {
+    return await this.request('/networks/add', {
       method: 'POST',
-      body: JSON.stringify({ companyId }),
+      body: JSON.stringify({ 
+        company_id: companyId,
+        connection_type: connectionType,
+        notes: notes
+      }),
     });
   }
 
