@@ -120,23 +120,16 @@ export class UnifiedContentController {
       }
 
       // Validate required fields
-      if (!contentData.title || !contentData.content || !contentData.type) {
+      if (!contentData.title || !contentData.content) {
         res.status(400).json({
           success: false,
-          message: 'Title, content, and type are required'
+          message: 'Title and content are required'
         });
         return;
       }
 
-      // Validate content type
-      const allowedTypes = ['news', 'update', 'announcement', 'collaboration', 'post', 'article', 'event'];
-      if (!allowedTypes.includes(contentData.type)) {
-        res.status(400).json({
-          success: false,
-          message: `Invalid content type. Allowed types: ${allowedTypes.join(', ')}`
-        });
-        return;
-      }
+      // Set default type since the column doesn't exist in production
+      contentData.type = 'post';
 
       const result = await UnifiedContentService.createContent(userId, contentData);
       
