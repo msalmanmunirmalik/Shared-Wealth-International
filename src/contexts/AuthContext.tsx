@@ -122,7 +122,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           
           console.log('🔐 Auth Debug - Admin check result:', adminCheck);
         } catch (error) {
-          console.error('Error checking admin status:', error);
+          // 403 errors are expected for non-admin users, don't log as error
+          if (error instanceof Error && error.message.includes('Admin access required')) {
+            console.log('🔐 Auth Debug - User is not admin (expected)');
+          } else {
+            console.error('Error checking admin status:', error);
+          }
           setIsAdmin(false);
           localStorage.setItem('isAdmin', 'false');
         }

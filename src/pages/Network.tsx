@@ -83,7 +83,8 @@ const NetworkPage = () => {
       
       // Load user's personal network companies using real API
       if (user) {
-        const userCompanies = await apiService.getUserCompanies() as any[];
+        const userCompaniesResponse = await apiService.getUserCompanies() as any;
+        const userCompanies = userCompaniesResponse?.data || [];
         const myNetworkCompanies = userCompanies.map((company: any) => ({
           id: company.id,
           name: company.name,
@@ -111,7 +112,8 @@ const NetworkPage = () => {
       }
 
       // Load all public network companies using real API
-      const allCompanies = await apiService.getCompanies() as any[];
+      const companiesResponse = await apiService.getCompanies() as any;
+      const allCompanies = companiesResponse?.data || [];
       const networkCompanies = allCompanies.map((company: any) => ({
         id: company.id,
         name: company.name,
