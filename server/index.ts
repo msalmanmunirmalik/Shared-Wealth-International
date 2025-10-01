@@ -463,7 +463,7 @@ app.get('/api/admin/users', authenticateToken, requireAdmin, generalLimiter, asy
   }
 });
 
-// Migration route - should be protected in production
+// Migration route - temporary endpoint for production database fix
 app.post('/api/migration/run', async (req, res) => {
   try {
     console.log('🚀 Running database migration...');
