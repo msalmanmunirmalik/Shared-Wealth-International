@@ -114,17 +114,14 @@ export class CompanyController {
                 });
                 return;
             }
-            const createdResult = await CompanyService.getUserCreatedCompanies(userId);
-            const associatedResult = await CompanyService.getUserCompanies(userId);
-            if (createdResult.success && associatedResult.success) {
-                const allCompanies = [...(createdResult.data || []), ...(associatedResult.data || [])];
-                const uniqueCompanies = allCompanies.filter((company, index, self) => index === self.findIndex(c => c.id === company.id));
-                res.json(uniqueCompanies);
+            const result = await CompanyService.getUserCompanies(userId);
+            if (result.success) {
+                res.json(result.data);
             }
             else {
                 res.status(500).json({
                     success: false,
-                    message: 'Failed to retrieve user companies'
+                    message: result.message || 'Failed to retrieve user companies'
                 });
             }
         }

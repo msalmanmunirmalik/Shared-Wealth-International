@@ -138,24 +138,15 @@ export class CompanyController {
         return;
       }
 
-      // Get companies the user created (as applicant)
-      const createdResult = await CompanyService.getUserCreatedCompanies(userId);
-      
       // Get companies the user is associated with through user_companies
-      const associatedResult = await CompanyService.getUserCompanies(userId);
+      const result = await CompanyService.getUserCompanies(userId);
       
-      if (createdResult.success && associatedResult.success) {
-        // Combine both results, removing duplicates
-        const allCompanies = [...(createdResult.data || []), ...(associatedResult.data || [])];
-        const uniqueCompanies = allCompanies.filter((company, index, self) => 
-          index === self.findIndex(c => c.id === company.id)
-        );
-        
-        res.json(uniqueCompanies);
+      if (result.success) {
+        res.json(result.data);
       } else {
         res.status(500).json({
           success: false,
-          message: 'Failed to retrieve user companies'
+          message: result.message || 'Failed to retrieve user companies'
         });
       }
     } catch (error) {
