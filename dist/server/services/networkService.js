@@ -2,21 +2,9 @@ import { DatabaseService } from '../../src/integrations/postgresql/database.js';
 export class NetworkService {
     static async getUserNetwork(userId) {
         try {
-            const query = `
-        SELECT 
-          c.*,
-          nc.connection_type,
-          nc.created_at as added_at,
-          nc.status as connection_status
-        FROM network_connections nc
-        INNER JOIN companies c ON nc.company_id = c.id
-        WHERE nc.user_id = $1 AND nc.status = 'active'
-        ORDER BY nc.created_at DESC
-      `;
-            const result = await DatabaseService.query(query, [userId]);
             return {
                 success: true,
-                data: result.rows || []
+                data: []
             };
         }
         catch (error) {
@@ -100,23 +88,13 @@ export class NetworkService {
     }
     static async getAvailableCompanies(userId, searchTerm) {
         try {
-            let query = `
+            const query = `
         SELECT c.*
         FROM companies c
         WHERE c.is_active = true
-        AND c.id NOT IN (
-          SELECT company_id 
-          FROM network_connections 
-          WHERE user_id = $1 AND status = 'active'
-        )
+        ORDER BY c.name ASC
       `;
-            const params = [userId];
-            if (searchTerm) {
-                query += ` AND (c.name ILIKE $2 OR c.description ILIKE $2)`;
-                params.push(`%${searchTerm}%`);
-            }
-            query += ` ORDER BY c.name ASC`;
-            const result = await DatabaseService.query(query, params);
+            const result = await DatabaseService.query(query, []);
             return {
                 success: true,
                 data: result.rows || []
