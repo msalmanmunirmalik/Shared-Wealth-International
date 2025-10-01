@@ -33,7 +33,7 @@ const Auth: React.FC = () => {
   const [website, setWebsite] = useState('');
   const [linkedin, setLinkedin] = useState('');
   const [twitter, setTwitter] = useState('');
-  const [role, setRole] = useState('member');
+  const [role, setRole] = useState('user');
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImagePreview, setProfileImagePreview] = useState<string>('');
   
@@ -490,10 +490,10 @@ const Auth: React.FC = () => {
                           <SelectValue placeholder="Select your role" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="member">Member</SelectItem>
-                          <SelectItem value="founding_member">Founding Member</SelectItem>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
                           <SelectItem value="director">Director</SelectItem>
-                          <SelectItem value="media_manager">Media Manager</SelectItem>
+                          <SelectItem value="moderator">Moderator</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
