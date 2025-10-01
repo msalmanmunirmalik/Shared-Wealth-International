@@ -121,7 +121,6 @@ export class NetworkService {
       const query = `
         SELECT c.*
         FROM companies c
-        WHERE c.is_active = true
         ORDER BY c.name ASC
       `;
       
