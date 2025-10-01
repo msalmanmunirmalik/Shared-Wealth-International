@@ -621,7 +621,7 @@ const NewsAndUpdates = () => {
 
         {/* Add Post Dialog */}
         <Dialog open={showAddPost} onOpenChange={setShowAddPost}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create News & Update</DialogTitle>
               <DialogDescription>
@@ -723,7 +723,7 @@ const NewsAndUpdates = () => {
 
         {/* Edit Post Dialog */}
         <Dialog open={showEditPost} onOpenChange={setShowEditPost}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edit News & Update</DialogTitle>
               <DialogDescription>

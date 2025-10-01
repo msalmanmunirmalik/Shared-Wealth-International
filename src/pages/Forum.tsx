@@ -336,7 +336,7 @@ const Forum = () => {
                 New Topic
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Create New Discussion Topic</DialogTitle>
                 <DialogDescription>
@@ -527,7 +527,7 @@ const Forum = () => {
 
         {/* Topic Dialog */}
         <Dialog open={showTopicDialog} onOpenChange={setShowTopicDialog}>
-          <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             {selectedTopic && (
               <>
                 <DialogHeader>

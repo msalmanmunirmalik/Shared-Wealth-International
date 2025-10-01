@@ -1379,7 +1379,7 @@ const UserDashboard = () => {
 
       {/* Add Company Dialog */}
       <Dialog open={showAddCompany} onOpenChange={setShowAddCompany}>
-                            <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+                            <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
                               <DialogHeader className="flex-shrink-0">
             <DialogTitle>Add New Company</DialogTitle>
                                 <DialogDescription>
@@ -1633,7 +1633,7 @@ const UserDashboard = () => {
 
       {/* Social License Agreement Dialog */}
       <Dialog open={showSocialLicense} onOpenChange={setShowSocialLicense}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <SocialLicenseAgreement
             companyName={newCompany.name}
             companyData={{
@@ -1652,7 +1652,7 @@ const UserDashboard = () => {
 
       {/* Company Details Dialog */}
       <Dialog open={showCompanyDetails} onOpenChange={setShowCompanyDetails}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{selectedCompany?.name}</DialogTitle>
             <DialogDescription>

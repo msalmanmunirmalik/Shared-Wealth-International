@@ -1033,7 +1033,7 @@ const AdminDashboard = () => {
                           Create Opportunity
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-[600px]">
+                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>Create Funding Opportunity</DialogTitle>
                           <DialogDescription>
@@ -1164,7 +1164,7 @@ const AdminDashboard = () => {
                           Create Article
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-[600px]">
+                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>Create News Article</DialogTitle>
                           <DialogDescription>
@@ -1288,7 +1288,7 @@ const AdminDashboard = () => {
                           Create Event
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-[600px]">
+                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>Create Event</DialogTitle>
                           <DialogDescription>
@@ -2553,7 +2553,7 @@ const AdminDashboard = () => {
                         Create User
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
+                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>Create New User</DialogTitle>
                         <DialogDescription>

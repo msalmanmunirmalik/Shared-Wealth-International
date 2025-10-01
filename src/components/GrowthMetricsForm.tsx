@@ -96,7 +96,7 @@ const GrowthMetricsForm = ({ companyId = 'demo-company-id', onSuccess }: GrowthM
           Track Growth
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Track Growth Impact</DialogTitle>
           <DialogDescription>

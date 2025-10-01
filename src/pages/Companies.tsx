@@ -224,7 +224,7 @@ const Companies = () => {
                 Add Company
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+            <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
               <DialogHeader className="flex-shrink-0">
                 <DialogTitle>Add Company Association</DialogTitle>
                 <DialogDescription>

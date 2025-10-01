@@ -642,7 +642,7 @@ const MessagingSystem = () => {
 
       {/* New Message Dialog */}
       <Dialog open={showNewMessageDialog} onOpenChange={setShowNewMessageDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Start New Conversation</DialogTitle>
             <DialogDescription>
