@@ -35,11 +35,12 @@ export class UnifiedContentService {
       let paramIndex = 1;
 
       // Build WHERE conditions
-      if (filters.type) {
-        whereConditions.push(`c.type = $${paramIndex}`);
-        queryParams.push(filters.type);
-        paramIndex++;
-      }
+      // Note: type column doesn't exist in production, so we skip this filter
+      // if (filters.type) {
+      //   whereConditions.push(`c.type = $${paramIndex}`);
+      //   queryParams.push(filters.type);
+      //   paramIndex++;
+      // }
 
       if (filters.author_id) {
         whereConditions.push(`c.author_id = $${paramIndex}`);
@@ -80,7 +81,13 @@ export class UnifiedContentService {
 
       const query = `
         SELECT 
-          c.*,
+          c.id,
+          c.author_id,
+          c.company_id,
+          c.title,
+          c.content,
+          c.created_at,
+          c.updated_at,
           u.first_name,
           u.last_name,
           u.email as author_email,
@@ -192,32 +199,17 @@ export class UnifiedContentService {
           company_id,
           title,
           content,
-          type,
-          tags,
-          media_urls,
-          metadata,
-          is_published,
-          published_at,
           created_at,
           updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-        RETURNING *
+        ) VALUES ($1, $2, $3, $4, NOW(), NOW())
+        RETURNING id, author_id, company_id, title, content, created_at, updated_at
       `;
       
-      const now = new Date().toISOString();
       const values = [
         userId,
         contentData.company_id || null,
         contentData.title,
-        contentData.content,
-        contentData.type,
-        contentData.tags || [],
-        contentData.media_urls || [],
-        contentData.metadata || {},
-        contentData.is_published !== false, // Default to true
-        contentData.is_published !== false ? now : null,
-        now,
-        now
+        contentData.content
       ];
       
       const result = await DatabaseService.query(insertQuery, values);
@@ -267,7 +259,7 @@ export class UnifiedContentService {
     try {
       // Verify user has permission to update content
       const verifyQuery = `
-        SELECT c.*, comp.applicant_user_id as company_owner_id
+        SELECT c.id, c.author_id, c.company_id, c.title, c.content, c.created_at, c.updated_at, comp.applicant_user_id as company_owner_id
         FROM unified_content c
         LEFT JOIN companies comp ON c.company_id = comp.id
         WHERE c.id = $1
@@ -392,7 +384,7 @@ export class UnifiedContentService {
     try {
       // Verify user has permission to delete content
       const verifyQuery = `
-        SELECT c.*, comp.applicant_user_id as company_owner_id
+        SELECT c.id, c.author_id, c.company_id, c.title, c.content, c.created_at, c.updated_at, comp.applicant_user_id as company_owner_id
         FROM unified_content c
         LEFT JOIN companies comp ON c.company_id = comp.id
         WHERE c.id = $1
