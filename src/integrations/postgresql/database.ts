@@ -21,7 +21,7 @@ function validateTableName(table: string): boolean {
 function sanitizeColumnNames(columns: string[]): string[] {
   const allowedColumns = [
     'id', 'email', 'password_hash', 'role', 'created_at', 'updated_at',
-    'first_name', 'last_name', 'phone', 'is_active', 'email_verified', 'last_login',
+    'first_name', 'last_name', 'phone', 'bio', 'location', 'website', 'linkedin', 'twitter', 'profile_image', 'is_active', 'email_verified', 'last_login',
     'name', 'description', 'industry', 'sector', 'size', 'location', 'website', 'logo', 'status',
     'user_id', 'company_id', 'connected_company_id', 'connection_strength', 'shared_projects',
     'collaboration_score', 'title', 'category', 'amount', 'deadline', 'eligibility', 'url',
