@@ -465,8 +465,8 @@ app.get('/api/admin/users', authenticateToken, requireAdmin, generalLimiter, asy
   }
 });
 
-// File upload endpoint
-app.post('/api/files/upload', async (req, res) => {
+// File upload endpoint (no auth required for signup)
+app.post('/api/files/upload', generalLimiter, async (req, res) => {
   try {
     // Simple file upload handling for profile images
     // In production, use proper multer middleware
