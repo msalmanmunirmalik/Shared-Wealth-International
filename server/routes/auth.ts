@@ -243,4 +243,22 @@ router.get('/debug/user-companies-data', generalLimiter, async (req, res) => {
   }
 });
 
+// Debug endpoint to check users data
+router.get('/debug/users-data', generalLimiter, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, email, first_name, last_name, role, created_at FROM users ORDER BY created_at DESC LIMIT 10');
+    res.json({
+      success: true,
+      count: result.rows.length,
+      users: result.rows
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({
+      success: false,
+      error: errorMessage
+    });
+  }
+});
+
 export default router;
