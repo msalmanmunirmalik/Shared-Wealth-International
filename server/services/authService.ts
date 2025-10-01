@@ -153,8 +153,12 @@ export class AuthService {
       // Generate JWT token for immediate login
       const token = jwt.sign(
         { userId: newUser.id, email: newUser.email, role: newUser.role },
-        process.env.JWT_SECRET || 'fallback-secret',
-        { expiresIn: '7d' }
+        JWT_SECRET as string,
+        { 
+          expiresIn: '7d',
+          issuer: 'shared-wealth-international',
+          audience: 'wealth-pioneers-users'
+        }
       );
 
       return {
