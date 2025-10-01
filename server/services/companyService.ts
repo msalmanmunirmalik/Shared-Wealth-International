@@ -164,11 +164,18 @@ export class CompanyService {
    */
   static async getUserCompanies(userId: string): Promise<ApiResponse<Company[]>> {
     try {
-      // For now, return empty array to fix 500 error
-      // TODO: Implement proper user companies logic once database schema is confirmed
+      // Get companies the user is associated with through user_companies table
+      const userCompanies = await DatabaseService.query(`
+        SELECT c.*, uc.role as user_role, uc.position as user_position, uc.status as user_status
+        FROM companies c
+        INNER JOIN user_companies uc ON c.id = uc.company_id
+        WHERE uc.user_id = $1
+        ORDER BY uc.created_at DESC
+      `, [userId]);
+
       return {
         success: true,
-        data: []
+        data: userCompanies
       };
     } catch (error) {
       console.error('Get user companies error:', error);
@@ -211,17 +218,11 @@ export class CompanyService {
    */
   static async getUserApplications(userId: string): Promise<ApiResponse<any[]>> {
     try {
-      const query = `
-        SELECT * FROM company_applications 
-        WHERE user_id = $1 
-        ORDER BY created_at DESC
-      `;
-      
-      const result = await DatabaseService.query(query, [userId]);
-      
+      // For now, return empty array since company_applications table doesn't exist
+      // TODO: Implement when company applications feature is needed
       return {
         success: true,
-        data: result.rows || []
+        data: []
       };
     } catch (error) {
       console.error('Get user applications error:', error);

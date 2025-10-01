@@ -7,11 +7,18 @@ export class NetworkService {
    */
   static async getUserNetwork(userId: string): Promise<ApiResponse<any[]>> {
     try {
-      // For now, return empty array to avoid 500 errors
-      // TODO: Implement once network_connections table is confirmed
+      // Get companies in user's network through connections
+      const networkCompanies = await DatabaseService.query(`
+        SELECT DISTINCT c.*, nc.connection_type, nc.status as connection_status, nc.created_at as connected_at
+        FROM companies c
+        INNER JOIN network_connections nc ON c.id = nc.company_id
+        WHERE nc.user_id = $1 AND nc.status = 'active'
+        ORDER BY nc.created_at DESC
+      `, [userId]);
+
       return {
         success: true,
-        data: []
+        data: networkCompanies
       };
     } catch (error) {
       console.error('Get user network error:', error);
