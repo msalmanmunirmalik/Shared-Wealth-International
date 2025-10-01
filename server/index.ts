@@ -529,7 +529,7 @@ app.post('/api/migration/run', async (req, res) => {
       'ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_image VARCHAR(500)'
     ];
     
-    const results = [];
+    const results: Array<{ query: string; status: string; error?: string }> = [];
     
     for (const query of migrationQueries) {
       try {
@@ -537,8 +537,9 @@ app.post('/api/migration/run', async (req, res) => {
         await pool.query(query);
         results.push({ query: query.substring(0, 50), status: 'success' });
       } catch (error) {
-        console.error(`Error executing query: ${error.message}`);
-        results.push({ query: query.substring(0, 50), status: 'error', error: error.message });
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`Error executing query: ${errorMessage}`);
+        results.push({ query: query.substring(0, 50), status: 'error', error: errorMessage });
       }
     }
     
@@ -550,14 +551,15 @@ app.post('/api/migration/run', async (req, res) => {
       'SELECT column_name, data_type FROM information_schema.columns WHERE table_name = \'users\' AND column_name IN (\'bio\', \'location\', \'website\', \'linkedin\', \'twitter\', \'profile_image\') ORDER BY column_name'
     ];
     
-    const verificationResults = [];
+    const verificationResults: Array<{ query: string; data?: any[]; error?: string }> = [];
     
     for (const query of verificationQueries) {
       try {
         const result = await pool.query(query);
         verificationResults.push({ query: query.substring(0, 50), data: result.rows });
       } catch (error) {
-        verificationResults.push({ query: query.substring(0, 50), error: error.message });
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        verificationResults.push({ query: query.substring(0, 50), error: errorMessage });
       }
     }
     
@@ -571,11 +573,12 @@ app.post('/api/migration/run', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Migration error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('❌ Migration error:', errorMessage);
     res.status(500).json({
       success: false,
       message: 'Migration failed',
-      error: error.message
+      error: errorMessage
     });
   }
 });
