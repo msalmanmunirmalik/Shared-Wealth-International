@@ -36,6 +36,12 @@ const Auth: React.FC = () => {
   const [role, setRole] = useState('member');
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImagePreview, setProfileImagePreview] = useState<string>('');
+  
+  // Company selection state
+  const [companySelectionType, setCompanySelectionType] = useState<'new' | 'existing'>('new');
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
+  const [availableCompanies, setAvailableCompanies] = useState<any[]>([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(false);
 
   const { signIn, signUp, resetPassword, user, isAdmin } = useAuth();
   const { toast } = useToast();
@@ -53,6 +59,40 @@ const Auth: React.FC = () => {
       reader.readAsDataURL(file);
     }
   };
+
+  // Load available companies for selection
+  const loadAvailableCompanies = async () => {
+    setLoadingCompanies(true);
+    try {
+      const response = await fetch('/api/companies');
+      const data = await response.json();
+      if (data.success) {
+        setAvailableCompanies(data.data || []);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to load companies",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error loading companies:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load companies",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingCompanies(false);
+    }
+  };
+
+  // Load companies when user selects "existing company"
+  useEffect(() => {
+    if (companySelectionType === 'existing' && availableCompanies.length === 0) {
+      loadAvailableCompanies();
+    }
+  }, [companySelectionType]);
 
   useEffect(() => {
     if (user) {
@@ -113,6 +153,25 @@ const Auth: React.FC = () => {
       return;
     }
 
+    // Validate company selection
+    if (companySelectionType === 'new' && !company.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your company name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (companySelectionType === 'existing' && !selectedCompanyId) {
+      toast({
+        title: "Error",
+        description: "Please select your company",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       // Create account with enhanced profile data
@@ -124,7 +183,8 @@ const Auth: React.FC = () => {
         phone,
         bio,
         position,
-        company,
+        company: companySelectionType === 'new' ? company : '', // Only use if new company
+        selectedCompanyId: companySelectionType === 'existing' ? selectedCompanyId : null,
         location,
         website,
         linkedin,
@@ -318,24 +378,97 @@ const Auth: React.FC = () => {
                       <h3 className="text-lg font-semibold">Professional Information</h3>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="signup-position">Position</Label>
-                        <Input
-                          id="signup-position"
-                          placeholder="e.g., CEO, Director, Manager"
-                          value={position}
-                          onChange={(e) => setPosition(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="signup-company">Company</Label>
-                        <Input
-                          id="signup-company"
-                          placeholder="Your company name"
-                          value={company}
-                          onChange={(e) => setCompany(e.target.value)}
-                        />
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-position">Position</Label>
+                      <Input
+                        id="signup-position"
+                        placeholder="e.g., CEO, Director, Manager"
+                        value={position}
+                        onChange={(e) => setPosition(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Company Selection */}
+                    <div className="space-y-4">
+                      <Label>Company Affiliation</Label>
+                      <div className="space-y-3">
+                        <div className="flex space-x-4">
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="radio"
+                              id="new-company"
+                              name="company-type"
+                              value="new"
+                              checked={companySelectionType === 'new'}
+                              onChange={(e) => setCompanySelectionType(e.target.value as 'new' | 'existing')}
+                              className="text-orange-500"
+                            />
+                            <Label htmlFor="new-company">I'm creating a new company</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="radio"
+                              id="existing-company"
+                              name="company-type"
+                              value="existing"
+                              checked={companySelectionType === 'existing'}
+                              onChange={(e) => setCompanySelectionType(e.target.value as 'new' | 'existing')}
+                              className="text-orange-500"
+                            />
+                            <Label htmlFor="existing-company">I'm part of an existing company</Label>
+                          </div>
+                        </div>
+
+                        {companySelectionType === 'new' && (
+                          <div className="space-y-2">
+                            <Label htmlFor="signup-company">Company Name</Label>
+                            <Input
+                              id="signup-company"
+                              placeholder="Your company name"
+                              value={company}
+                              onChange={(e) => setCompany(e.target.value)}
+                            />
+                          </div>
+                        )}
+
+                        {companySelectionType === 'existing' && (
+                          <div className="space-y-2">
+                            <Label htmlFor="company-select">Select Your Company</Label>
+                            {loadingCompanies ? (
+                              <div className="flex items-center space-x-2">
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500"></div>
+                                <span className="text-sm text-gray-500">Loading companies...</span>
+                              </div>
+                            ) : (
+                              <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Choose your company..." />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-60">
+                                  {availableCompanies.map((company) => (
+                                    <SelectItem key={company.id} value={company.id}>
+                                      <div className="flex flex-col">
+                                        <span className="font-medium">{company.name}</span>
+                                        <span className="text-xs text-gray-500">
+                                          {company.industry} • {company.location}
+                                        </span>
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                            {selectedCompanyId && (
+                              <div className="p-3 bg-gray-50 rounded-lg">
+                                <p className="text-sm text-gray-600">
+                                  <strong>Selected:</strong> {
+                                    availableCompanies.find(c => c.id === selectedCompanyId)?.name
+                                  }
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
 

@@ -58,7 +58,7 @@ export class AuthService {
     }
     static async signUp(userData) {
         try {
-            const { email, password, firstName, lastName, phone, role } = userData;
+            const { email, password, firstName, lastName, phone, role, selectedCompanyId, position } = userData;
             const existingUser = await DatabaseService.findOne('users', { where: { email } });
             if (existingUser) {
                 return {
@@ -76,6 +76,24 @@ export class AuthService {
                 phone: phone,
                 role: role || 'user'
             });
+            if (selectedCompanyId) {
+                try {
+                    const company = await DatabaseService.findById('companies', selectedCompanyId);
+                    if (company) {
+                        await DatabaseService.insert('user_companies', {
+                            user_id: newUser.id,
+                            company_id: selectedCompanyId,
+                            role: position || 'member',
+                            position: position || 'Member',
+                            status: 'active',
+                            is_primary: true
+                        });
+                    }
+                }
+                catch (error) {
+                    console.error('Error creating user-company relationship:', error);
+                }
+            }
             const token = jwt.sign({ userId: newUser.id, email: newUser.email, role: newUser.role }, process.env.JWT_SECRET || 'fallback-secret', { expiresIn: '7d' });
             return {
                 success: true,

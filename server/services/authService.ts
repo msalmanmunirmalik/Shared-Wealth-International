@@ -82,7 +82,7 @@ export class AuthService {
    */
   static async signUp(userData: any): Promise<ApiResponse<{ userId: string; token?: string }>> {
     try {
-      const { email, password, firstName, lastName, phone, role } = userData;
+      const { email, password, firstName, lastName, phone, role, selectedCompanyId, position } = userData;
 
       // Check if user already exists
       const existingUser = await DatabaseService.findOne('users', { where: { email } });
@@ -106,6 +106,28 @@ export class AuthService {
         phone: phone,
         role: role || 'user'
       });
+
+      // If user selected an existing company, create user-company relationship
+      if (selectedCompanyId) {
+        try {
+          // Verify the company exists
+          const company = await DatabaseService.findById('companies', selectedCompanyId);
+          if (company) {
+            // Create user-company relationship
+            await DatabaseService.insert('user_companies', {
+              user_id: newUser.id,
+              company_id: selectedCompanyId,
+              role: position || 'member',
+              position: position || 'Member',
+              status: 'active',
+              is_primary: true // This is their primary company affiliation
+            });
+          }
+        } catch (error) {
+          console.error('Error creating user-company relationship:', error);
+          // Don't fail the signup if company relationship fails
+        }
+      }
 
       // Generate JWT token for immediate login
       const token = jwt.sign(
