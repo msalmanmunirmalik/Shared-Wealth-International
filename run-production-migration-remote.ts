@@ -1,0 +1,132 @@
+import { Pool } from 'pg';
+import fs from 'fs';
+import path from 'path';
+
+async function runProductionMigrationRemote() {
+  let pool: Pool | null = null;
+  
+  try {
+    console.log('🚀 Running production database migration (remote)...');
+    
+    // Create production database connection
+    // Note: This would need production database credentials
+    // For now, we'll create a script that can be run on the production server
+    
+    const migrationSQL = `
+-- Production Database Migration Script
+-- Run this on the production database
+
+-- 1. Add missing columns to user_companies table
+ALTER TABLE user_companies ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_companies ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+-- 2. Create network_connections table
+CREATE TABLE IF NOT EXISTS network_connections (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+    connection_type VARCHAR(50) DEFAULT 'member' CHECK (connection_type IN ('member', 'partner', 'supplier', 'customer')),
+    status VARCHAR(50) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'pending')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, company_id)
+);
+
+-- 3. Fix companies table status column
+DO $$
+BEGIN
+    -- Check if status column exists and is a custom type
+    IF EXISTS (
+        SELECT 1 
+        FROM information_schema.columns 
+        WHERE table_name = 'companies' 
+        AND column_name = 'status' 
+        AND data_type = 'USER-DEFINED'
+    ) THEN
+        -- Convert custom type to VARCHAR
+        ALTER TABLE companies 
+        ALTER COLUMN status TYPE VARCHAR(50) 
+        USING status::text;
+        
+        -- Add check constraint
+        ALTER TABLE companies 
+        ADD CONSTRAINT companies_status_check 
+        CHECK (status IN ('pending', 'approved', 'rejected'));
+        
+        RAISE NOTICE 'Converted companies.status from custom type to VARCHAR';
+    ELSIF NOT EXISTS (
+        SELECT 1 
+        FROM information_schema.columns 
+        WHERE table_name = 'companies' 
+        AND column_name = 'status'
+    ) THEN
+        -- Add status column if it doesn't exist
+        ALTER TABLE companies 
+        ADD COLUMN status VARCHAR(50) DEFAULT 'pending' 
+        CHECK (status IN ('pending', 'approved', 'rejected'));
+        
+        RAISE NOTICE 'Added companies.status column';
+    ELSE
+        RAISE NOTICE 'companies.status column already exists and is VARCHAR';
+    END IF;
+END $$;
+
+-- 4. Add missing profile columns to users table
+ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS location VARCHAR(200);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS website VARCHAR(500);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS linkedin VARCHAR(500);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS twitter VARCHAR(500);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_image VARCHAR(500);
+
+-- 5. Verification queries
+SELECT 'Migration completed successfully' as status;
+
+-- Show current table structures
+SELECT 'users table columns:' as info;
+SELECT column_name, data_type, is_nullable 
+FROM information_schema.columns 
+WHERE table_name = 'users' 
+ORDER BY ordinal_position;
+
+SELECT 'user_companies table columns:' as info;
+SELECT column_name, data_type, is_nullable 
+FROM information_schema.columns 
+WHERE table_name = 'user_companies' 
+ORDER BY ordinal_position;
+
+SELECT 'network_connections table exists:' as info;
+SELECT COUNT(*) as table_exists 
+FROM information_schema.tables 
+WHERE table_name = 'network_connections';
+
+SELECT 'companies.status column type:' as info;
+SELECT column_name, data_type 
+FROM information_schema.columns 
+WHERE table_name = 'companies' AND column_name = 'status';
+`;
+
+    // Write the migration script to a file
+    const migrationPath = path.join(process.cwd(), 'production-migration-remote.sql');
+    fs.writeFileSync(migrationPath, migrationSQL);
+    
+    console.log('📝 Production migration script created: production-migration-remote.sql');
+    console.log('📋 To run this migration on production:');
+    console.log('   1. Copy production-migration-remote.sql to your production server');
+    console.log('   2. Connect to your production database');
+    console.log('   3. Run: psql -d your_production_db -f production-migration-remote.sql');
+    console.log('   4. Or execute the SQL commands directly in your database client');
+    
+    console.log('\n🔧 Alternative: Use Render Dashboard');
+    console.log('   1. Go to your Render dashboard');
+    console.log('   2. Navigate to your database service');
+    console.log('   3. Open the "Shell" or "Console" tab');
+    console.log('   4. Copy and paste the SQL commands from production-migration-remote.sql');
+    console.log('   5. Execute them one by one');
+    
+  } catch (error) {
+    console.error('❌ Error creating production migration script:', error);
+  }
+}
+
+runProductionMigrationRemote();

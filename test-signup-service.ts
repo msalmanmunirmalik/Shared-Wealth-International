@@ -5,7 +5,7 @@ async function testSignupService() {
     console.log('🔄 Testing signup service...');
     
     const userData = {
-      email: 'test.service@example.com',
+      email: 'test.service3@example.com',
       password: 'TestService123',
       firstName: 'Test',
       lastName: 'Service',

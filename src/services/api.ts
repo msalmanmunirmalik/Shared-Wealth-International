@@ -167,25 +167,8 @@ class ApiService {
 
   async signUpWithProfile(profileData: any) {
     try {
-      // First, create the user account
-      const userResponse = await this.request('/auth/signup', {
-        method: 'POST',
-        body: JSON.stringify({
-          email: profileData.email,
-          password: profileData.password,
-          firstName: profileData.firstName,
-          lastName: profileData.lastName,
-          phone: profileData.phone,
-          role: profileData.role || 'user'
-        }),
-      });
-
-      if (!userResponse.success) {
-        throw new Error(userResponse.message || 'Failed to create user account');
-      }
-
-      // If profile image is provided, upload it
-      let avatarUrl = '';
+      // If profile image is provided, upload it first
+      let profileImageUrl = '';
       if (profileData.profileImage) {
         try {
           const formData = new FormData();
@@ -194,16 +177,13 @@ class ApiService {
           
           const uploadResponse = await fetch(`${API_BASE_URL}/files/upload`, {
             method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${userResponse.data?.token || ''}`,
-              // Don't set Content-Type for FormData - let browser set it with boundary
-            },
+            // Don't set Content-Type for FormData - let browser set it with boundary
             body: formData,
           });
 
           if (uploadResponse.ok) {
             const uploadData = await uploadResponse.json();
-            avatarUrl = uploadData.data?.publicUrl || '';
+            profileImageUrl = uploadData.data?.publicUrl || '';
           }
         } catch (uploadError) {
           console.warn('Profile image upload failed:', uploadError);
@@ -211,31 +191,27 @@ class ApiService {
         }
       }
 
-      // Update user profile with additional information
-      if (avatarUrl || profileData.bio || profileData.position || profileData.company || 
-          profileData.location || profileData.website || profileData.linkedin || profileData.twitter) {
-        try {
-          await this.request('/users/profile', {
-            method: 'PUT',
-            headers: {
-              'Authorization': `Bearer ${userResponse.data?.token || ''}`,
-            },
-            body: JSON.stringify({
-              bio: profileData.bio,
-              position: profileData.position,
-              company: profileData.company,
-              location: profileData.location,
-              website: profileData.website,
-              linkedin: profileData.linkedin,
-              twitter: profileData.twitter,
-              avatar_url: avatarUrl
-            }),
-          });
-        } catch (profileError) {
-          console.warn('Profile update failed:', profileError);
-          // Continue - user account was created successfully
-        }
-      }
+      // Create user account with all profile data in one request
+      const userResponse = await this.request('/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: profileData.email,
+          password: profileData.password,
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          phone: profileData.phone,
+          role: profileData.role || 'user',
+          selectedCompanyId: profileData.selectedCompanyId,
+          position: profileData.position,
+          companyName: profileData.companyName,
+          bio: profileData.bio,
+          location: profileData.location,
+          website: profileData.website,
+          linkedin: profileData.linkedin,
+          twitter: profileData.twitter,
+          profileImage: profileImageUrl
+        }),
+      });
 
       return userResponse;
     } catch (error) {

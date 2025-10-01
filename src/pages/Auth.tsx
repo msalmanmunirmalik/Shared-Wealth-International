@@ -197,6 +197,7 @@ const Auth: React.FC = () => {
         profileImage
       };
 
+      // Use signUpWithProfile to handle file uploads
       await signUp(email, password, profileData);
       toast({
         title: "Success",
