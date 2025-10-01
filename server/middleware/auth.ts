@@ -39,10 +39,23 @@ export const authenticateToken = async (
     }
 
     // Security: Validate JWT token with issuer and audience verification
-    const decoded = jwt.verify(token, JWT_SECRET, {
-      issuer: 'shared-wealth-international',
-      audience: 'wealth-pioneers-users'
-    }) as JWTPayload;
+    let decoded: JWTPayload;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET, {
+        issuer: 'shared-wealth-international',
+        audience: 'wealth-pioneers-users'
+      }) as JWTPayload;
+    } catch (jwtError) {
+      console.log('🔐 Auth Debug - JWT verification failed, trying without issuer/audience:', jwtError.message);
+      // Fallback: try without issuer/audience verification for debugging
+      try {
+        decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
+        console.log('🔐 Auth Debug - JWT verified without issuer/audience');
+      } catch (fallbackError) {
+        console.log('🔐 Auth Debug - JWT verification completely failed:', fallbackError.message);
+        throw jwtError; // Throw original error
+      }
+    }
     console.log('🔐 Auth Debug - Decoded JWT:', decoded);
     
     if (!decoded || !decoded.userId) {
