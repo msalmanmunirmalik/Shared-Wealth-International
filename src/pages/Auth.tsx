@@ -43,7 +43,7 @@ const Auth: React.FC = () => {
   const [availableCompanies, setAvailableCompanies] = useState<any[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
 
-  const { signIn, signUp, resetPassword, user, isAdmin } = useAuth();
+  const { signIn, signUp, resetPassword, signOut, user, isAdmin } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -96,15 +96,17 @@ const Auth: React.FC = () => {
     }
   }, [companySelectionType]);
 
-  useEffect(() => {
-    if (user) {
-      if (isAdmin && window.location.pathname.includes('/admin')) {
-        navigate('/admin');
-      } else {
-        navigate('/user-dashboard');
-      }
-    }
-  }, [user, isAdmin, navigate]);
+  // Remove automatic redirect - allow users to access auth page even when logged in
+  // This enables users to sign out or switch accounts
+  // useEffect(() => {
+  //   if (user) {
+  //     if (isAdmin && window.location.pathname.includes('/admin')) {
+  //       navigate('/admin');
+  //     } else {
+  //       navigate('/user-dashboard');
+  //     }
+  //   }
+  // }, [user, isAdmin, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -249,6 +251,49 @@ const Auth: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           <p className="text-gray-600">Sign in to your account to continue</p>
         </div>
+
+        {/* Show current user info and sign out option if logged in */}
+        {user && (
+          <Card className="shadow-lg border-0 bg-blue-50/80 backdrop-blur-sm mb-6">
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-3">
+                  <Avatar className="w-12 h-12 mr-3">
+                    <AvatarFallback className="bg-blue-100 text-blue-600">
+                      {user.email.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="text-left">
+                    <p className="font-semibold text-gray-900">{user.email}</p>
+                    <p className="text-sm text-gray-600 capitalize">{user.role}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 justify-center">
+                  <Button 
+                    onClick={() => navigate('/user-dashboard')} 
+                    variant="outline" 
+                    size="sm"
+                  >
+                    Go to Dashboard
+                  </Button>
+                  <Button 
+                    onClick={async () => {
+                      await signOut();
+                      toast({
+                        title: "Signed Out",
+                        description: "You have been signed out successfully",
+                      });
+                    }} 
+                    variant="outline" 
+                    size="sm"
+                  >
+                    Sign Out
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
           <CardHeader className="pb-4">
