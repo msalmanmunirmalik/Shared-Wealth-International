@@ -23,7 +23,7 @@ function sanitizeColumnNames(columns: string[]): string[] {
     'id', 'email', 'password_hash', 'role', 'created_at', 'updated_at',
     'first_name', 'last_name', 'phone', 'bio', 'location', 'website', 'linkedin', 'twitter', 'profile_image', 'is_active', 'email_verified', 'last_login',
     'name', 'description', 'industry', 'sector', 'size', 'location', 'website', 'logo', 'status',
-    'user_id', 'company_id', 'connected_company_id', 'connection_strength', 'shared_projects',
+    'user_id', 'company_id', 'connected_company_id', 'connection_strength', 'shared_projects', 'position',
     'collaboration_score', 'title', 'category', 'amount', 'deadline', 'eligibility', 'url',
     'content', 'start_date', 'end_date', 'max_participants', 'recipient_id', 'sender_id', 'message',
     'applicant_user_id', 'applicant_role', 'applicant_position', 'is_shared_wealth_licensed',
