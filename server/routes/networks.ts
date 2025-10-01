@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { NetworkController } from '../controllers/networkController.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { generalLimiter } from '../middleware/rateLimit.js';
-import { validateRequest } from '../middleware/validation.js';
 
 const router: Router = Router();
 
@@ -67,13 +66,6 @@ router.get('/user', authenticateToken, generalLimiter, NetworkController.getUser
 router.post('/add', 
   authenticateToken, 
   generalLimiter, 
-  validateRequest({
-    body: {
-      company_id: { type: 'string', required: true },
-      connection_type: { type: 'string', required: false },
-      notes: { type: 'string', required: false }
-    }
-  }),
   NetworkController.addToNetwork
 );
 
@@ -108,11 +100,6 @@ router.post('/add',
 router.delete('/remove',
   authenticateToken,
   generalLimiter,
-  validateRequest({
-    body: {
-      company_id: { type: 'string', required: true }
-    }
-  }),
   NetworkController.removeFromNetwork
 );
 

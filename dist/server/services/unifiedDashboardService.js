@@ -384,8 +384,8 @@ export class UnifiedDashboardService {
             const query = `
         SELECT 
           c.*,
-          uc.role,
-          uc.joined_at
+          uc.is_primary,
+          uc.created_at as joined_at
         FROM companies c
         JOIN user_companies uc ON c.id = uc.company_id
         WHERE uc.user_id = $1
@@ -591,8 +591,8 @@ export class UnifiedDashboardService {
           u.first_name,
           u.last_name,
           u.email,
-          uc.role,
-          uc.joined_at
+          uc.is_primary,
+          uc.created_at as joined_at
         FROM users u
         JOIN user_companies uc ON u.id = uc.user_id
         WHERE uc.company_id = $1

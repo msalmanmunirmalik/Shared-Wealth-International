@@ -127,10 +127,10 @@ export class CompanyService {
     static async getUserCompanies(userId) {
         try {
             const query = `
-        SELECT c.*, uc.role, uc.is_primary
+        SELECT c.*, uc.is_primary
         FROM companies c
         INNER JOIN user_companies uc ON c.id = uc.company_id
-        WHERE uc.user_id = $1
+        WHERE uc.user_id = $1 AND uc.status = 'active'
         ORDER BY c.created_at DESC
       `;
             const result = await DatabaseService.query(query, [userId]);
@@ -141,6 +141,28 @@ export class CompanyService {
         }
         catch (error) {
             console.error('Get user companies error:', error);
+            return {
+                success: false,
+                message: 'Internal server error'
+            };
+        }
+    }
+    static async getUserCreatedCompanies(userId) {
+        try {
+            const query = `
+        SELECT c.*
+        FROM companies c
+        WHERE c.applicant_user_id = $1
+        ORDER BY c.created_at DESC
+      `;
+            const result = await DatabaseService.query(query, [userId]);
+            return {
+                success: true,
+                data: result.rows || []
+            };
+        }
+        catch (error) {
+            console.error('Get user created companies error:', error);
             return {
                 success: false,
                 message: 'Internal server error'

@@ -5,6 +5,7 @@ export declare class CompanyService {
     static createCompany(companyData: CreateCompanyRequest, userId: string): Promise<ApiResponse<Company>>;
     static updateCompany(id: string, updateData: Partial<Company>): Promise<ApiResponse<Company>>;
     static getUserCompanies(userId: string): Promise<ApiResponse<Company[]>>;
+    static getUserCreatedCompanies(userId: string): Promise<ApiResponse<Company[]>>;
     static getUserApplications(userId: string): Promise<ApiResponse<any[]>>;
     static deleteCompany(id: string): Promise<ApiResponse<{
         message: string;

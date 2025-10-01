@@ -146,7 +146,7 @@ export class CompanyController {
       
       if (createdResult.success && associatedResult.success) {
         // Combine both results, removing duplicates
-        const allCompanies = [...createdResult.data, ...associatedResult.data];
+        const allCompanies = [...(createdResult.data || []), ...(associatedResult.data || [])];
         const uniqueCompanies = allCompanies.filter((company, index, self) => 
           index === self.findIndex(c => c.id === company.id)
         );

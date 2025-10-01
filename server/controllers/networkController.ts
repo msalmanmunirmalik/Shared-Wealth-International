@@ -21,7 +21,10 @@ export class NetworkController {
       const result = await NetworkService.getUserNetwork(userId);
       
       if (result.success) {
-        res.json(result.data);
+        res.json({
+          success: true,
+          data: result.data
+        });
       } else {
         res.status(500).json({
           success: false,
@@ -137,7 +140,10 @@ export class NetworkController {
       const result = await NetworkService.getAvailableCompanies(userId, search as string);
       
       if (result.success) {
-        res.json(result.data);
+        res.json({
+          success: true,
+          data: result.data
+        });
       } else {
         res.status(500).json({
           success: false,
