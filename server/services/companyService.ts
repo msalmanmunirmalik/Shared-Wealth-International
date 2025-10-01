@@ -161,6 +161,8 @@ export class CompanyService {
    */
   static async getUserCompanies(userId: string): Promise<ApiResponse<Company[]>> {
     try {
+      console.log('🔍 CompanyService.getUserCompanies - User ID:', userId);
+      
       const query = `
         SELECT c.*, uc.role
         FROM companies c
@@ -169,7 +171,16 @@ export class CompanyService {
         ORDER BY c.created_at DESC
       `;
       
+      console.log('🔍 CompanyService.getUserCompanies - Executing query:', query);
+      console.log('🔍 CompanyService.getUserCompanies - Query params:', [userId]);
+      
       const result = await DatabaseService.query(query, [userId]);
+      
+      console.log('🔍 CompanyService.getUserCompanies - Query result:', result.rows.length, 'companies');
+      result.rows.forEach((company, index) => {
+        console.log(`  ${index + 1}. ${company.name} (role: ${company.role})`);
+      });
+      
       return {
         success: true,
         data: result.rows

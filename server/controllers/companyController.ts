@@ -143,11 +143,13 @@ export class CompanyController {
       // Get companies the user is associated with through user_companies
       const result = await CompanyService.getUserCompanies(userId);
       
-      console.log('🔍 getUserCompanies - Service result:', result);
+      console.log('🔍 getUserCompanies - Service result:', JSON.stringify(result, null, 2));
       
       if (result.success) {
+        console.log('🔍 getUserCompanies - Returning success response with data:', result.data?.length || 0, 'companies');
         res.json(result);
       } else {
+        console.log('🔍 getUserCompanies - Service returned error:', result.message);
         res.status(500).json({
           success: false,
           message: result.message || 'Failed to retrieve user companies'
