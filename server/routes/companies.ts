@@ -43,10 +43,8 @@ const router: ReturnType<typeof Router> = Router();
  *                   items:
  *                     $ref: '#/components/schemas/Company'
  */
-// Temporarily return empty array to avoid database schema errors
-router.get('/', generalLimiter, async (req, res) => {
-  res.json({ success: true, data: [] });
-});
+// Get all approved companies
+router.get('/', generalLimiter, CompanyController.getCompanies);
 
 /**
  * @swagger

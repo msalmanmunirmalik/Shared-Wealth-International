@@ -7,11 +7,18 @@ export class NetworkService {
    */
   static async getUserNetwork(userId: string): Promise<ApiResponse<any[]>> {
     try {
-      // Temporarily return empty array to fix 500 error while database migration is applied
-      // TODO: Re-enable real query after production database migration
+      const query = `
+        SELECT c.*, nc.connection_type, nc.status as connection_status
+        FROM companies c
+        INNER JOIN network_connections nc ON c.id = nc.company_id
+        WHERE nc.user_id = $1
+        ORDER BY c.created_at DESC
+      `;
+      
+      const result = await pool.query(query, [userId]);
       return {
         success: true,
-        data: []
+        data: result.rows
       };
     } catch (error) {
       console.error('Get user network error:', error);
@@ -116,13 +123,27 @@ export class NetworkService {
    */
   static async getAvailableCompanies(userId: string, searchTerm?: string): Promise<ApiResponse<any[]>> {
     try {
-      // Temporarily return empty array to avoid database errors
-      // TODO: Re-enable after database migration
-      const companies: any[] = [];
+      // Get companies not already in user's network
+      const query = `
+        SELECT c.*
+        FROM companies c
+        WHERE c.status = 'approved'
+        AND c.id NOT IN (
+          SELECT nc.company_id 
+          FROM network_connections nc 
+          WHERE nc.user_id = $1
+        )
+        ${searchTerm ? `AND (c.name ILIKE $2 OR c.description ILIKE $2)` : ''}
+        ORDER BY c.created_at DESC
+        LIMIT 50
+      `;
+      
+      const params = searchTerm ? [userId, `%${searchTerm}%`] : [userId];
+      const result = await pool.query(query, params);
       
       return {
         success: true,
-        data: companies || []
+        data: result.rows || []
       };
     } catch (error) {
       console.error('Get available companies error:', error);

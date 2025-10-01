@@ -158,11 +158,18 @@ export class CompanyService {
    */
   static async getUserCompanies(userId: string): Promise<ApiResponse<Company[]>> {
     try {
-      // Temporarily return empty array to fix 500 error while database migration is applied
-      // TODO: Re-enable real query after production database migration
+      const query = `
+        SELECT c.*, uc.role as user_role, uc.position, uc.status as user_company_status
+        FROM companies c
+        INNER JOIN user_companies uc ON c.id = uc.company_id
+        WHERE uc.user_id = $1
+        ORDER BY c.created_at DESC
+      `;
+      
+      const result = await pool.query(query, [userId]);
       return {
         success: true,
-        data: []
+        data: result.rows
       };
     } catch (error) {
       console.error('Get user companies error:', error);
@@ -252,10 +259,10 @@ export class CompanyService {
    */
   static async getCompaniesByStatus(isActive: boolean): Promise<ApiResponse<Company[]>> {
     try {
-      // Temporarily return empty array to avoid database errors
-      // TODO: Re-enable after database migration
-      const companies: any[] = [];
-
+      const companies = await DatabaseService.findAll('companies', { 
+        where: { status: 'approved' },
+        orderBy: { created_at: 'DESC' }
+      });
       return {
         success: true,
         data: companies
@@ -277,13 +284,15 @@ export class CompanyService {
       let companies: Company[];
       
       if (category) {
-        // Temporarily return empty array to avoid database errors
-        // TODO: Re-enable after database migration
-        companies = [];
+        companies = await DatabaseService.findAll('companies', { 
+          where: { status: 'approved', industry: category },
+          orderBy: { created_at: 'DESC' }
+        });
       } else {
-        // Temporarily return empty array to avoid database errors
-        // TODO: Re-enable after database migration
-        companies = [];
+        companies = await DatabaseService.findAll('companies', { 
+          where: { status: 'approved' },
+          orderBy: { created_at: 'DESC' }
+        });
       }
 
       // Simple search implementation
