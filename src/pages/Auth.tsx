@@ -33,7 +33,6 @@ const Auth: React.FC = () => {
   const [website, setWebsite] = useState('');
   const [linkedin, setLinkedin] = useState('');
   const [twitter, setTwitter] = useState('');
-  const [role, setRole] = useState('user');
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImagePreview, setProfileImagePreview] = useState<string>('');
   
@@ -193,7 +192,6 @@ const Auth: React.FC = () => {
         website,
         linkedin,
         twitter,
-        role,
         profileImage
       };
 
@@ -531,20 +529,6 @@ const Auth: React.FC = () => {
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-role">Role in Shared Wealth</Label>
-                      <Select value={role} onValueChange={setRole}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select your role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="user">User</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                          <SelectItem value="director">Director</SelectItem>
-                          <SelectItem value="moderator">Moderator</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
                   </div>
 
                   {/* Location and Links */}

@@ -795,11 +795,11 @@ const UserDashboard = () => {
                   </Button>
                   
                   <Button 
-                    onClick={() => navigate('/network')}
+                    onClick={() => navigate('/companies')}
                     className="h-auto p-4 flex flex-col items-center space-y-2 bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200"
                   >
-                    <Globe className="w-6 h-6" />
-                    <span className="text-sm font-medium">Browse Network</span>
+                    <Building className="w-6 h-6" />
+                    <span className="text-sm font-medium">Companies Directory</span>
                   </Button>
                 </div>
               </CardContent>

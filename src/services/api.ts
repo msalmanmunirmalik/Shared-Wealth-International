@@ -200,7 +200,7 @@ class ApiService {
           firstName: profileData.firstName,
           lastName: profileData.lastName,
           phone: profileData.phone,
-          role: profileData.role || 'user',
+          role: 'user', // Default role for all new users
           selectedCompanyId: profileData.selectedCompanyId,
           position: profileData.position,
           companyName: profileData.companyName,

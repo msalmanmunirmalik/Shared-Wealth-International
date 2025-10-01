@@ -69,25 +69,12 @@ const router: ReturnType<typeof Router> = Router();
  *       401:
  *         description: Unauthorized
  */
-// Upload endpoint without auth for signup (temporary placeholder)
+// Upload endpoint with proper multer handling
 router.post('/upload', 
   generalLimiter,
-  async (req, res) => {
-    try {
-      // Simple placeholder for file uploads during signup
-      // TODO: Implement proper multer file handling after migration
-      res.json({
-        success: true,
-        data: {
-          publicUrl: 'https://via.placeholder.com/150x150?text=Profile+Image',
-          filename: 'profile-image.jpg'
-        }
-      });
-    } catch (error) {
-      console.error('File upload error:', error);
-      res.status(500).json({ success: false, message: 'File upload failed' });
-    }
-  }
+  upload.single('file'),
+  handleUploadError,
+  FileController.uploadFile
 );
 
 /**
