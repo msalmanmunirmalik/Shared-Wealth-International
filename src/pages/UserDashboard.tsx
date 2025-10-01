@@ -41,6 +41,7 @@ import {
   FileText,
   Settings,
   Bell,
+  Lightbulb,
   Edit,
   Trash2,
   Eye,
@@ -260,7 +261,22 @@ const UserDashboard = () => {
       }));
       
       setUserCompanies(mappedUserCompanies);
-      setNetworkCompanies((dashboardData.networkCompanies || []).map((company: any) => ({
+      // Handle networkCompanies - it might be an object with data property or an array
+      const networkCompaniesData = dashboardData.networkCompanies;
+      let networkCompaniesArray = [];
+      
+      if (Array.isArray(networkCompaniesData)) {
+        networkCompaniesArray = networkCompaniesData;
+      } else if (networkCompaniesData && networkCompaniesData.data && Array.isArray(networkCompaniesData.data)) {
+        networkCompaniesArray = networkCompaniesData.data;
+      } else if (networkCompaniesData && typeof networkCompaniesData === 'object') {
+        // If it's an object but not with data property, try to extract values
+        networkCompaniesArray = Object.values(networkCompaniesData).filter(item => 
+          typeof item === 'object' && item !== null
+        );
+      }
+      
+      setNetworkCompanies(networkCompaniesArray.map((company: any) => ({
         ...company,
         highlights: company.highlights || company.description || 'No highlights available',
         location: company.location || company.country || 'Location not specified'
@@ -275,7 +291,7 @@ const UserDashboard = () => {
 
       // Calculate real stats based on actual data
       const totalCompanies = mappedUserCompanies.length; // User's companies only
-      const networkPartners = dashboardData.networkCompanies?.length || 0;
+      const networkPartners = networkCompaniesArray.length;
       
       // Only calculate growth rate if there are companies to compare
       const growthRate = totalCompanies > 0 ? Math.round((totalCompanies / Math.max(totalCompanies - 1, 1)) * 100) : 0;
