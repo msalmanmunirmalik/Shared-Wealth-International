@@ -344,7 +344,7 @@ app.get('/api/users/me', authenticateToken, (req: AuthenticatedRequest, res: Res
 // Company routes with rate limiting
 app.get('/api/companies', generalLimiter, async (req, res) => {
   try {
-    const companies = await DatabaseService.findAll('companies', { where: { is_active: true } });
+    const companies = await DatabaseService.findAll('companies', { where: { status: 'approved' } });
     res.json({ success: true, data: companies });
   } catch (error) {
     console.error('Get companies error:', error);
