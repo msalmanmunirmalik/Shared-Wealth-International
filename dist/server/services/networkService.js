@@ -88,15 +88,12 @@ export class NetworkService {
     }
     static async getAvailableCompanies(userId, searchTerm) {
         try {
-            const query = `
-        SELECT c.*
-        FROM companies c
-        ORDER BY c.name ASC
-      `;
-            const result = await DatabaseService.query(query, []);
+            const companies = await DatabaseService.findAll('companies', {
+                where: { is_active: true }
+            });
             return {
                 success: true,
-                data: result.rows || []
+                data: companies || []
             };
         }
         catch (error) {

@@ -116,19 +116,14 @@ export class NetworkService {
    */
   static async getAvailableCompanies(userId: string, searchTerm?: string): Promise<ApiResponse<any[]>> {
     try {
-      // For now, return all active companies as available
-      // TODO: Filter out user's network companies once network_connections table is ready
-      const query = `
-        SELECT c.*
-        FROM companies c
-        ORDER BY c.name ASC
-      `;
-      
-      const result = await DatabaseService.query(query, []);
+      // Use the same method as the working /api/companies endpoint
+      const companies = await DatabaseService.findAll('companies', { 
+        where: { is_active: true } 
+      });
       
       return {
         success: true,
-        data: result.rows || []
+        data: companies || []
       };
     } catch (error) {
       console.error('Get available companies error:', error);
