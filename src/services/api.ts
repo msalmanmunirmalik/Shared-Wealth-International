@@ -190,12 +190,13 @@ class ApiService {
         try {
           const formData = new FormData();
           formData.append('file', profileData.profileImage);
-          formData.append('uploadType', 'profile_image');
+          formData.append('uploadType', 'images');
           
           const uploadResponse = await fetch(`${API_BASE_URL}/files/upload`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${userResponse.data?.token || ''}`,
+              // Don't set Content-Type for FormData - let browser set it with boundary
             },
             body: formData,
           });

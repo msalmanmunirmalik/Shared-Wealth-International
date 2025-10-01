@@ -51,6 +51,7 @@ import {
   MapPin,
   Phone,
   ExternalLink,
+  Calculator,
   Download,
   Share2,
   Filter,
