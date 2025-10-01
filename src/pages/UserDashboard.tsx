@@ -52,6 +52,7 @@ import {
   Phone,
   ExternalLink,
   Calculator,
+  BookOpen,
   Download,
   Share2,
   Filter,
