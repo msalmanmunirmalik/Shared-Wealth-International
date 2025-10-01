@@ -89,17 +89,41 @@ export const authValidation = {
     body('website')
       .optional()
       .trim()
-      .isURL()
+      .custom((value) => {
+        if (!value || value === '') return true;
+        try {
+          new URL(value);
+          return true;
+        } catch {
+          return false;
+        }
+      })
       .withMessage('Website must be a valid URL'),
     body('linkedin')
       .optional()
       .trim()
-      .isURL()
+      .custom((value) => {
+        if (!value || value === '') return true;
+        try {
+          new URL(value);
+          return true;
+        } catch {
+          return false;
+        }
+      })
       .withMessage('LinkedIn must be a valid URL'),
     body('twitter')
       .optional()
       .trim()
-      .isURL()
+      .custom((value) => {
+        if (!value || value === '') return true;
+        try {
+          new URL(value);
+          return true;
+        } catch {
+          return false;
+        }
+      })
       .withMessage('Twitter must be a valid URL'),
     body('profileImage')
       .optional()

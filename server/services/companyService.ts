@@ -14,19 +14,19 @@ export class CompanyService {
         const { page, limit } = pagination;
         const offset = (page - 1) * limit;
         
-        // Only return active companies for public directory
+        // Only return approved companies for public directory
         companies = await DatabaseService.findAll('companies', { 
-          where: { is_active: true },
+          where: { status: 'approved' },
           limit, 
           offset 
         });
         
-        // Count only active companies
-        total = await DatabaseService.count('companies', { where: { is_active: true } });
+        // Count only approved companies
+        total = await DatabaseService.count('companies', { where: { status: 'approved' } });
       } else {
-        // Only return active companies for public directory
+        // Only return approved companies for public directory
         companies = await DatabaseService.findAll('companies', { 
-          where: { is_active: true } 
+          where: { status: 'approved' } 
         });
       }
 
