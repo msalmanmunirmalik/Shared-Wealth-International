@@ -202,4 +202,45 @@ router.get('/debug/companies', generalLimiter, async (req, res) => {
   }
 });
 
+// Debug endpoint to check user_companies table structure
+router.get('/debug/user-companies-structure', generalLimiter, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT column_name, data_type, is_nullable, column_default
+      FROM information_schema.columns 
+      WHERE table_name = 'user_companies' 
+      ORDER BY ordinal_position
+    `);
+    res.json({
+      success: true,
+      table: 'user_companies',
+      columns: result.rows
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({
+      success: false,
+      error: errorMessage
+    });
+  }
+});
+
+// Debug endpoint to check user_companies data
+router.get('/debug/user-companies-data', generalLimiter, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM user_companies LIMIT 5');
+    res.json({
+      success: true,
+      count: result.rows.length,
+      user_companies: result.rows
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({
+      success: false,
+      error: errorMessage
+    });
+  }
+});
+
 export default router;
