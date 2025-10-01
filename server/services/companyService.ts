@@ -164,7 +164,7 @@ export class CompanyService {
       console.log('🔍 CompanyService.getUserCompanies - User ID:', userId);
       
       const query = `
-        SELECT c.*, uc.role
+        SELECT c.*, uc.position as role
         FROM companies c
         INNER JOIN user_companies uc ON c.id = uc.company_id
         WHERE uc.user_id = $1

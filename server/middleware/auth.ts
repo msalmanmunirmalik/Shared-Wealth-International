@@ -46,13 +46,15 @@ export const authenticateToken = async (
         audience: 'wealth-pioneers-users'
       }) as JWTPayload;
     } catch (jwtError) {
-      console.log('🔐 Auth Debug - JWT verification failed, trying without issuer/audience:', jwtError.message);
+      const errorMessage = jwtError instanceof Error ? jwtError.message : 'Unknown JWT error';
+      console.log('🔐 Auth Debug - JWT verification failed, trying without issuer/audience:', errorMessage);
       // Fallback: try without issuer/audience verification for debugging
       try {
         decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
         console.log('🔐 Auth Debug - JWT verified without issuer/audience');
       } catch (fallbackError) {
-        console.log('🔐 Auth Debug - JWT verification completely failed:', fallbackError.message);
+        const fallbackErrorMessage = fallbackError instanceof Error ? fallbackError.message : 'Unknown fallback error';
+        console.log('🔐 Auth Debug - JWT verification completely failed:', fallbackErrorMessage);
         throw jwtError; // Throw original error
       }
     }
