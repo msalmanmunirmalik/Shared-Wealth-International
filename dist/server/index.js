@@ -8,6 +8,9 @@ import rateLimit from 'express-rate-limit';
 import { body, validationResult } from 'express-validator';
 import pool from '../src/integrations/postgresql/config.js';
 import { DatabaseService } from '../src/integrations/postgresql/database.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -474,9 +477,32 @@ app.use((error, req, res, next) => {
     console.error('Unhandled error:', error);
     res.status(500).json({ message: 'Internal server error' });
 });
-app.use('*', (req, res) => {
-    res.status(404).json({ message: 'Route not found' });
-});
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const distPath = path.join(__dirname, '..', '..', 'dist');
+console.log('📁 Static files path:', distPath);
+if (fs.existsSync(distPath)) {
+    console.log('✅ dist directory exists');
+    app.use(express.static(distPath));
+    app.get('*', (req, res, next) => {
+        if (req.path.startsWith('/api/')) {
+            return next();
+        }
+        const indexPath = path.join(distPath, 'index.html');
+        if (fs.existsSync(indexPath)) {
+            res.sendFile(indexPath);
+        }
+        else {
+            res.status(404).json({ message: 'Frontend not found' });
+        }
+    });
+}
+else {
+    console.log('⚠️ dist directory does not exist - static files not served');
+    app.use('*', (req, res) => {
+        res.status(404).json({ message: 'Route not found' });
+    });
+}
 const server = app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
     console.log(`🔒 Security features enabled: Helmet, Rate Limiting, CORS`);

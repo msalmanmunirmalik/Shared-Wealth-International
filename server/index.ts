@@ -8,6 +8,9 @@ import rateLimit from 'express-rate-limit';
 import { body, validationResult } from 'express-validator';
 import pool from '../src/integrations/postgresql/config.js';
 import { DatabaseService } from '../src/integrations/postgresql/database.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 // Load environment variables
 dotenv.config();
@@ -609,10 +612,39 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({ message: 'Internal server error' });
 });
 
-// Security: 404 handler for undefined routes
-app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Route not found' });
-});
+// Serve static files from the React app build
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// In production, serve static files from dist directory
+const distPath = path.join(__dirname, '..', '..', 'dist');
+console.log('📁 Static files path:', distPath);
+
+if (fs.existsSync(distPath)) {
+  console.log('✅ dist directory exists');
+  app.use(express.static(distPath));
+  
+  // Serve index.html for all non-API routes (SPA routing)
+  app.get('*', (req, res, next) => {
+    // Skip API routes
+    if (req.path.startsWith('/api/')) {
+      return next();
+    }
+    
+    const indexPath = path.join(distPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).json({ message: 'Frontend not found' });
+    }
+  });
+} else {
+  console.log('⚠️ dist directory does not exist - static files not served');
+  // Security: 404 handler for undefined routes
+  app.use('*', (req, res) => {
+    res.status(404).json({ message: 'Route not found' });
+  });
+}
 
 // Start server with proper error handling
 const server = app.listen(PORT, () => {
