@@ -770,7 +770,7 @@ class ApiService {
   }
 
   async requestPasswordReset(email: string) {
-    return await this.request('/users/request-password-reset', {
+    return await this.request('/auth/reset-password', {
       method: 'POST',
       body: JSON.stringify({ email })
     });

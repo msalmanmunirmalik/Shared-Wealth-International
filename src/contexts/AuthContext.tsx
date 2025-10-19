@@ -203,7 +203,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const resetPassword = async (email: string) => {
     try {
-      await apiService.resetPassword(email);
+      await apiService.requestPasswordReset(email);
     } catch (error) {
       console.error('Reset password error:', error);
       throw error;
