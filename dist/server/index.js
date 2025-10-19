@@ -42,6 +42,97 @@ const generalLimiter = rateLimit({
 });
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.post('/api/setup/init-schema', async (req, res) => {
+    try {
+        console.log('🏗️  Initializing database schema...');
+        const schemaStatements = [
+            `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`,
+            `CREATE TABLE IF NOT EXISTS users (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        role VARCHAR(50) DEFAULT 'user' CHECK (role IN ('user', 'admin', 'superadmin', 'director', 'moderator')),
+        first_name VARCHAR(100),
+        last_name VARCHAR(100),
+        phone VARCHAR(20),
+        bio TEXT,
+        location VARCHAR(255),
+        website VARCHAR(255),
+        linkedin VARCHAR(255),
+        twitter VARCHAR(255),
+        avatar_url VARCHAR(500),
+        is_active BOOLEAN DEFAULT true,
+        email_verified BOOLEAN DEFAULT false,
+        last_login TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )`,
+            `CREATE TABLE IF NOT EXISTS companies (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        industry VARCHAR(100),
+        sector VARCHAR(100),
+        location VARCHAR(255),
+        website VARCHAR(255),
+        logo_url VARCHAR(500),
+        employees INTEGER,
+        status VARCHAR(50) DEFAULT 'approved',
+        is_active BOOLEAN DEFAULT true,
+        is_verified BOOLEAN DEFAULT true,
+        applicant_user_id UUID,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )`,
+            `CREATE TABLE IF NOT EXISTS user_companies (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+        role VARCHAR(100) NOT NULL,
+        position VARCHAR(100) NOT NULL,
+        status VARCHAR(50) DEFAULT 'active',
+        is_primary BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, company_id)
+      )`,
+            `CREATE TABLE IF NOT EXISTS network_connections (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+        connection_type VARCHAR(50) DEFAULT 'member',
+        notes TEXT,
+        status VARCHAR(50) DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, company_id)
+      )`
+        ];
+        let created = 0;
+        for (const statement of schemaStatements) {
+            try {
+                await DatabaseService.query(statement);
+                created++;
+            }
+            catch (error) {
+                console.log(`⚠️ Statement may have failed (or already exists): ${error instanceof Error ? error.message : 'Error'}`);
+            }
+        }
+        res.json({
+            success: true,
+            message: 'Database schema initialized',
+            data: { statementsExecuted: created }
+        });
+    }
+    catch (error) {
+        console.error('❌ Schema initialization failed:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Schema initialization failed',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
 app.post('/api/setup/populate', async (req, res) => {
     try {
         console.log('📊 Populating database with companies...');
