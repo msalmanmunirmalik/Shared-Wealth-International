@@ -133,6 +133,46 @@ app.post('/api/setup/init-schema', async (req, res) => {
         });
     }
 });
+app.post('/api/setup/link-user-company', async (req, res) => {
+    try {
+        const { userId, companyId, position, role } = req.body;
+        if (!userId || !companyId) {
+            return res.status(400).json({
+                success: false,
+                message: 'userId and companyId are required'
+            });
+        }
+        const existingCheck = await DatabaseService.query('SELECT * FROM user_companies WHERE user_id = $1 AND company_id = $2', [userId, companyId]);
+        if (existingCheck.rows.length > 0) {
+            return res.json({
+                success: true,
+                message: 'Relationship already exists',
+                data: { alreadyExists: true }
+            });
+        }
+        await DatabaseService.insert('user_companies', {
+            user_id: userId,
+            company_id: companyId,
+            role: role || 'director',
+            position: position || 'Director',
+            status: 'active',
+            is_primary: true
+        });
+        res.json({
+            success: true,
+            message: 'User-company relationship created',
+            data: { userId, companyId }
+        });
+    }
+    catch (error) {
+        console.error('❌ Link user-company failed:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to create relationship',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
 app.post('/api/setup/populate', async (req, res) => {
     try {
         console.log('📊 Populating database with companies...');
