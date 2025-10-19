@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Quick Test</title>
+</head>
+<body>
+  <div id="root">Loading...</div>
+  <script>
+    console.log('HTML loaded');
+    setTimeout(() => {
+      document.getElementById('root').innerHTML = '<h1 style="color: green;">App is working!</h1>';
+    }, 100);
+  </script>
+</body>
+</html>
+

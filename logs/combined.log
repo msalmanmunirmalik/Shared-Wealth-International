@@ -25871,3 +25871,281 @@
   message: 'API Request',
   timestamp: '2025-09-30 18:46:57'
 }
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  count: 3,
+  level: 'info',
+  message: 'Email templates loaded',
+  timestamp: '2025-10-15 15:15:41'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  level: 'info',
+  message: 'WebSocket service initialized successfully',
+  timestamp: '2025-10-15 15:15:42'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  count: 3,
+  level: 'info',
+  message: 'Email templates loaded',
+  timestamp: '2025-10-15 15:17:17'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  level: 'info',
+  message: 'WebSocket service initialized successfully',
+  timestamp: '2025-10-15 15:17:18'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  method: 'GET',
+  url: '/',
+  statusCode: 200,
+  duration: '48ms',
+  userAgent: 'curl/8.7.1',
+  ip: '::1',
+  userId: undefined,
+  userRole: undefined,
+  level: 'info',
+  message: 'API Request',
+  timestamp: '2025-10-15 15:18:00'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  method: 'POST',
+  url: '/signin',
+  statusCode: 200,
+  duration: '559ms',
+  userAgent: 'curl/8.7.1',
+  ip: '::1',
+  userId: undefined,
+  userRole: undefined,
+  level: 'info',
+  message: 'API Request',
+  timestamp: '2025-10-15 15:20:32'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  method: 'GET',
+  url: '/',
+  statusCode: 200,
+  duration: '5ms',
+  userAgent: 'curl/8.7.1',
+  ip: '::1',
+  userId: undefined,
+  userRole: undefined,
+  level: 'info',
+  message: 'API Request',
+  timestamp: '2025-10-15 15:20:48'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  count: 3,
+  level: 'info',
+  message: 'Email templates loaded',
+  timestamp: '2025-10-15 15:23:17'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  level: 'info',
+  message: 'WebSocket service initialized successfully',
+  timestamp: '2025-10-15 15:23:18'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  count: 3,
+  level: 'info',
+  message: 'Email templates loaded',
+  timestamp: '2025-10-19 22:00:06'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  level: 'info',
+  message: 'WebSocket service initialized successfully',
+  timestamp: '2025-10-19 22:00:07'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  method: 'POST',
+  url: '/signin',
+  statusCode: 200,
+  duration: '532ms',
+  userAgent: 'curl/8.7.1',
+  ip: '::1',
+  userId: undefined,
+  userRole: undefined,
+  level: 'info',
+  message: 'API Request',
+  timestamp: '2025-10-19 22:00:23'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  method: 'POST',
+  url: '/signin',
+  statusCode: 200,
+  duration: '457ms',
+  userAgent: 'curl/8.7.1',
+  ip: '::1',
+  userId: undefined,
+  userRole: undefined,
+  level: 'info',
+  message: 'API Request',
+  timestamp: '2025-10-19 22:00:28'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  method: 'GET',
+  url: '/health',
+  statusCode: 200,
+  duration: '28ms',
+  userAgent: 'node',
+  ip: '::1',
+  userId: undefined,
+  userRole: undefined,
+  level: 'info',
+  message: 'API Request',
+  timestamp: '2025-10-19 22:01:29'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  method: 'GET',
+  url: '/',
+  statusCode: 200,
+  duration: '29ms',
+  userAgent: 'curl/8.7.1',
+  ip: '::1',
+  userId: undefined,
+  userRole: undefined,
+  level: 'info',
+  message: 'API Request',
+  timestamp: '2025-10-19 22:01:48'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  method: 'POST',
+  url: '/signin',
+  statusCode: 200,
+  duration: '462ms',
+  userAgent: 'curl/8.7.1',
+  ip: '::1',
+  userId: undefined,
+  userRole: undefined,
+  level: 'info',
+  message: 'API Request',
+  timestamp: '2025-10-19 22:01:48'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  method: 'GET',
+  url: '/',
+  statusCode: 200,
+  duration: '4ms',
+  userAgent: 'node',
+  ip: '::1',
+  userId: undefined,
+  userRole: undefined,
+  level: 'info',
+  message: 'API Request',
+  timestamp: '2025-10-19 22:02:00'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  method: 'POST',
+  url: '/signin',
+  statusCode: 200,
+  duration: '457ms',
+  userAgent: 'node',
+  ip: '::1',
+  userId: undefined,
+  userRole: undefined,
+  level: 'info',
+  message: 'API Request',
+  timestamp: '2025-10-19 22:02:01'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  method: 'GET',
+  url: '/',
+  statusCode: 200,
+  duration: '57ms',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/140.0.0.0 Safari/537.36',
+  ip: '::1',
+  userId: undefined,
+  userRole: undefined,
+  level: 'info',
+  message: 'API Request',
+  timestamp: '2025-10-19 22:04:04'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  count: 3,
+  level: 'info',
+  message: 'Email templates loaded',
+  timestamp: '2025-10-19 22:05:13'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  level: 'info',
+  message: 'WebSocket service initialized successfully',
+  timestamp: '2025-10-19 22:05:14'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  count: 3,
+  level: 'info',
+  message: 'Email templates loaded',
+  timestamp: '2025-10-19 22:05:38'
+}
+{
+  service: 'shared-wealth-api',
+  version: '0.0.0',
+  environment: 'development',
+  level: 'info',
+  message: 'WebSocket service initialized successfully',
+  timestamp: '2025-10-19 22:05:39'
+}

@@ -8,7 +8,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, User, Building, MapPin, Globe, Linkedin, Twitter } from 'lucide-react';
@@ -42,7 +41,7 @@ const Auth: React.FC = () => {
   const [availableCompanies, setAvailableCompanies] = useState<any[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
 
-  const { signIn, signUp, resetPassword, signOut, user, isAdmin } = useAuth();
+  const { signIn, signUp, resetPassword, isAdmin } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -125,6 +124,8 @@ const Auth: React.FC = () => {
         title: "Success",
         description: "Signed in successfully",
       });
+      // Redirect directly to dashboard after successful sign-in
+      navigate('/user-dashboard');
     } catch (error) {
       toast({
         title: "Error",
@@ -251,49 +252,6 @@ const Auth: React.FC = () => {
           <p className="text-gray-600">Sign in to your account to continue</p>
         </div>
 
-        {/* Show current user info and sign out option if logged in */}
-        {user && (
-          <Card className="shadow-lg border-0 bg-blue-50/80 backdrop-blur-sm mb-6">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-3">
-                  <Avatar className="w-12 h-12 mr-3">
-                    <AvatarFallback className="bg-blue-100 text-blue-600">
-                      {user.email.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="text-left">
-                    <p className="font-semibold text-gray-900">{user.email}</p>
-                    <p className="text-sm text-gray-600 capitalize">{user.role}</p>
-                  </div>
-                </div>
-                <div className="flex gap-2 justify-center">
-                  <Button 
-                    onClick={() => navigate('/user-dashboard')} 
-                    variant="outline" 
-                    size="sm"
-                  >
-                    Go to Dashboard
-                  </Button>
-                  <Button 
-                    onClick={async () => {
-                      await signOut();
-                      toast({
-                        title: "Signed Out",
-                        description: "You have been signed out successfully",
-                      });
-                    }} 
-                    variant="outline" 
-                    size="sm"
-                  >
-                    Sign Out
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
           <CardHeader className="pb-4">
             <CardTitle className="text-xl text-center">Account Access</CardTitle>
@@ -359,12 +317,15 @@ const Auth: React.FC = () => {
                           className="hidden"
                           id="profile-image"
                         />
-                        <Label htmlFor="profile-image" className="cursor-pointer">
-                          <Button type="button" variant="outline" size="sm">
-                            <Upload className="w-4 h-4 mr-2" />
-                            Upload Photo
-                          </Button>
-                        </Label>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => document.getElementById('profile-image')?.click()}
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          Upload Photo
+                        </Button>
                         <p className="text-xs text-gray-500 mt-1">JPG, PNG up to 5MB</p>
                       </div>
                     </div>

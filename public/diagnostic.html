@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnostic Check</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .success { color: green; font-weight: bold; }
+    .error { color: red; font-weight: bold; }
+    .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h1>Shared Wealth International - Diagnostic Check</h1>
+  <div id="results"></div>
+  
+  <script>
+    const results = document.getElementById('results');
+    
+    function addTest(name, passed, message) {
+      const div = document.createElement('div');
+      div.className = 'test';
+      div.innerHTML = `
+        <strong>${name}:</strong> 
+        <span class="${passed ? 'success' : 'error'}">${passed ? '✓ PASS' : '✗ FAIL'}</span>
+        ${message ? `<br><small>${message}</small>` : ''}
+      `;
+      results.appendChild(div);
+    }
+    
+    // Test 1: Basic HTML/JS
+    addTest('HTML/JavaScript', true, 'Page loaded successfully');
+    
+    // Test 2: Fetch API
+    fetch('http://localhost:8081/src/main.tsx')
+      .then(r => addTest('Vite Server', r.ok, `Status: ${r.status}`))
+      .catch(e => addTest('Vite Server', false, e.message));
+    
+    // Test 3: Try to load React
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.innerHTML = `
+      import React from 'http://localhost:8081/node_modules/.vite/deps/react.js?v=82f544d1';
+      const div = document.createElement('div');
+      div.className = 'test success';
+      div.textContent = 'React Module: ✓ PASS - React loaded successfully';
+      document.getElementById('results').appendChild(div);
+    `;
+    script.onerror = () => addTest('React Module', false, 'Failed to load React');
+    document.head.appendChild(script);
+    
+    //Test 4: Check if root element would work
+    setTimeout(() => {
+      const testRoot = document.createElement('div');
+      testRoot.id = 'test-root';
+      testRoot.innerHTML = '<h2 style="color: green;">✓ DOM Manipulation Works</h2>';
+      results.appendChild(testRoot);
+      addTest('DOM Ready', true, 'Root element can be manipulated');
+    }, 1000);
+    
+  </script>
+</body>
+</html>
+

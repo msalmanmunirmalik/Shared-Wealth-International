@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Test - Shared Wealth</title>
+</head>
+<body style="font-family: Arial; padding: 50px; background: #f0f0f0;">
+  <div id="root">
+    <h1 style="color: green;">✓ Server is Working!</h1>
+    <h2>Shared Wealth International</h2>
+    <p>Development Server Active</p>
+    <p>URL: <strong>http://localhost:8081</strong></p>
+    <p>Time: <span id="time"></span></p>
+    <button onclick="alert('JavaScript Works!')" style="padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 10px 0;">
+      Click to Test JavaScript
+    </button>
+    <hr>
+    <div id="react-test">Loading React test...</div>
+  </div>
+  
+  <script>
+    document.getElementById('time').textContent = new Date().toLocaleTimeString();
+    console.log('Basic HTML/JS is working!');
+    
+    // Try loading React
+    setTimeout(() => {
+      const div = document.getElementById('react-test');
+      div.innerHTML = '<p style="color: orange;">⚠ React module loading test...</p>';
+      
+      // Load the actual React app
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.src = '/src/main.tsx';
+      script.onload = () => {
+        console.log('main.tsx loaded successfully');
+      };
+      script.onerror = (e) => {
+        div.innerHTML = '<p style="color: red;">✗ React failed to load: ' + e.message + '</p>';
+        console.error('Failed to load main.tsx:', e);
+      };
+      document.body.appendChild(script);
+    }, 500);
+  </script>
+</body>
+</html>
+
