@@ -422,7 +422,8 @@ app.get('/api/users/me', authenticateToken, (req, res) => {
 });
 app.get('/api/companies', generalLimiter, async (req, res) => {
     try {
-        res.json({ success: true, data: [] });
+        const companies = await DatabaseService.findAll('companies', { where: { is_active: true } });
+        res.json({ success: true, data: companies });
     }
     catch (error) {
         console.error('Get companies error:', error);
