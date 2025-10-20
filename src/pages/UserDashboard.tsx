@@ -698,20 +698,20 @@ const UserDashboard = () => {
                   <div className="p-3 bg-blue-100 rounded-xl">
                     <Building className="w-6 h-6 text-blue-600" />
                   </div>
-                  <div>
+          <div>
                     <p className="text-sm font-medium text-slate-600">My Companies</p>
                     <p className="text-2xl font-bold text-slate-900">
                       {stats.totalCompanies > 0 ? stats.totalCompanies : 0}
-                    </p>
-                  </div>
+            </p>
+          </div>
                 </div>
               </Card>
 
               <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
-                <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3">
                   <div className="p-3 bg-green-100 rounded-xl">
                     <Target className="w-6 h-6 text-green-600" />
-                  </div>
+          </div>
                   <div>
                     <p className="text-sm font-medium text-slate-600">Impact Score</p>
                     <p className="text-2xl font-bold text-slate-900">
@@ -725,29 +725,29 @@ const UserDashboard = () => {
                 <div className="flex items-center space-x-3">
                   <div className="p-3 bg-purple-100 rounded-xl">
                     <Settings className="w-6 h-6 text-purple-600" />
-                  </div>
-                  <div>
+                      </div>
+                      <div>
                     <p className="text-sm font-medium text-slate-600">Tools Completed</p>
                     <p className="text-2xl font-bold text-slate-900">
                       {stats.totalCompanies > 0 ? '3' : '0'}/12
                     </p>
-                  </div>
-                </div>
-              </Card>
+                      </div>
+                    </div>
+                </Card>
 
               <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center space-x-3">
                   <div className="p-3 bg-orange-100 rounded-xl">
                     <Users className="w-6 h-6 text-orange-600" />
-                  </div>
-                  <div>
+                      </div>
+                      <div>
                     <p className="text-sm font-medium text-slate-600">Network Connections</p>
                     <p className="text-2xl font-bold text-slate-900">
                       {stats.networkPartners > 0 ? stats.networkPartners : 0}
                     </p>
-                  </div>
-                </div>
-              </Card>
+                      </div>
+                    </div>
+                </Card>
             </div>
 
             {/* Quick Actions */}
@@ -794,9 +794,9 @@ const UserDashboard = () => {
                     <Building className="w-6 h-6" />
                     <span className="text-sm font-medium">Companies Directory</span>
                   </Button>
-                </div>
+                      </div>
               </CardContent>
-            </Card>
+                </Card>
 
             {/* Recent Activity */}
             <Card className="p-6 border border-slate-200 bg-white">
@@ -816,15 +816,15 @@ const UserDashboard = () => {
                       <div key={activity.id} className="flex items-center space-x-3 p-3 rounded-lg bg-slate-50">
                         <div className="p-2 bg-white rounded-full">
                           <Activity className="w-4 h-4 text-slate-600" />
-                        </div>
+                      </div>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-slate-900">{activity.description}</p>
                           <p className="text-xs text-slate-500">{activity.timestamp}</p>
-                        </div>
+                      </div>
                         <Badge variant={activity.status === 'completed' ? 'default' : 'secondary'}>
                           {activity.status}
                         </Badge>
-                      </div>
+                    </div>
                     ))
                   ) : (
                     <div className="text-center py-8 text-slate-500">
@@ -835,11 +835,11 @@ const UserDashboard = () => {
                   )}
                 </div>
               </CardContent>
-            </Card>
+                </Card>
 
             {/* Platform Announcements */}
             <Card className="p-6 border border-slate-200 bg-white">
-              <CardHeader>
+                  <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Bell className="w-5 h-5 text-slate-600" />
                   <span>Platform Updates</span>
@@ -847,15 +847,15 @@ const UserDashboard = () => {
                 <CardDescription>
                   Latest news and updates from Shared Wealth International
                 </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
                   <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
                     <div className="flex items-start space-x-3">
                       <div className="p-2 bg-blue-100 rounded-full">
                         <Star className="w-4 h-4 text-blue-600" />
                       </div>
-                      <div className="flex-1">
+                            <div className="flex-1">
                         <h4 className="font-medium text-blue-900">New Business Canvas Tool</h4>
                         <p className="text-sm text-blue-700 mt-1">
                           Design and collaborate on shared wealth business models with our enhanced canvas tool.
@@ -863,8 +863,8 @@ const UserDashboard = () => {
                         <Button size="sm" className="mt-2 bg-blue-600 hover:bg-blue-700">
                           Try Now
                         </Button>
-                      </div>
-                    </div>
+                            </div>
+                          </div>
                   </div>
                   
                   <div className="p-4 rounded-lg bg-green-50 border border-green-200">
@@ -879,14 +879,14 @@ const UserDashboard = () => {
                         </p>
                         <Button size="sm" className="mt-2 bg-green-600 hover:bg-green-700">
                           View Network
-                        </Button>
-                      </div>
+                      </Button>
                     </div>
                   </div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-            </TabsContent>
+                  </CardContent>
+                </Card>
+          </TabsContent>
 
           {/* My Companies Tab */}
           <TabsContent value="my-companies" className="space-y-6">
@@ -899,7 +899,7 @@ const UserDashboard = () => {
                 <Plus className="w-4 h-4 mr-2" />
                 Add Company
               </Button>
-            </div>
+                            </div>
 
             {/* Company Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -907,13 +907,13 @@ const UserDashboard = () => {
                 <div className="flex items-center space-x-3">
                   <div className="p-3 bg-blue-100 rounded-xl">
                     <Building className="w-6 h-6 text-blue-600" />
-                  </div>
+                          </div>
                   <div>
                     <p className="text-sm font-medium text-slate-600">Total Companies</p>
                     <p className="text-2xl font-bold text-slate-900">
                       {userCompanies.length}
                     </p>
-                  </div>
+                    </div>
                 </div>
               </Card>
 
@@ -929,19 +929,19 @@ const UserDashboard = () => {
                     </p>
                   </div>
                 </div>
-              </Card>
+                </Card>
 
               <Card className="p-6 border border-slate-200 bg-white">
                 <div className="flex items-center space-x-3">
                   <div className="p-3 bg-yellow-100 rounded-xl">
                     <Clock className="w-6 h-6 text-yellow-600" />
-                  </div>
+              </div>
                   <div>
                     <p className="text-sm font-medium text-slate-600">Pending Review</p>
                     <p className="text-2xl font-bold text-slate-900">
                       {userCompanies.filter(c => c.status === 'pending').length}
                     </p>
-                  </div>
+            </div>
                 </div>
               </Card>
             </div>
@@ -952,9 +952,9 @@ const UserDashboard = () => {
                 <CardTitle>Your Companies</CardTitle>
                 <CardDescription>
                   Manage and track your company applications
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+                      </CardDescription>
+                      </CardHeader>
+                      <CardContent>
                 {userCompanies.length > 0 ? (
                   <div className="space-y-4">
                     {userCompanies.map((company) => (
@@ -962,7 +962,7 @@ const UserDashboard = () => {
                         <div className="flex items-center space-x-4">
                           <div className="p-3 bg-slate-100 rounded-xl">
                             <Building className="w-6 h-6 text-slate-600" />
-                          </div>
+                              </div>
                           <div>
                             <h3 className="font-semibold text-slate-900">{company.name}</h3>
                             <p className="text-sm text-slate-600">{company.description}</p>
@@ -972,19 +972,27 @@ const UserDashboard = () => {
                               </Badge>
                               <span className="text-xs text-slate-500">{company.location}</span>
                             </div>
-                          </div>
                         </div>
+                          </div>
                         <div className="flex items-center space-x-2">
-                          <Button size="sm" variant="outline">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => navigate(`/company/${company.id}`)}
+                          >
                             View Details
                           </Button>
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => navigate(`/company/${company.id}`)}
+                          >
                             Edit
                           </Button>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                          ))}
+                        </div>
                 ) : (
                   <div className="text-center py-12">
                     <Building className="w-16 h-16 mx-auto mb-4 text-slate-300" />
@@ -1008,19 +1016,19 @@ const UserDashboard = () => {
                 <p className="text-slate-600">Access platform tools and learning resources</p>
               </div>
             </div>
-
+            
             {/* Tools Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/business-canvas')}>
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="p-3 bg-blue-100 rounded-xl">
                     <Target className="w-6 h-6 text-blue-600" />
-                  </div>
+              </div>
                   <div>
                     <h3 className="font-semibold text-slate-900">Business Canvas</h3>
                     <p className="text-sm text-slate-600">Design shared wealth models</p>
-                  </div>
-                </div>
+              </div>
+            </div>
                 <p className="text-sm text-slate-500 mb-4">
                   Create and collaborate on business models that generate shared value for all stakeholders.
                 </p>
@@ -1033,30 +1041,30 @@ const UserDashboard = () => {
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="p-3 bg-green-100 rounded-xl">
                     <BarChart3 className="w-6 h-6 text-green-600" />
-                  </div>
+                      </div>
                   <div>
                     <h3 className="font-semibold text-slate-900">Impact Analytics</h3>
                     <p className="text-sm text-slate-600">Measure your impact</p>
-                  </div>
-                </div>
+                      </div>
+              </div>
                 <p className="text-sm text-slate-500 mb-4">
                   Track and analyze the social, environmental, and economic impact of your initiatives.
                 </p>
                 <Button size="sm" className="w-full bg-green-600 hover:bg-green-700">
                   Open Tool
-                </Button>
+                            </Button>
               </Card>
 
               <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/stakeholder-mapping')}>
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="p-3 bg-purple-100 rounded-xl">
                     <Users className="w-6 h-6 text-purple-600" />
-                  </div>
-                  <div>
+                              </div>
+                              <div>
                     <h3 className="font-semibold text-slate-900">Stakeholder Mapping</h3>
                     <p className="text-sm text-slate-600">Identify key stakeholders</p>
-                  </div>
-                </div>
+                              </div>
+                              </div>
                 <p className="text-sm text-slate-500 mb-4">
                   Map and analyze stakeholders to understand their interests and influence.
                 </p>
@@ -1069,29 +1077,29 @@ const UserDashboard = () => {
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="p-3 bg-orange-100 rounded-xl">
                     <Lightbulb className="w-6 h-6 text-orange-600" />
-                  </div>
+                            </div>
                   <div>
                     <h3 className="font-semibold text-slate-900">Value Proposition</h3>
                     <p className="text-sm text-slate-600">Define shared value</p>
-                  </div>
-                </div>
+                            </div>
+                          </div>
                 <p className="text-sm text-slate-500 mb-4">
                   Develop compelling value propositions that create shared wealth for all parties.
                 </p>
                 <Button size="sm" className="w-full bg-orange-600 hover:bg-orange-700">
                   Open Tool
                 </Button>
-              </Card>
+                    </Card>
 
               <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/governance-framework')}>
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="p-3 bg-indigo-100 rounded-xl">
                     <Settings className="w-6 h-6 text-indigo-600" />
-                  </div>
+                          </div>
                   <div>
                     <h3 className="font-semibold text-slate-900">Governance Framework</h3>
                     <p className="text-sm text-slate-600">Design inclusive governance</p>
-                  </div>
+                        </div>
                 </div>
                 <p className="text-sm text-slate-500 mb-4">
                   Create governance structures that ensure inclusive decision-making and shared ownership.
@@ -1099,39 +1107,39 @@ const UserDashboard = () => {
                 <Button size="sm" className="w-full bg-indigo-600 hover:bg-indigo-700">
                   Open Tool
                 </Button>
-              </Card>
+                    </Card>
 
               <Card className="p-6 border border-slate-200 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => navigate('/financial-modeling')}>
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="p-3 bg-teal-100 rounded-xl">
                     <Calculator className="w-6 h-6 text-teal-600" />
-                  </div>
+                      </div>
                   <div>
                     <h3 className="font-semibold text-slate-900">Financial Modeling</h3>
                     <p className="text-sm text-slate-600">Plan sustainable finances</p>
-                  </div>
-                </div>
+                      </div>
+                    </div>
                 <p className="text-sm text-slate-500 mb-4">
                   Build financial models that support long-term sustainability and shared wealth creation.
                 </p>
                 <Button size="sm" className="w-full bg-teal-600 hover:bg-teal-700">
                   Open Tool
                 </Button>
-              </Card>
+            </Card>
             </div>
 
             {/* Learning Resources */}
             <Card className="p-6 border border-slate-200 bg-white">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
                   <BookOpen className="w-5 h-5 text-slate-600" />
                   <span>Learning Resources</span>
-                </CardTitle>
+                  </CardTitle>
                 <CardDescription>
                   Educational content and guides to help you succeed with shared wealth principles
                 </CardDescription>
-              </CardHeader>
-              <CardContent>
+                </CardHeader>
+                <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <h4 className="font-semibold text-slate-900">Getting Started</h4>
@@ -1141,22 +1149,22 @@ const UserDashboard = () => {
                         <div>
                           <p className="font-medium text-slate-900">Introduction to Shared Wealth</p>
                           <p className="text-sm text-slate-600">5 min video</p>
-                        </div>
-                      </div>
+                            </div>
+                          </div>
                       <div className="flex items-center space-x-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
                         <FileText className="w-5 h-5 text-green-600" />
                         <div>
                           <p className="font-medium text-slate-900">Platform User Guide</p>
                           <p className="text-sm text-slate-600">15 min read</p>
+                            </div>
                         </div>
-                      </div>
                       <div className="flex items-center space-x-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
                         <Users className="w-5 h-5 text-purple-600" />
                         <div>
                           <p className="font-medium text-slate-900">Building Your Network</p>
                           <p className="text-sm text-slate-600">10 min read</p>
-                        </div>
                       </div>
+                  </div>
                     </div>
                   </div>
                   
@@ -1165,11 +1173,11 @@ const UserDashboard = () => {
                     <div className="space-y-3">
                       <div className="flex items-center space-x-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
                         <Target className="w-5 h-5 text-orange-600" />
-                        <div>
+                            <div>
                           <p className="font-medium text-slate-900">Impact Measurement</p>
                           <p className="text-sm text-slate-600">20 min read</p>
-                        </div>
-                      </div>
+                            </div>
+                          </div>
                       <div className="flex items-center space-x-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
                         <Settings className="w-5 h-5 text-indigo-600" />
                         <div>
@@ -1186,9 +1194,9 @@ const UserDashboard = () => {
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                </CardContent>
+              </Card>
           </TabsContent>
         </Tabs>
       </div>
