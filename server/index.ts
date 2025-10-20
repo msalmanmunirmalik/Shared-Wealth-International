@@ -152,6 +152,59 @@ app.post('/api/setup/init-schema', async (req, res) => {
   }
 });
 
+// Setup endpoint to add a single company
+app.post('/api/setup/add-company', async (req, res) => {
+  try {
+    const { name, industry, location, website, description } = req.body;
+    
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        message: 'Company name is required'
+      });
+    }
+
+    // Check if company already exists
+    const existingCompanies = await DatabaseService.findAll('companies', { 
+      where: { name: name } 
+    });
+
+    if (existingCompanies.length > 0) {
+      return res.json({
+        success: true,
+        message: 'Company already exists',
+        data: existingCompanies[0]
+      });
+    }
+
+    // Create the company
+    const newCompany = await DatabaseService.insert('companies', {
+      name: name,
+      industry: industry || 'Technology',
+      location: location || 'Unknown',
+      website: website || null,
+      description: description || `${name} - Partner company of Shared Wealth International`,
+      status: 'approved',
+      is_active: true,
+      is_verified: true
+    });
+
+    res.json({
+      success: true,
+      message: 'Company created successfully',
+      data: newCompany
+    });
+
+  } catch (error) {
+    console.error('❌ Add company failed:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create company',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Setup endpoint to create user-company relationships
 app.post('/api/setup/link-user-company', async (req, res) => {
   try {
