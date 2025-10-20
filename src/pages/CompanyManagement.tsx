@@ -857,7 +857,9 @@ const CompanyManagement = () => {
     }
   };
 
-  const getSectorIcon = (sector: string) => {
+  const getSectorIcon = (sector: string | null | undefined) => {
+    if (!sector) return <Building2 className="w-5 h-5" />;
+    
     switch (sector.toLowerCase()) {
       case 'education': return <GraduationCap className="w-5 h-5" />;
       case 'technology': return <Zap className="w-5 h-5" />;
