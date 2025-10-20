@@ -632,6 +632,173 @@ app.get('/api/users/me', authenticateToken, (req: AuthenticatedRequest, res: Res
   res.json(req.user);
 });
 
+// Content routes with rate limiting
+app.get('/api/content', generalLimiter, async (req, res) => {
+  try {
+    const { is_published, limit = 50, offset = 0, sort_by = 'created_at', sort_order = 'desc' } = req.query;
+    
+    const query = `
+      SELECT c.*, u.first_name, u.last_name, u.email as author_email
+      FROM content c
+      LEFT JOIN users u ON c.author_id = u.id
+      ${is_published ? 'WHERE c.is_published = $1' : 'WHERE 1=1'}
+      ORDER BY c.${sort_by} ${sort_order}
+      LIMIT $${is_published ? '2' : '1'} OFFSET $${is_published ? '3' : '2'}
+    `;
+    
+    const params = is_published 
+      ? [is_published === 'true', parseInt(limit as string), parseInt(offset as string)]
+      : [parseInt(limit as string), parseInt(offset as string)];
+    
+    const result = await DatabaseService.query(query, params);
+    
+    res.json({
+      success: true,
+      data: result.rows,
+      total: result.rows.length
+    });
+  } catch (error) {
+    console.error('Get content error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+app.post('/api/content', authenticateToken, generalLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User authentication required'
+      });
+    }
+
+    const { title, content, category, tags, is_published } = req.body;
+    
+    if (!title || !content) {
+      return res.status(400).json({
+        success: false,
+        message: 'Title and content are required'
+      });
+    }
+
+    const newContent = await DatabaseService.insert('content', {
+      author_id: userId,
+      title: title,
+      content: content,
+      category: category || 'general',
+      tags: tags || [],
+      is_published: is_published || false,
+      published_at: is_published ? new Date() : null
+    });
+
+    res.status(201).json({
+      success: true,
+      data: newContent,
+      message: 'Content created successfully'
+    });
+  } catch (error) {
+    console.error('Create content error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+app.put('/api/content/:id', authenticateToken, generalLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { id } = req.params;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User authentication required'
+      });
+    }
+
+    // Check if content exists and user owns it
+    const existing = await DatabaseService.findById('content', id);
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        message: 'Content not found'
+      });
+    }
+
+    if (existing.author_id !== userId && req.user?.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to update this content'
+      });
+    }
+
+    const { title, content, category, tags, is_published } = req.body;
+    
+    const updateData: any = {};
+    if (title) updateData.title = title;
+    if (content) updateData.content = content;
+    if (category) updateData.category = category;
+    if (tags) updateData.tags = tags;
+    if (typeof is_published === 'boolean') {
+      updateData.is_published = is_published;
+      if (is_published && !existing.published_at) {
+        updateData.published_at = new Date();
+      }
+    }
+
+    const updated = await DatabaseService.update('content', id, updateData);
+
+    res.json({
+      success: true,
+      data: updated,
+      message: 'Content updated successfully'
+    });
+  } catch (error) {
+    console.error('Update content error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+app.delete('/api/content/:id', authenticateToken, generalLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { id } = req.params;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User authentication required'
+      });
+    }
+
+    // Check if content exists and user owns it
+    const existing = await DatabaseService.findById('content', id);
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        message: 'Content not found'
+      });
+    }
+
+    if (existing.author_id !== userId && req.user?.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to delete this content'
+      });
+    }
+
+    await DatabaseService.delete('content', id);
+
+    res.json({
+      success: true,
+      message: 'Content deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete content error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 // Company routes with rate limiting
 app.get('/api/companies', generalLimiter, async (req, res) => {
   try {
