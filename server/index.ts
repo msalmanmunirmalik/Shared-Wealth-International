@@ -590,6 +590,163 @@ app.get('/api/companies', generalLimiter, async (req, res) => {
   }
 });
 
+// Network endpoints
+app.get('/api/networks/user', authenticateToken, generalLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User authentication required'
+      });
+    }
+
+    // Get companies in user's network from network_connections table
+    const query = `
+      SELECT c.*, nc.connection_type, nc.notes, nc.created_at as added_at
+      FROM companies c
+      INNER JOIN network_connections nc ON c.id = nc.company_id
+      WHERE nc.user_id = $1 AND nc.status = 'active'
+      ORDER BY nc.created_at DESC
+    `;
+    
+    const result = await DatabaseService.query(query, [userId]);
+    
+    res.json({
+      success: true,
+      data: result.rows || []
+    });
+  } catch (error) {
+    console.error('Get user network error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+app.get('/api/networks/available', authenticateToken, generalLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User authentication required'
+      });
+    }
+
+    // Get companies NOT in user's network (available to add)
+    const companies = await DatabaseService.findAll('companies', { where: { is_active: true } });
+    
+    // Filter out companies already in network
+    const networkQuery = `SELECT company_id FROM network_connections WHERE user_id = $1`;
+    const networkResult = await DatabaseService.query(networkQuery, [userId]);
+    const networkCompanyIds = networkResult.rows.map(row => row.company_id);
+    
+    const availableCompanies = companies.filter(c => !networkCompanyIds.includes(c.id));
+    
+    res.json({
+      success: true,
+      data: availableCompanies
+    });
+  } catch (error) {
+    console.error('Get available companies error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+app.post('/api/networks/add', authenticateToken, generalLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { company_id, connection_type, notes } = req.body;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User authentication required'
+      });
+    }
+
+    if (!company_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Company ID is required'
+      });
+    }
+
+    // Check if already in network
+    const existingCheck = await DatabaseService.query(
+      'SELECT * FROM network_connections WHERE user_id = $1 AND company_id = $2',
+      [userId, company_id]
+    );
+
+    if (existingCheck.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Company already in your network'
+      });
+    }
+
+    // Add to network
+    await DatabaseService.insert('network_connections', {
+      user_id: userId,
+      company_id: company_id,
+      connection_type: connection_type || 'partner',
+      notes: notes,
+      status: 'active'
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Company added to network successfully'
+    });
+  } catch (error) {
+    console.error('Add to network error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+app.delete('/api/networks/remove', authenticateToken, generalLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { company_id } = req.body;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User authentication required'
+      });
+    }
+
+    if (!company_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Company ID is required'
+      });
+    }
+
+    // Remove from network
+    const result = await DatabaseService.query(
+      'DELETE FROM network_connections WHERE user_id = $1 AND company_id = $2 RETURNING *',
+      [userId, company_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Company not found in network'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Company removed from network successfully'
+    });
+  } catch (error) {
+    console.error('Remove from network error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 // Get user's companies
 app.get('/api/companies/user', authenticateToken, generalLimiter, async (req: AuthenticatedRequest, res: Response) => {
   try {
