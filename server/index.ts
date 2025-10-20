@@ -840,16 +840,16 @@ app.get('/api/companies/:id', generalLimiter, async (req, res) => {
     
     // Security: Validate id parameter
     if (!id || typeof id !== 'string') {
-      return res.status(400).json({ message: 'Invalid company ID' });
+      return res.status(400).json({ success: false, message: 'Invalid company ID' });
     }
     
     const company = await DatabaseService.findById('companies', id);
     
     if (!company) {
-      return res.status(404).json({ message: 'Company not found' });
+      return res.status(404).json({ success: false, message: 'Company not found' });
     }
     
-    res.json(company);
+    res.json({ success: true, data: company });
   } catch (error) {
     console.error('Get company error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -1118,10 +1118,10 @@ if (fs.existsSync(distPath)) {
   });
 } else {
   console.log('⚠️ dist directory does not exist - static files not served');
-  // Security: 404 handler for undefined routes
-  app.use('*', (req, res) => {
-    res.status(404).json({ message: 'Route not found' });
-  });
+// Security: 404 handler for undefined routes
+app.use('*', (req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
 }
 
 // Start server with proper error handling

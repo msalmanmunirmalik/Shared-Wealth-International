@@ -292,27 +292,61 @@ const FundingPlatform = () => {
 
   const loadCompanyProfile = async () => {
     try {
-      // For now, create a sample company profile for Letstern Limited
-      const sampleProfile: CompanyProfile = {
-        id: 'letstern-demo',
-        name: 'Letstern Limited',
-        sector: 'Technology & Innovation',
-        country: 'United Kingdom',
-        description: 'Letstern Limited is a Shared Wealth Enterprise focused on technology innovation and sustainable business practices. We are committed to creating shared value through collaborative partnerships and innovative solutions.',
-        highlights: [
-          'Technology Innovation',
-          'Sustainable Business Practices',
+      // Load user's actual company
+      const userCompanies = await apiService.getUserCompanies();
+      
+      if (userCompanies && userCompanies.length > 0) {
+        // Use the first company (primary company)
+        const company = userCompanies[0];
+        
+        // Create keywords from company data
+        const highlights = [
+          company.industry || company.sector,
+          company.location,
           'Shared Wealth Principles',
-          'Collaborative Partnerships',
-          'AI & Digital Solutions',
-          'Social Impact Focus'
-        ],
-        impactScore: 85
-      };
+          'Collaborative Partnerships'
+        ].filter(Boolean);
 
-      setCompanyProfile(sampleProfile);
+        const profile: CompanyProfile = {
+          id: company.id,
+          name: company.name,
+          sector: company.industry || company.sector || 'Business',
+          country: company.location || 'International',
+          description: company.description || `${company.name} is a partner company of Shared Wealth International`,
+          highlights: highlights,
+          impactScore: 75
+        };
+
+        setCompanyProfile(profile);
+      } else {
+        // Fallback if no company
+        const defaultProfile: CompanyProfile = {
+          id: 'user-profile',
+          name: user?.email?.split('@')[0] || 'Your Company',
+          sector: 'Business',
+          country: 'International',
+          description: 'Member of Shared Wealth International network',
+          highlights: ['Shared Wealth Principles'],
+          impactScore: 50
+        };
+        
+        setCompanyProfile(defaultProfile);
+      }
     } catch (error) {
       console.error('Error loading company profile:', error);
+      
+      // Fallback profile
+      const fallbackProfile: CompanyProfile = {
+        id: 'fallback',
+        name: 'Your Company',
+        sector: 'Business',
+        country: 'International',
+        description: 'Member of Shared Wealth International',
+        highlights: ['Business Development'],
+        impactScore: 50
+      };
+      
+      setCompanyProfile(fallbackProfile);
     }
   };
 
@@ -772,7 +806,9 @@ const FundingPlatform = () => {
                     <Target className="w-6 h-6 text-emerald-600" />
                   </div>
                   <div>
-                    <CardTitle className="text-emerald-900">Smart Recommendations for Letstern Limited</CardTitle>
+                    <CardTitle className="text-emerald-900">
+                      Smart Recommendations for {companyProfile?.name || 'Your Company'}
+                    </CardTitle>
                     <CardDescription className="text-emerald-700">
                       AI-powered funding matches based on your company profile
                     </CardDescription>
