@@ -133,23 +133,6 @@ const FundingPlatform = () => {
   }, [user]);
 
   useEffect(() => {
-    // Auto-generate smart recommendations for Letstern Limited
-    if (companyProfile && opportunities.length > 0 && !showRecommendations) {
-      // Check if this is Letstern Limited
-      if (companyProfile.name.toLowerCase().includes('letstern') || 
-          companyProfile.sector.toLowerCase().includes('technology') ||
-          companyProfile.sector.toLowerCase().includes('innovation')) {
-        // Auto-generate recommendations after a short delay
-        const timer = setTimeout(() => {
-          generateSmartRecommendations();
-        }, 2000); // 2 second delay for better UX
-        
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [companyProfile, opportunities, showRecommendations]);
-
-  useEffect(() => {
     filterOpportunities();
   }, [searchTerm, selectedCategory, selectedAmount, opportunities]);
 
@@ -480,101 +463,104 @@ const FundingPlatform = () => {
   };
 
   const generateSmartRecommendations = () => {
-    if (!companyProfile) return;
+    if (!companyProfile) {
+      toast({
+        title: "No Company Profile",
+        description: "Please complete your company profile to get smart recommendations",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    // Enhanced matching algorithm for Letstern (Technology & Innovation)
+    // Extract keywords from company profile
+    const companyKeywords = [
+      ...companyProfile.sector.toLowerCase().split(/[,\s&]+/),
+      ...companyProfile.highlights.map(h => h.toLowerCase()),
+      ...companyProfile.description.toLowerCase().split(/[\s,]+/)
+    ].filter(word => word.length > 3); // Only meaningful words
+
+    const uniqueKeywords = [...new Set(companyKeywords)];
+
+    // Smart matching algorithm based on keyword overlap
     const recommendations = opportunities.map(opportunity => {
       let matchScore = 0;
       const matchReasons: string[] = [];
-      const matchDetails: { [key: string]: number } = {};
 
-      // 1. Sector Match (Technology & Innovation focus)
-      if (opportunity.category.toLowerCase().includes('technology') || 
-          opportunity.category.toLowerCase().includes('innovation') ||
-          opportunity.category.toLowerCase().includes('digital')) {
-        matchScore += 35;
-        matchReasons.push('Perfect sector match - Technology & Innovation');
-        matchDetails.sector = 35;
-      } else if (opportunity.category.toLowerCase().includes('sustainability') ||
-                 opportunity.category.toLowerCase().includes('social impact')) {
-        matchScore += 25;
-        matchReasons.push('Strong sector alignment - Sustainability focus');
-        matchDetails.sector = 25;
+      // Combine all opportunity text for keyword matching
+      const opportunityText = [
+        opportunity.title,
+        opportunity.description,
+        opportunity.category,
+        opportunity.agency,
+        ...opportunity.tags,
+        ...opportunity.eligibility
+      ].join(' ').toLowerCase();
+
+      // 1. Keyword Matching (40 points max)
+      let keywordMatches = 0;
+      const matchedKeywords: string[] = [];
+      
+      uniqueKeywords.forEach(keyword => {
+        if (opportunityText.includes(keyword)) {
+          keywordMatches++;
+          matchedKeywords.push(keyword);
+        }
+      });
+
+      if (keywordMatches > 0) {
+        const keywordScore = Math.min(keywordMatches * 5, 40);
+        matchScore += keywordScore;
+        matchReasons.push(`${keywordMatches} keyword matches: ${matchedKeywords.slice(0, 3).join(', ')}`);
       }
 
-      // 2. Geographic Match (UK-based company)
-      if (opportunity.agency.toLowerCase().includes('european') || 
-          opportunity.agency.toLowerCase().includes('eu')) {
+      // 2. Sector/Category Match (30 points max)
+      const companySector = companyProfile.sector.toLowerCase();
+      const opportunityCategory = opportunity.category.toLowerCase();
+      
+      if (opportunityCategory.includes(companySector) || companySector.includes(opportunityCategory)) {
+        matchScore += 30;
+        matchReasons.push(`Perfect sector match: ${opportunity.category}`);
+      } else {
+        // Check for partial sector alignment
+        companySector.split(/[,\s&]+/).forEach(sectorWord => {
+          if (opportunityCategory.includes(sectorWord) && sectorWord.length > 3) {
+            matchScore += 15;
+            matchReasons.push(`Sector alignment: ${sectorWord}`);
+          }
+        });
+      }
+
+      // 3. Geographic Eligibility (20 points max)
+      const companyCountry = companyProfile.country.toLowerCase();
+      
+      if (opportunityText.includes(companyCountry)) {
         matchScore += 20;
-        matchReasons.push('Geographic eligibility - EU funding access');
-        matchDetails.geographic = 20;
-      }
-
-      // 3. Company Size Match
-      if (opportunity.amount.includes('€1,000,000') || opportunity.amount.includes('€2,000,000')) {
+        matchReasons.push(`Geographic eligibility: ${companyProfile.country}`);
+      } else if (opportunityText.includes('international') || opportunityText.includes('global')) {
         matchScore += 15;
-        matchReasons.push('Ideal funding size for company scale');
-        matchDetails.size = 15;
-      } else if (opportunity.amount.includes('€500,000') || opportunity.amount.includes('€3,000,000')) {
-        matchScore += 10;
-        matchReasons.push('Suitable funding range');
-        matchDetails.size = 10;
+        matchReasons.push('International eligibility');
       }
 
-      // 4. Innovation Focus Match
-      if (opportunity.description.toLowerCase().includes('innovation') ||
-          opportunity.description.toLowerCase().includes('technology') ||
-          opportunity.description.toLowerCase().includes('digital') ||
-          opportunity.description.toLowerCase().includes('ai') ||
-          opportunity.description.toLowerCase().includes('artificial intelligence')) {
-        matchScore += 20;
-        matchReasons.push('Innovation & technology focus alignment');
-        matchDetails.innovation = 20;
-      }
-
-      // 5. Shared Wealth Alignment
-      if (opportunity.description.toLowerCase().includes('shared') ||
-          opportunity.description.toLowerCase().includes('wealth') ||
-          opportunity.description.toLowerCase().includes('stakeholder') ||
-          opportunity.description.toLowerCase().includes('partnership') ||
-          opportunity.description.toLowerCase().includes('collaboration')) {
-        matchScore += 15;
-        matchReasons.push('Shared wealth principles alignment');
-        matchDetails.sharedWealth = 15;
-      }
-
-      // 6. Deadline Urgency (prioritize closer deadlines)
+      // 4. Deadline Urgency (10 points max)
       const daysUntilDeadline = Math.ceil((new Date(opportunity.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-      if (daysUntilDeadline <= 30) {
+      if (daysUntilDeadline > 0 && daysUntilDeadline <= 30) {
         matchScore += 10;
         matchReasons.push('Urgent deadline - Apply soon!');
-        matchDetails.urgency = 10;
-      } else if (daysUntilDeadline <= 90) {
+      } else if (daysUntilDeadline > 30 && daysUntilDeadline <= 90) {
         matchScore += 5;
-        matchReasons.push('Moderate deadline');
-        matchDetails.urgency = 5;
-      }
-
-      // 7. Special Letstern Bonuses
-      if (opportunity.title.toLowerCase().includes('au-eu') || 
-          opportunity.title.toLowerCase().includes('africa') ||
-          opportunity.title.toLowerCase().includes('partnership')) {
-        matchScore += 15;
-        matchReasons.push('AU-EU partnership focus - Perfect for Letstern');
-        matchDetails.partnership = 15;
+        matchReasons.push('Good timing for application');
       }
 
       return {
         ...opportunity,
         matchScore: Math.min(matchScore, 100),
-        matchReasons,
-        matchDetails
+        matchReasons
       };
     });
 
-    // Sort by match score and take top recommendations
+    // Sort by match score and filter meaningful matches
     const topRecommendations = recommendations
-      .filter(opp => opp.matchScore >= 60) // Only show good matches
+      .filter(opp => opp.matchScore >= 30) // Minimum 30% match
       .sort((a, b) => b.matchScore - a.matchScore)
       .slice(0, 5);
 
@@ -584,7 +570,7 @@ const FundingPlatform = () => {
     // Show toast notification
     toast({
       title: "Smart Recommendations Generated!",
-      description: `Found ${topRecommendations.length} perfect funding matches for Letstern Limited`,
+      description: `Found ${topRecommendations.length} funding matches based on your profile keywords`,
     });
   };
 
