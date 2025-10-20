@@ -632,6 +632,39 @@ app.get('/api/users/me', authenticateToken, (req: AuthenticatedRequest, res: Res
   res.json(req.user);
 });
 
+// Dashboard routes
+app.get('/api/dashboard/activities', authenticateToken, generalLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User authentication required'
+      });
+    }
+
+    // Return sample activities for now (can be enhanced with real data later)
+    const activities = [
+      {
+        id: '1',
+        type: 'company_joined',
+        message: 'Welcome to Shared Wealth International',
+        timestamp: new Date().toISOString(),
+        user_id: userId
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: activities
+    });
+  } catch (error) {
+    console.error('Get activities error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 // Content routes with rate limiting
 app.get('/api/content', generalLimiter, async (req, res) => {
   try {
@@ -795,6 +828,24 @@ app.delete('/api/content/:id', authenticateToken, generalLimiter, async (req: Au
     });
   } catch (error) {
     console.error('Delete content error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Get content by company
+app.get('/api/content/company/:companyId', generalLimiter, async (req, res) => {
+  try {
+    const { companyId } = req.params;
+    const { type } = req.query;
+    
+    // For now, return empty array since content table might not have company_id
+    // This can be enhanced later with proper content-company relationships
+    res.json({
+      success: true,
+      data: []
+    });
+  } catch (error) {
+    console.error('Get company content error:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
@@ -997,6 +1048,30 @@ app.get('/api/companies/user', authenticateToken, generalLimiter, async (req: Au
     res.json(result.rows || []);
   } catch (error) {
     console.error('Get user companies error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Get user's company applications (MUST be before /:id route)
+app.get('/api/companies/applications', authenticateToken, generalLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User authentication required'
+      });
+    }
+
+    // Return empty applications for now
+    // This can be enhanced later when application system is implemented
+    res.json({
+      success: true,
+      data: []
+    });
+  } catch (error) {
+    console.error('Get user applications error:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
