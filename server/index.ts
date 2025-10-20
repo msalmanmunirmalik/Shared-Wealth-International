@@ -590,6 +590,40 @@ app.get('/api/companies', generalLimiter, async (req, res) => {
   }
 });
 
+// Get user's companies
+app.get('/api/companies/user', authenticateToken, generalLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User authentication required'
+      });
+    }
+
+    console.log('🔍 Getting companies for user:', userId);
+
+    // Get companies linked to this user via user_companies table
+    const query = `
+      SELECT c.*, uc.role as user_role, uc.position, uc.is_primary
+      FROM companies c
+      INNER JOIN user_companies uc ON c.id = uc.company_id
+      WHERE uc.user_id = $1 AND uc.status = 'active'
+      ORDER BY uc.is_primary DESC, c.name ASC
+    `;
+    
+    const result = await DatabaseService.query(query, [userId]);
+    
+    console.log(`✅ Found ${result.rows.length} companies for user`);
+    
+    res.json(result.rows || []);
+  } catch (error) {
+    console.error('Get user companies error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 app.get('/api/companies/:id', generalLimiter, async (req, res) => {
   try {
     const { id } = req.params;
